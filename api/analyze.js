@@ -160,6 +160,61 @@ function analyzeScreenshot() {
   }
 }
 
+async function analyzeScreenshotWithOpenAI(screenshotUrl) {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey || !screenshotUrl) return null
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4.1-mini',
+      temperature: 0.2,
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a scam detection assistant. Output strict JSON with keys fraud_score (0-100), risk_level (safe|suspicious|scam), reasons (array of strings), analysis (string), detected_text (string).',
+        },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Analyze this screenshot for phishing, impersonation, scam intent, urgency, or payment fraud.' },
+            { type: 'image_url', image_url: { url: screenshotUrl } },
+          ],
+        },
+      ],
+    }),
+  })
+
+  if (!response.ok) {
+    return null
+  }
+
+  const data = await response.json()
+  const content = data?.choices?.[0]?.message?.content
+  if (!content) return null
+
+  try {
+    const parsed = JSON.parse(content)
+    if (!parsed || typeof parsed !== 'object') return null
+
+    return {
+      fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
+      risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+      analysis: String(parsed.analysis || ''),
+      detected_text: String(parsed.detected_text || ''),
+    }
+  } catch {
+    return null
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('X-Frame-Options', 'DENY')
@@ -198,7 +253,8 @@ export default async function handler(req, res) {
   }
 
   if (type === 'screenshot') {
-    res.status(200).json(analyzeScreenshot())
+    const ai = await analyzeScreenshotWithOpenAI(payload?.screenshot_url)
+    res.status(200).json(ai || analyzeScreenshot())
     return
   }
 

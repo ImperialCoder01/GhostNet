@@ -13,6 +13,7 @@ export default function ScreenshotScanner() {
   const [preview, setPreview] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
+  const [scanError, setScanError] = useState("");
   const fileRef = useRef(null);
   const notify = useNotify();
 
@@ -22,12 +23,14 @@ export default function ScreenshotScanner() {
     setFile(selected);
     setPreview(URL.createObjectURL(selected));
     setResult(null);
+    setScanError("");
   };
 
   const clearFile = () => {
     setFile(null);
     setPreview(null);
     setResult(null);
+    setScanError("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -35,24 +38,29 @@ export default function ScreenshotScanner() {
     if (!file) return;
     setScanning(true);
     setResult(null);
+    setScanError("");
 
-    const screenshotUrl = await uploadEvidenceFile(file);
-    const res = await analyzeScreenshot({ screenshot_url: screenshotUrl });
+    try {
+      const screenshotUrl = await uploadEvidenceFile(file);
+      const res = await analyzeScreenshot({ screenshot_url: screenshotUrl });
 
-    setResult(res);
-    notify(res.risk_level, "screenshot");
+      setResult(res);
+      notify(res.risk_level, "screenshot");
 
-    await createScanHistory({
-      scan_type: "screenshot",
-      input_content: "Screenshot scan",
-      fraud_score: res.fraud_score,
-      risk_level: res.risk_level,
-      ai_analysis: res.analysis,
-      reasons: res.reasons,
-      screenshot_url: screenshotUrl,
-    });
-
-    setScanning(false);
+      await createScanHistory({
+        scan_type: "screenshot",
+        input_content: "Screenshot scan",
+        fraud_score: res.fraud_score,
+        risk_level: res.risk_level,
+        ai_analysis: res.analysis,
+        reasons: res.reasons,
+        screenshot_url: screenshotUrl,
+      });
+    } catch (e) {
+      setScanError(e?.message || "Screenshot analysis failed. Please try again.");
+    } finally {
+      setScanning(false);
+    }
   };
 
   return (
@@ -102,6 +110,17 @@ export default function ScreenshotScanner() {
       </div>
 
       {scanning && <ScanningAnimation label="Analyzing screenshot content..." />}
+
+      {scanError ? (
+        <div className="ghost-card p-4" style={{ borderColor: 'rgba(255,95,120,0.5)' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--ghost-red)' }}>
+            {scanError}
+          </p>
+          <p className="text-xs mt-1" style={{ color: 'var(--ghost-text-dim)' }}>
+            To enable deep screenshot intelligence, configure an OCR/vision provider in Vercel (for example OpenAI Vision or Google Vision) and connect it to `api/analyze.js`.
+          </p>
+        </div>
+      ) : null}
 
       {result && !scanning && (
         <>

@@ -10,6 +10,11 @@ It runs only on:
 - Data/Auth/Storage: Supabase
 - API: Vercel Serverless Function at `api/analyze.js`
 
+## Ownership & Branding
+- This codebase is now branded as GhostNet.
+- Any old external-builder references were removed from runtime app metadata (title, favicon, client usage).
+- Repo and docs are project-owned and deploy-ready.
+
 ## Prerequisites
 - Node.js 18+
 - npm
@@ -164,3 +169,14 @@ npm run dev:vercel
 - In production, analysis endpoint failures now return a hard error instead of fallback behavior.
 - Healthcheck endpoint is available at `/api/health`.
 - Full production runbook: `DEPLOYMENT.md`.
+
+## Screenshot AI Upgrade (Optional)
+
+To enable deep screenshot OCR/vision analysis in production:
+
+1. Add server-side env var in Vercel:
+   - `OPENAI_API_KEY`
+2. Redeploy.
+
+When set, `api/analyze.js` automatically uses OpenAI vision for screenshot scans.
+When not set, it uses the conservative fallback response.

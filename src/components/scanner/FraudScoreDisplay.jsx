@@ -48,11 +48,11 @@ export default function FraudScoreDisplay({ score, riskLevel, reasons, analysis 
             <Icon className="w-6 h-6" style={{ color: c.color }} />
           </div>
           <div>
-            <p className="text-lg font-bold" style={{ color: c.color }}>{c.label}</p>
-            <p className="text-sm font-medium" style={{ color: 'var(--ghost-text-dim)' }}>Fraud Probability</p>
+            <p className="text-lg font-bold tracking-wide" style={{ color: c.color }}>{c.label}</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--ghost-text-dim)' }}>Fraud Probability</p>
           </div>
         </div>
-        <p className={`text-5xl font-black ${c.scoreClass}`}>{score}%</p>
+        <p className={`text-5xl font-black ${c.scoreClass}`} style={{ letterSpacing: '-0.02em' }}>{score}%</p>
       </div>
 
       {/* Score Bar */}
@@ -81,7 +81,7 @@ export default function FraudScoreDisplay({ score, riskLevel, reasons, analysis 
                 transition={{ delay: i * 0.1 }}
                 className="flex items-start gap-2">
                 <span className="text-base font-bold mt-px" style={{ color: c.color }}>›</span>
-                <span className="text-sm font-medium leading-relaxed" style={{ color: 'var(--ghost-text)' }}>{reason}</span>
+                <span className="text-sm font-semibold leading-relaxed" style={{ color: 'var(--ghost-text)' }}>{reason}</span>
               </motion.div>
             ))}
           </div>
