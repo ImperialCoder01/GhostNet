@@ -175,8 +175,9 @@ npm run dev:vercel
 To enable deep screenshot OCR/vision analysis in production:
 
 1. Add server-side env var in Vercel:
+   - `GEMINI_API_KEY` (recommended, free-tier friendly)
    - `OPENAI_API_KEY`
 2. Redeploy.
 
-When set, `api/analyze.js` automatically uses OpenAI vision for screenshot scans.
+When set, `api/analyze.js` automatically uses Gemini vision first, then OpenAI vision as fallback.
 When not set, it uses the conservative fallback response.

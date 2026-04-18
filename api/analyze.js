@@ -160,6 +160,88 @@ function analyzeScreenshot() {
   }
 }
 
+function parseJsonFromText(text) {
+  if (!text) return null
+  try {
+    return JSON.parse(text)
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    try {
+      return JSON.parse(match[0])
+    } catch {
+      return null
+    }
+  }
+}
+
+function normalizeVisionResult(parsed) {
+  if (!parsed || typeof parsed !== 'object') return null
+  return {
+    fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
+    risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
+    reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+    analysis: String(parsed.analysis || ''),
+    detected_text: String(parsed.detected_text || ''),
+  }
+}
+
+async function analyzeScreenshotWithGemini(screenshotUrl) {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey || !screenshotUrl) return null
+
+  try {
+    const imageResp = await fetch(screenshotUrl)
+    if (!imageResp.ok) return null
+
+    const contentType = imageResp.headers.get('content-type') || 'image/png'
+    const ab = await imageResp.arrayBuffer()
+    const base64 = Buffer.from(ab).toString('base64')
+
+    const prompt = `Analyze this screenshot for scam, phishing, impersonation, urgency pressure, payment fraud, malicious links, and social engineering.
+Return strict JSON only with keys:
+- fraud_score (number 0-100)
+- risk_level (safe|suspicious|scam)
+- reasons (array of strings)
+- analysis (string)
+- detected_text (string)`
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: contentType,
+                    data: base64,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json',
+          },
+        }),
+      }
+    )
+
+    if (!response.ok) return null
+    const data = await response.json()
+    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
+    return normalizeVisionResult(parseJsonFromText(text))
+  } catch {
+    return null
+  }
+}
+
 async function analyzeScreenshotWithOpenAI(screenshotUrl) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey || !screenshotUrl) return null
@@ -197,22 +279,7 @@ async function analyzeScreenshotWithOpenAI(screenshotUrl) {
 
   const data = await response.json()
   const content = data?.choices?.[0]?.message?.content
-  if (!content) return null
-
-  try {
-    const parsed = JSON.parse(content)
-    if (!parsed || typeof parsed !== 'object') return null
-
-    return {
-      fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
-      risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
-      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
-      analysis: String(parsed.analysis || ''),
-      detected_text: String(parsed.detected_text || ''),
-    }
-  } catch {
-    return null
-  }
+  return normalizeVisionResult(parseJsonFromText(content))
 }
 
 export default async function handler(req, res) {
@@ -253,7 +320,9 @@ export default async function handler(req, res) {
   }
 
   if (type === 'screenshot') {
-    const ai = await analyzeScreenshotWithOpenAI(payload?.screenshot_url)
+    const ai =
+      (await analyzeScreenshotWithGemini(payload?.screenshot_url)) ||
+      (await analyzeScreenshotWithOpenAI(payload?.screenshot_url))
     res.status(200).json(ai || analyzeScreenshot())
     return
   }

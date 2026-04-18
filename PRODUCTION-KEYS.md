@@ -36,6 +36,10 @@ Option A: OpenAI Vision
 - `OPENAI_API_KEY`
 - Current integration status: supported now in `api/analyze.js` for screenshot scans.
 
+Option B: Google Gemini Vision (free tier friendly)
+- `GEMINI_API_KEY`
+- Current integration status: supported now in `api/analyze.js` for screenshot scans.
+
 Option B: Google Cloud Vision + Gemini
 - `GOOGLE_APPLICATION_CREDENTIALS_JSON` (or secure service account setup)
 - `GOOGLE_API_KEY` (if using Gemini endpoints)
