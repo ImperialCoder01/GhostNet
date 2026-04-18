@@ -1,0 +1,52 @@
+{
+  "name": "ScanHistory",
+  "type": "object",
+  "properties": {
+    "scan_type": {
+      "type": "string",
+      "enum": [
+        "message",
+        "link",
+        "screenshot",
+        "voice"
+      ],
+      "description": "Type of scan performed"
+    },
+    "input_content": {
+      "type": "string",
+      "description": "What was scanned (truncated)"
+    },
+    "fraud_score": {
+      "type": "number",
+      "description": "Fraud probability 0-100"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "safe",
+        "suspicious",
+        "scam"
+      ]
+    },
+    "ai_analysis": {
+      "type": "string",
+      "description": "Full AI analysis result"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of risk reasons detected"
+    },
+    "screenshot_url": {
+      "type": "string",
+      "description": "Screenshot if applicable"
+    }
+  },
+  "required": [
+    "scan_type",
+    "fraud_score",
+    "risk_level"
+  ]
+}

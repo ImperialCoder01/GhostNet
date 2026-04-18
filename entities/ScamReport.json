@@ -1,0 +1,77 @@
+{
+  "name": "ScamReport",
+  "type": "object",
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "message",
+        "link",
+        "phone",
+        "screenshot",
+        "website",
+        "other"
+      ],
+      "description": "Type of scam being reported"
+    },
+    "scam_content": {
+      "type": "string",
+      "description": "The scam message, link, or phone number"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Reported scam phone number"
+    },
+    "url": {
+      "type": "string",
+      "description": "Reported phishing URL"
+    },
+    "screenshot_url": {
+      "type": "string",
+      "description": "Screenshot evidence"
+    },
+    "fraud_score": {
+      "type": "number",
+      "description": "AI-calculated fraud probability score 0-100"
+    },
+    "ai_analysis": {
+      "type": "string",
+      "description": "AI analysis result summary"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "safe",
+        "suspicious",
+        "scam"
+      ],
+      "description": "Risk classification"
+    },
+    "region": {
+      "type": "string",
+      "description": "Region/city where scam was reported"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country of report"
+    },
+    "upvotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of users confirming this scam"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "dismissed"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "report_type",
+    "scam_content"
+  ]
+}

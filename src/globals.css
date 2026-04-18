@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ghost-bg: #080c18;
+  --ghost-surface: #10172a;
+  --ghost-surface-2: #1a2540;
+  --ghost-border: #253352;
+  --ghost-neon: #00d4ff;
+  --ghost-neon-dim: #0ea5c9;
+  --ghost-green: #22f58a;
+  --ghost-red: #ff4466;
+  --ghost-orange: #ffb347;
+  --ghost-text: #f0f6ff;
+  --ghost-text-dim: #94a3c0;
+}
+
+@layer base {
+  body {
+    background-color: var(--ghost-bg);
+    color: var(--ghost-text);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% { box-shadow: 0 0 5px var(--ghost-neon), 0 0 10px rgba(0, 212, 255, 0.3); }
+  50% { box-shadow: 0 0 15px var(--ghost-neon), 0 0 30px rgba(0, 212, 255, 0.5); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon 2s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scan-line 2s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.ghost-card {
+  background: var(--ghost-surface);
+  border: 1px solid var(--ghost-border);
+  border-radius: 16px;
+  color: var(--ghost-text);
+}
+
+/* Force readable text everywhere */
+p, span, li, label, div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.text-muted {
+  color: var(--ghost-text-dim) !important;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.section-label {
+  color: var(--ghost-text-dim);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ghost-glow {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+}
+
+.neon-text {
+  color: var(--ghost-neon);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.score-safe {
+  color: var(--ghost-green);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.score-suspicious {
+  color: var(--ghost-orange);
+  text-shadow: 0 0 10px rgba(255, 159, 67, 0.5);
+}
+
+.score-scam {
+  color: var(--ghost-red);
+  text-shadow: 0 0 10px rgba(255, 59, 92, 0.5);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ghost-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ghost-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ghost-neon-dim);
+}
