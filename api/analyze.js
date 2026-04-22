@@ -141,7 +141,12 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']
+const GEMINI_MODELS = [
+  'gemini-flash-latest',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+]
 
 async function callGeminiModel(model, apiKey, parts) {
   const response = await fetch(
