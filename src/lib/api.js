@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core'
 import {
   analyzeMessageContent,
   analyzeScamReportContent,
@@ -5,9 +6,19 @@ import {
   analyzeUrlContent,
 } from '@/lib/scanner'
 
+function getApiBaseUrl() {
+  const configuredBase = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/$/, '')
+  if (configuredBase) return configuredBase
+  if (typeof window !== 'undefined' && !Capacitor.isNativePlatform()) return window.location.origin
+  return ''
+}
+
 async function postAnalyze(type, payload) {
+  const baseUrl = getApiBaseUrl()
+  const endpoint = `${baseUrl}/api/analyze`
+
   try {
-    const res = await fetch('/api/analyze', {
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, payload }),
@@ -20,7 +31,7 @@ async function postAnalyze(type, payload) {
 
     return res.json()
   } catch {
-    if (import.meta.env.PROD) {
+    if (import.meta.env.PROD && (baseUrl || !Capacitor.isNativePlatform())) {
       throw new Error('Analysis service unavailable. Please try again.')
     }
 

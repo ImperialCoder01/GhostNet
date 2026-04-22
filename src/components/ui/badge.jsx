@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as React from "react"
 import { cva } from "class-variance-authority";
 
@@ -23,6 +24,7 @@ const badgeVariants = cva(
   }
 )
 
+/** @type {any} */
 function Badge({
   className,
   variant,

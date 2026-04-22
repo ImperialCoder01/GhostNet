@@ -1,6 +1,15 @@
-#env
+# Environment files (contain API keys)
 .env
 .env.*
+!.env.example
+*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
 
 # Logs
 /logs
@@ -10,21 +19,28 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+vercel-dev.log
+vite-dev.log
 
-node_modules
-dist
-dist-ssr
-*.local
+# Android build artifacts
+android/.gradle
+android/local.properties
+android/app/build
+android/build
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-.env
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sensitive docs (keep out of public repos)
+PRODUCTION-KEYS.md

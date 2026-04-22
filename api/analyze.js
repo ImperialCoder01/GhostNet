@@ -1,285 +1,230 @@
-function normalize(text) {
-  return (text || '').toLowerCase()
+// @ts-nocheck
+import {
+  analyzeMessageContent,
+  analyzeScamReportContent,
+  analyzeScreenshotFallback,
+  analyzeUrlContent,
+  normalizeModelAnalysis,
+  parseModelJson,
+} from '../src/lib/scanner.js'
+
+function getFallback(type, payload, reason) {
+  if (type === 'message') return analyzeMessageContent(payload?.message || '')
+  if (type === 'link') return analyzeUrlContent(payload?.url || '')
+  if (type === 'report') return analyzeScamReportContent(payload || {})
+  if (type === 'screenshot') return analyzeScreenshotFallback(reason)
+  return null
 }
 
-const SCAM_KEYWORDS = [
-  'otp',
-  'verify account',
-  'urgent',
-  'suspended',
-  'lottery',
-  'winner',
-  'bank',
-  'click here',
-  'password',
-  'crypto',
-  'investment',
-  'gift card',
-  'wire transfer',
-  'pay now',
-]
-
-const SHORTENER_DOMAINS = ['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly']
-
-function scoreToRisk(score) {
-  if (score >= 75) return 'scam'
-  if (score >= 40) return 'suspicious'
-  return 'safe'
-}
-
-function analyzeMessageContent(message) {
-  const text = normalize(message)
-  const reasons = []
-  let score = 5
-
-  const matched = SCAM_KEYWORDS.filter((k) => text.includes(k))
-  if (matched.length > 0) {
-    score += matched.length * 10
-    reasons.push(`Contains scam-like keywords: ${matched.slice(0, 4).join(', ')}`)
-  }
-
-  if (/https?:\/\//.test(text)) {
-    score += 15
-    reasons.push('Contains external links')
-  }
-
-  if (/\b(immediately|urgent|act now|final warning)\b/.test(text)) {
-    score += 20
-    reasons.push('Uses urgency pressure language')
-  }
-
-  if (/\b(otp|pin|password|cvv|bank account)\b/.test(text)) {
-    score += 20
-    reasons.push('Requests sensitive information')
-  }
-
-  score = Math.min(100, score)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    reasons,
-    analysis:
-      riskLevel === 'safe'
-        ? 'No strong scam indicators detected in this message.'
-        : 'This message contains patterns commonly associated with phishing or social engineering.',
-  }
-}
-
-function analyzeUrlContent(rawUrl) {
-  let url
-  const reasons = []
-  let score = 10
-
-  try {
-    url = new URL(rawUrl)
-  } catch {
-    return {
-      fraud_score: 95,
-      risk_level: 'scam',
-      reasons: ['Invalid URL format'],
-      analysis: 'The URL format is invalid and should not be trusted.',
-      domain_age_days: 1,
-      ssl_status: 'Invalid',
-      community_reports: 16,
-      is_known_brand_impersonation: false,
-    }
-  }
-
-  const host = url.hostname.toLowerCase()
-  const path = url.pathname.toLowerCase()
-
-  if (url.protocol !== 'https:') {
-    score += 20
-    reasons.push('URL is not using HTTPS')
-  }
-
-  if (SHORTENER_DOMAINS.some((d) => host.includes(d))) {
-    score += 25
-    reasons.push('Uses URL shortener domain')
-  }
-
-  if (/login|verify|secure|update|payment|wallet/.test(path)) {
-    score += 15
-    reasons.push('Suspicious path terms present')
-  }
-
-  if (host.split('.').length > 3) {
-    score += 10
-    reasons.push('Too many subdomains')
-  }
-
-  const lookalike = /(paypa1|g00gle|micr0soft|amaz0n|faceboook)/.test(host)
-  if (lookalike) {
-    score += 30
-    reasons.push('Possible brand impersonation domain')
-  }
-
-  score = Math.min(100, score)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    reasons,
-    analysis:
-      riskLevel === 'safe'
-        ? 'URL appears structurally safe based on heuristic checks.'
-        : 'URL has multiple structural indicators associated with phishing campaigns.',
-    domain_age_days: score > 60 ? 14 : 540,
-    ssl_status: url.protocol === 'https:' ? 'Valid' : 'Invalid',
-    community_reports: Math.max(0, Math.round((score - 20) * 1.7)),
-    is_known_brand_impersonation: lookalike,
-  }
-}
-
-function analyzeReport(form) {
-  const text = normalize(`${form.report_type} ${form.scam_content} ${form.phone_number || ''} ${form.url || ''}`)
-  const matched = SCAM_KEYWORDS.filter((k) => text.includes(k))
-  const score = Math.min(100, 20 + matched.length * 12)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    ai_analysis:
-      riskLevel === 'safe'
-        ? 'Report logged with low immediate scam confidence.'
-        : 'Report includes common scam signals and has been marked for further review.',
-  }
-}
-
-function analyzeScreenshot() {
-  return {
-    fraud_score: 55,
-    risk_level: 'suspicious',
-    reasons: ['Image uploaded. Add OCR provider in Vercel if you need deep text extraction.'],
-    analysis: 'Screenshot saved. Current local mode uses conservative risk defaults for image-only submissions.',
-    detected_text: '',
-  }
-}
-
-function parseJsonFromText(text) {
-  if (!text) return null
-  try {
-    return JSON.parse(text)
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/)
-    if (!match) return null
-    try {
-      return JSON.parse(match[0])
-    } catch {
-      return null
-    }
-  }
-}
-
-function normalizeVisionResult(parsed) {
-  if (!parsed || typeof parsed !== 'object') return null
-  return {
-    fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
-    risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
-    reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
-    analysis: String(parsed.analysis || ''),
-    detected_text: String(parsed.detected_text || ''),
-  }
-}
-
-async function analyzeScreenshotWithGemini(screenshotUrl) {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey || !screenshotUrl) return null
-
-  try {
-    const imageResp = await fetch(screenshotUrl)
-    if (!imageResp.ok) return null
-
-    const contentType = imageResp.headers.get('content-type') || 'image/png'
-    const ab = await imageResp.arrayBuffer()
-    const base64 = Buffer.from(ab).toString('base64')
-
-    const prompt = `Analyze this screenshot for scam, phishing, impersonation, urgency pressure, payment fraud, malicious links, and social engineering.
+function buildPrompt(type, payload) {
+  if (type === 'message') {
+    return `Analyze the following message for phishing, impersonation, payment fraud, credential harvesting, coercion, urgency, or scam behavior.
 Return strict JSON only with keys:
 - fraud_score (number 0-100)
 - risk_level (safe|suspicious|scam)
+- confidence (low|medium|high)
 - reasons (array of strings)
 - analysis (string)
+- summary (string)
+- issue_breakdown (array of objects with title, detail, severity)
+- next_steps (array of strings)
+- supporting_links (array of objects with label, url, description)
+- extracted_links (array of objects with label, url)
+- detected_entities (array of strings)
+- technical_findings (array of objects with label, value, tone)
+- detected_text (string)
+
+Message:
+"""${payload?.message || ''}"""`
+  }
+
+  if (type === 'link') {
+    return `Analyze the following URL for phishing, impersonation, malicious redirects, unsafe payment prompts, or social engineering.
+Return strict JSON only with keys:
+- fraud_score (number 0-100)
+- risk_level (safe|suspicious|scam)
+- confidence (low|medium|high)
+- reasons (array of strings)
+- analysis (string)
+- summary (string)
+- issue_breakdown (array of objects with title, detail, severity)
+- next_steps (array of strings)
+- supporting_links (array of objects with label, url, description)
+- extracted_links (array of objects with label, url)
+- detected_entities (array of strings)
+- technical_findings (array of objects with label, value, tone)
+- detected_text (string)
+
+URL:
+"""${payload?.url || ''}"""`
+  }
+
+  if (type === 'screenshot') {
+    return `Analyze this screenshot for phishing, impersonation, urgency pressure, scam messaging, payment fraud, brand spoofing, or malicious links.
+Return strict JSON only with keys:
+- fraud_score (number 0-100)
+- risk_level (safe|suspicious|scam)
+- confidence (low|medium|high)
+- reasons (array of strings)
+- analysis (string)
+- summary (string)
+- issue_breakdown (array of objects with title, detail, severity)
+- next_steps (array of strings)
+- supporting_links (array of objects with label, url, description)
+- extracted_links (array of objects with label, url)
+- detected_entities (array of strings)
+- technical_findings (array of objects with label, value, tone)
 - detected_text (string)`
+  }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                {
-                  inline_data: {
-                    mime_type: contentType,
-                    data: base64,
-                  },
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: 'application/json',
-          },
-        }),
-      }
-    )
+  return ''
+}
 
-    if (!response.ok) return null
+async function analyzeWithOpenAI(type, payload, fallback) {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) return { result: null, reason: 'OpenAI API key not configured.' }
+
+  const messages = [
+    {
+      role: 'system',
+      content:
+        'You are a scam detection assistant. Output strict JSON only. Be precise, concise, and practical. Do not wrap the JSON in markdown.',
+    },
+  ]
+
+  if (type === 'screenshot') {
+    if (!payload?.screenshot_url) return { result: null, reason: 'Screenshot URL missing for image analysis.' }
+
+    messages.push({
+      role: 'user',
+      content: [
+        { type: 'text', text: buildPrompt(type, payload) },
+        { type: 'image_url', image_url: { url: payload.screenshot_url } },
+      ],
+    })
+  } else {
+    messages.push({
+      role: 'user',
+      content: buildPrompt(type, payload),
+    })
+  }
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-mini',
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages,
+      }),
+    })
+
+    if (!response.ok) {
+      const text = await response.text()
+      return { result: null, reason: `OpenAI vision request failed (${response.status}). ${text || 'No details returned.'}` }
+    }
+
     const data = await response.json()
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
-    return normalizeVisionResult(parseJsonFromText(text))
-  } catch {
-    return null
+    const content = data?.choices?.[0]?.message?.content
+    return { result: normalizeModelAnalysis(parseModelJson(content), fallback), reason: null }
+  } catch (error) {
+    return { result: null, reason: `OpenAI vision request failed. ${error?.message || 'Unknown error.'}` }
   }
 }
 
-async function analyzeScreenshotWithOpenAI(screenshotUrl) {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey || !screenshotUrl) return null
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4.1-mini',
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a scam detection assistant. Output strict JSON with keys fraud_score (0-100), risk_level (safe|suspicious|scam), reasons (array of strings), analysis (string), detected_text (string).',
-        },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Analyze this screenshot for phishing, impersonation, scam intent, urgency, or payment fraud.' },
-            { type: 'image_url', image_url: { url: screenshotUrl } },
-          ],
-        },
-      ],
-    }),
-  })
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite']
 
-  if (!response.ok) {
-    return null
+async function callGeminiModel(model, apiKey, parts) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: 'application/json',
+        },
+      }),
+    }
+  )
+  return response
+}
+
+async function analyzeWithGemini(type, payload, fallback) {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return { result: null, reason: 'Gemini API key not configured.' }
+
+  try {
+    const parts = [{ text: buildPrompt(type, payload) }]
+
+    if (type === 'screenshot') {
+      if (!payload?.screenshot_url) return { result: null, reason: 'Screenshot URL missing for image analysis.' }
+
+      const imageResp = await fetch(payload.screenshot_url)
+      if (!imageResp.ok) {
+        return { result: null, reason: 'Could not fetch the uploaded screenshot.' }
+      }
+
+      const contentType = imageResp.headers.get('content-type') || 'image/png'
+      const arrayBuffer = await imageResp.arrayBuffer()
+      const base64 = Buffer.from(arrayBuffer).toString('base64')
+
+      parts.push({
+        inline_data: {
+          mime_type: contentType,
+          data: base64,
+        },
+      })
+    }
+
+    // Try each model in order; retry once with a delay on 429
+    for (const model of GEMINI_MODELS) {
+      let response = await callGeminiModel(model, apiKey, parts)
+
+      // On rate limit, wait and retry once with the same model
+      if (response.status === 429) {
+        console.log(`[GhostNet] ${model} rate-limited, retrying in 12s...`)
+        await delay(12000)
+        response = await callGeminiModel(model, apiKey, parts)
+      }
+
+      // Still failing? try the next model
+      if (response.status === 429) {
+        console.log(`[GhostNet] ${model} still rate-limited, trying next model...`)
+        continue
+      }
+
+      if (!response.ok) {
+        console.log(`[GhostNet] ${model} returned ${response.status}, trying next model...`)
+        continue
+      }
+
+      const data = await response.json()
+      const text = data?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join(' ') || ''
+      const parsed = parseModelJson(text)
+
+      if (parsed) {
+        return { result: normalizeModelAnalysis(parsed, fallback), reason: null }
+      }
+    }
+
+    // All models exhausted
+    return { result: null, reason: 'AI analysis is temporarily unavailable. The scan used local heuristics instead.' }
+  } catch (error) {
+    console.error('[GhostNet] Gemini error:', error?.message)
+    return { result: null, reason: 'AI analysis encountered an error. The scan used local heuristics instead.' }
   }
-
-  const data = await response.json()
-  const content = data?.choices?.[0]?.message?.content
-  return normalizeVisionResult(parseJsonFromText(content))
 }
 
 export default async function handler(req, res) {
@@ -298,34 +243,34 @@ export default async function handler(req, res) {
   }
 
   const { type, payload } = req.body || {}
+  const fallback = getFallback(type, payload)
 
-  if (!type) {
-    res.status(400).json({ error: 'type is required' })
-    return
-  }
-
-  if (type === 'message') {
-    res.status(200).json(analyzeMessageContent(payload?.message || ''))
-    return
-  }
-
-  if (type === 'link') {
-    res.status(200).json(analyzeUrlContent(payload?.url || ''))
+  if (!type || !fallback) {
+    res.status(400).json({ error: 'Unsupported analysis type' })
     return
   }
 
   if (type === 'report') {
-    res.status(200).json(analyzeReport(payload || {}))
+    res.status(200).json(fallback)
     return
   }
 
-  if (type === 'screenshot') {
-    const ai =
-      (await analyzeScreenshotWithGemini(payload?.screenshot_url)) ||
-      (await analyzeScreenshotWithOpenAI(payload?.screenshot_url))
-    res.status(200).json(ai || analyzeScreenshot())
+  const gemini = await analyzeWithGemini(type, payload, fallback)
+  if (gemini.result) {
+    res.status(200).json(gemini.result)
     return
   }
 
-  res.status(400).json({ error: 'Unsupported analysis type' })
+  const openai = await analyzeWithOpenAI(type, payload, fallback)
+  if (openai.result) {
+    res.status(200).json(openai.result)
+    return
+  }
+
+  const reason =
+    type === 'screenshot'
+      ? gemini.reason || openai.reason || 'Vision provider unavailable for screenshot analysis.'
+      : null
+
+  res.status(200).json(getFallback(type, payload, reason))
 }
