@@ -1,183 +1,184 @@
-# GhostNet (Supabase + Vercel)
+# GhostNet AI
 
-GhostNet is a local-first scam detection web app built with React + Vite.
-It runs only on:
-- Supabase (database, auth, storage)
-- Vercel (deployment + serverless API route)
+**See the scam before it sees you.**
 
-## Stack
-- Frontend: React + Vite + Tailwind
-- Data/Auth/Storage: Supabase
-- API: Vercel Serverless Function at `api/analyze.js`
+An AI-powered multi-modal cybersecurity and digital safety platform that detects, explains, and helps users respond to suspicious messages, deceptive links, screenshots, and community scam threats in real-time.
 
-## Ownership & Branding
-- This codebase is now branded as GhostNet.
-- Any old external-builder references were removed from runtime app metadata (title, favicon, client usage).
-- Repo and docs are project-owned and deploy-ready.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18.2-61dafb.svg?logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-6.1-646cff.svg?logo=vite)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8.svg?logo=tailwindcss)](https://tailwindcss.com)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_15-3ecf8e.svg?logo=supabase)](https://supabase.com)
+[![Vercel](https://img.shields.io/badge/Vercel-Edge_Serverless-black.svg?logo=vercel)](https://vercel.com)
+[![Capacitor](https://img.shields.io/badge/Capacitor-8.0_Android-119eff.svg?logo=capacitor)](https://capacitorjs.com)
 
-## Prerequisites
-- Node.js 18+
-- npm
-- Supabase project
-- Vercel account (for deployment)
+---
 
-## Setup
-1. Install dependencies:
+## 📌 Executive Summary
 
+Digital fraud and social-engineering scams cause over **$10B in annual losses globally**. Modern attackers increasingly use automated AI to craft realistic bank alerts, fake UPI cashback requests, and deceptive lookalike portals. 
+
+**GhostNet AI** acts as an autonomous digital defense layer. Instead of providing black-box percentage scores, GhostNet performs **Threat Reconstruction™**, visually mapping the attacker's step-by-step kill-chain and explaining *why* a message is dangerous, *what* the fraudster is trying to accomplish, and *how* to safely respond.
+
+---
+
+## ✨ Key Capabilities
+
+| Capability | Description | Status |
+| :--- | :--- | :---: |
+| **Message & Smishing Scanner** | Evaluates SMS, WhatsApp, and email text for urgency manipulation, coercion, and credential harvesting. | ✅ Implemented |
+| **Link & Domain Trust Inspector** | Decomposes URLs, domain age, SSL status, Punycode, and typosquatting brand mimicry. | ✅ Implemented |
+| **Vision Screenshot Scanner** | Multi-modal OCR analyzing fake payment receipts, banking portal replicas, and QR code traps. | ✅ Implemented |
+| **GhostNet Threat Reconstruction™** | Maps user evidence into an interactive 5-stage attack kill-chain (*Ingress* ➔ *Social Engineering* ➔ *Phishing Gateway* ➔ *Credential Harvesting* ➔ *Loss*). | ✅ Implemented |
+| **"What Happens If I Click?" Sandbox** | Zero-execution educational simulation modal showing how phishing portals exploit victims without executing hostile code. | ✅ Implemented |
+| **Attacker Intent Engine** | Translates technical threat vectors into plain-English attacker objectives. | ✅ Implemented |
+| **Family & Senior Safety Mode** | High-contrast accessibility mode with enlarged touch targets and simplified safety guidance for non-technical users. | ✅ Implemented |
+| **Theme Engine** | Instant Light / Dark theme switching with persistent local storage. | ✅ Implemented |
+| **Global Scam Heatmap & Radar** | Telemetry dashboard mapping geographic threat clusters across major urban nodes. | ✅ Implemented |
+| **Incident Response Protocol** | One-tap containment checklist (STOP, VERIFY with National Cyber Helpline 1930, REPORT, SECURE). | ✅ Implemented |
+| **Cross-Platform Android Mobile** | Native Android package configured via Capacitor 8. | ✅ Implemented |
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client["Client Presentation Tier"]
+        UI["React 18 + Vite 6 + Tailwind CSS"]
+        Mobile["Capacitor 8 Native Android Shell"]
+        Theme["Dual Theme + Senior Safety Engine"]
+    end
+
+    subgraph Gateway["Edge API Gateway (Vercel Serverless)"]
+        AnalyzeEndpoint["POST /api/analyze Gateway"]
+        HealthEndpoint["GET /api/health Telemetry"]
+        CORS["CORS & Request Sanitization"]
+    end
+
+    subgraph AI["Multi-Modal AI Pipeline"]
+        Groq["Groq LPU (openai/gpt-oss-120b, qwen3.8-27b)"]
+        Gemini["Google Gemini Vision OCR"]
+        OpenAI["OpenAI Vision Fallback"]
+        Heuristics["Offline Heuristic & Regex Engine"]
+        
+        Groq --> Heuristics
+        Gemini --> OpenAI --> Heuristics
+    end
+
+    subgraph DataTier["Data & Storage Tier (Supabase)"]
+        Auth["Supabase Auth (JWT & OAuth)"]
+        Postgres["PostgreSQL 15 (Row-Level Security)"]
+        Storage["Evidence Bucket (Encrypted Media)"]
+    end
+
+    Client -->|HTTPS / REST API| Gateway
+    Gateway -->|Sub-Second NLP & Link Checks| Groq
+    Gateway -->|Visual Media & QR OCR| Gemini
+    Gateway -->|Offline Resilience| Heuristics
+    Client -->|Auth & Sync with RLS| DataTier
+```
+
+---
+
+## ⚡ Quickstart & Local Development
+
+### 1. Prerequisites
+* **Node.js:** v18.0.0+ (v20+ recommended)
+* **npm:** v9.0.0+
+
+### 2. Setup
 ```bash
+# Clone the repository
+git clone https://github.com/ImperialCoder01/GhostNet.git
+cd GhostNet/GhostNet-app/GhostNet-app
+
+# Install dependencies
 npm install
+
+# Configure environment variables
+cp .env.example .env.local
 ```
 
-2. Create `.env.local` in project root:
-
-```bash
-VITE_SUPABASE_URL=your_supabase_project_url
+### 3. Environment Variables (`.env.local`)
+```env
+# Supabase Configuration (Required)
+VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# AI Engine - Serverless Edge Secrets (api/analyze.js)
+GROQ_API_KEY=your_groq_api_key
+GEMINI_API_KEY=your_gemini_api_key
+# OPENAI_API_KEY=your_openai_api_key (optional)
 ```
 
-3. Apply full Supabase setup (schema + policies + storage):
-
-```bash
-SUPABASE_PAT=your_pat SUPABASE_PROJECT_REF=your_project_ref npm run supabase:setup
-```
-
-This applies:
-- tables (`scan_history`, `scam_reports`)
-- constraints and indexes
-- RLS policies
-- `evidence` storage bucket + storage policies
-
-Optional full wipe + rebuild:
-
-```bash
-SUPABASE_URL=your_url SUPABASE_SERVICE_ROLE_KEY=your_service_role_key SUPABASE_PAT=your_pat SUPABASE_PROJECT_REF=your_project_ref npm run supabase:reset
-```
-
-Seed demo data:
-
-```bash
-SUPABASE_PAT=your_pat SUPABASE_PROJECT_REF=your_project_ref SUPABASE_SQL_FILE=supabase/seed.sql npm run supabase:sql
-```
-
-Apply strict production RLS (authenticated owner-only access):
-
-```bash
-SUPABASE_PAT=your_pat SUPABASE_PROJECT_REF=your_project_ref SUPABASE_SQL_FILE=supabase/strict-rls.sql npm run supabase:sql
-```
-
-Note: strict RLS requires app auth flow and ownership columns (`user_id`, `reporter_user_id`) to be populated.
-
-The app now includes built-in Supabase email/password auth and writes ownership automatically for strict RLS.
-
-Reference SQL (manual mode):
-
-```sql
-create table if not exists public.scan_history (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  scan_type text not null check (scan_type in ('message', 'link', 'screenshot', 'voice')),
-  input_content text,
-  fraud_score numeric,
-  risk_level text not null check (risk_level in ('safe', 'suspicious', 'scam')),
-  ai_analysis text,
-  reasons text[],
-  screenshot_url text
-);
-
-create table if not exists public.scam_reports (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  report_type text not null check (report_type in ('message', 'link', 'phone', 'screenshot', 'website', 'other')),
-  scam_content text not null,
-  phone_number text,
-  url text,
-  screenshot_url text,
-  fraud_score numeric,
-  ai_analysis text,
-  risk_level text check (risk_level in ('safe', 'suspicious', 'scam')),
-  region text,
-  country text,
-  upvotes numeric default 0,
-  status text default 'pending' check (status in ('pending', 'verified', 'dismissed'))
-);
-```
-
-4. Create Supabase storage bucket `evidence` (public) for screenshots.
-
-## Local development
-
-Run frontend only:
-
+### 4. Run Development Server
 ```bash
 npm run dev
 ```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-Run with Vercel functions (recommended):
-
+### 5. Run Automated Tests
 ```bash
-npm run dev:vercel
+npm test
 ```
 
-## Deploy to Vercel
-1. **Prepare Supabase (production)**
-   - Open Supabase project `Authentication` -> `URL Configuration`.
-   - Add your Vercel production domain to:
-     - `Site URL` (e.g. `https://ghostnet.vercel.app`)
-     - `Redirect URLs` (same domain + preview domains if needed)
-   - Apply setup SQL if not already done:
-     - `SUPABASE_PAT=... SUPABASE_PROJECT_REF=... npm run supabase:setup`
-   - Apply strict RLS for production:
-     - `SUPABASE_PAT=... SUPABASE_PROJECT_REF=... SUPABASE_SQL_FILE=supabase/strict-rls.sql npm run supabase:sql`
+---
 
-2. **Push code to Git provider**
-   - Push this project to GitHub/GitLab/Bitbucket.
+## 📱 Mobile Build (Android)
 
-3. **Create Vercel project**
-   - Vercel dashboard -> `Add New Project`.
-   - Import repository.
-   - Framework preset: `Vite`.
-   - Build command: `npm run build`.
-   - Output directory: `dist`.
+GhostNet is packaged for Android via **Capacitor 8**:
 
-4. **Configure environment variables in Vercel**
-   - Add for **Production**, **Preview**, and **Development**:
-     - `VITE_SUPABASE_URL`
-     - `VITE_SUPABASE_ANON_KEY`
+```bash
+# Build production web bundle
+npm run build
 
-5. **Deploy**
-   - Trigger first deploy from Vercel.
-   - Wait for deployment to complete and open the app URL.
+# Sync assets to native Android project
+npx cap sync android
 
-6. **Post-deploy validation checklist**
-   - Sign up a new user.
-   - Sign in and create scans/reports.
-   - Confirm data appears for current user only.
-   - Sign in with second user and verify isolation.
-   - Upload screenshot and confirm storage write works.
-   - Confirm `/api/analyze` responds (no fallback in production).
+# Open Android Studio to build APK
+npx cap open android
+```
 
-7. **Production hardening (recommended)**
-   - Keep Supabase **service role key out of frontend env vars** (never add it to Vercel client env).
-   - Restrict Supabase auth providers to the ones you use.
-   - Enable Supabase auth protections (email confirmations or rate limits as needed).
-   - Monitor Vercel function logs and Supabase logs for failed auth/permission events.
-   - Rotate PAT/service-role credentials if they were shared in chat or scripts.
+---
 
-## Notes
-- Scam analysis runs through `api/analyze.js` (Vercel serverless).
-- In local non-Vercel dev, analysis falls back to local heuristics.
-- In production, analysis endpoint failures now return a hard error instead of fallback behavior.
-- Healthcheck endpoint is available at `/api/health`.
-- Full production runbook: `DEPLOYMENT.md`.
+## 📚 Technical Documentation Index
 
-## Screenshot AI Upgrade (Optional)
+Detailed architectural, security, and developer specifications are organized in the [`docs/`](docs/) directory:
 
-To enable deep screenshot OCR/vision analysis in production:
+| Document | Description |
+| :--- | :--- |
+| [**Architecture**](docs/ARCHITECTURE.md) | Complete component hierarchy, data flows, and edge gateway design. |
+| [**AI Architecture**](docs/AI_ARCHITECTURE.md) | Multi-model routing, prompt engineering, risk scoring vs confidence, and OCR pipeline. |
+| [**API Reference**](docs/API.md) | Full endpoint specification for `/api/analyze` across all scan types. |
+| [**Database & Schema**](docs/DATABASE.md) | PostgreSQL schema, Row-Level Security (RLS) policies, and Supabase Storage rules. |
+| [**Security Architecture**](docs/SECURITY.md) | Secret isolation, SSRF defenses, upload validations, and disclosure SLA. |
+| [**Threat Model**](docs/THREAT_MODEL.md) | Formal threat analysis covering prompt injection, SSRF, IDOR, and mitigations. |
+| [**Privacy Policy**](docs/PRIVACY.md) | Data minimization, ephemeral processing, zero-ad tracking pledge, and data purge. |
+| [**Deployment Guide**](docs/DEPLOYMENT.md) | Instructions for Vercel production deployment and Supabase migrations. |
+| [**Mobile Guide**](docs/MOBILE.md) | Capacitor Android setup, permissions, and APK compilation. |
+| [**Testing Strategy**](docs/TESTING.md) | Unit test matrix, automated test runners, and manual QA checklists. |
+| [**Decision Log (ADR)**](docs/DECISION_LOG.md) | Architectural Decision Records explaining key technology choices. |
+| [**Hackathon Demo Guide**](docs/DEMO_GUIDE.md) | 3–5 minute step-by-step presentation script with sample inputs and fallback scenarios. |
+| [**Hackathon Pitch**](docs/HACKATHON_PITCH.md) | Problem statement, value proposition, competitive differentiation, and impact. |
+| [**Product Roadmap**](docs/ROADMAP.md) | Completed milestones, near-term features, and long-term research vision. |
 
-1. Add server-side env var in Vercel:
-   - `GEMINI_API_KEY` (recommended, free-tier friendly)
-   - `OPENAI_API_KEY`
-2. Redeploy.
+---
 
-When set, `api/analyze.js` automatically uses Gemini vision first, then OpenAI vision as fallback.
-When not set, it uses the conservative fallback response.
+## ⚠️ Limitations & Responsible Use
+
+1. **Probabilistic Risk Estimation:** Risk scores and threat reconstructions are probabilistic machine-learning and heuristic estimates based on provided semantic signals. They are intended for decision support and digital awareness, not as legal or financial guarantees.
+2. **External AI Availability:** Cloud AI inferences depend on third-party provider availability (Groq, Google Gemini). GhostNet includes an autonomous local heuristic engine to ensure offline continuity during provider rate limits.
+3. **No Active Exploitation:** GhostNet does not execute hostile payloads or interact with attackers. All threat simulations are safe, static educational walkthroughs.
+
+---
+
+## 🤝 Contributing
+
+We welcome community contributions! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
+
+---
+
+## 📄 License
+
+GhostNet AI is open-source software licensed under the [MIT License](LICENSE).

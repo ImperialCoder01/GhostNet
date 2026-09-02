@@ -71,7 +71,7 @@ export function extractAttackSignals(text) {
     signals.urgency = 'Uses extreme time pressure or impending penalty to bypass rational verification.'
   }
 
-  if (/\b(otp|pin|password|cvv|credentials|pan|aadhaar|cif|login details|verify account)\b/i.test(norm)) {
+  if (/\b(otp|pin|password|cvv|credentials|pan|aadhaar|cif|login details|verify account|kyc)\b/i.test(norm)) {
     signals.credential = 'Explicitly requests secret credentials, verification codes, or personal identifiers.'
   }
 
