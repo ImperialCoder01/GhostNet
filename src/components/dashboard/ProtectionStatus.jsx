@@ -1,56 +1,97 @@
 import React from "react";
-import { Shield, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import { ShieldCheck, ShieldAlert, Zap, Activity, AlertCircle, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
-export default function ProtectionStatus({ threatsBlocked, safetyScore }) {
+export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100, totalScans = 0 }) {
+  const isHealthy = safetyScore >= 75;
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl p-6"
-      style={{ 
-        background: 'linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #0a1628 100%)',
-        border: '1px solid rgba(0, 212, 255, 0.2)'
-      }}>
-      {/* Animated background grid */}
-      <div className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,212,255,0.3) 1px, transparent 0)',
-          backgroundSize: '24px 24px'
-        }} />
-      
-      <div className="relative z-10 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--ghost-green)' }} />
-            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--ghost-green)' }}>
-              Protection Active
+    <div className="ghost-card p-6 border-cyan-500/20 relative overflow-hidden">
+      {/* Subtle ambient glow */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+        
+        {/* Left: Overall Status & Brand Pitch */}
+        <div className="space-y-3 max-w-lg">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981] animate-pulse" />
+            <span className="text-xs font-mono font-bold tracking-wider text-emerald-400 uppercase">
+              GhostNet Guardian Active
             </span>
           </div>
-          <h2 className="text-3xl font-extrabold text-white mb-1.5 leading-tight">You're Protected</h2>
-          <p className="text-sm font-medium" style={{ color: '#b8cce8' }}>
-            AI guardian monitoring threats in real time
+
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            See the scam before it sees you.
+          </h1>
+
+          <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
+            Autonomous multi-modal defense layer analyzing messages, deceptive links, and screenshots in real-time.
           </p>
         </div>
-        <motion.div 
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-16 h-16 rounded-2xl flex items-center justify-center animate-pulse-neon"
-          style={{ background: 'rgba(0, 212, 255, 0.1)' }}>
-          <ShieldCheck className="w-8 h-8" style={{ color: 'var(--ghost-neon)' }} />
-        </motion.div>
-      </div>
 
-      <div className="relative z-10 flex gap-4 mt-6">
-        <div className="flex-1 rounded-xl p-4" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(0,212,255,0.12)' }}>
-          <p className="text-3xl font-extrabold neon-text">{threatsBlocked}</p>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: '#8bb8d8' }}>Threats Blocked</p>
-        </div>
-        <div className="flex-1 rounded-xl p-4" style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(34,245,138,0.12)' }}>
-          <p className="text-3xl font-extrabold score-safe">{safetyScore}%</p>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: '#8bb8d8' }}>Safety Score</p>
+        {/* Right: Security Awareness Score & Metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
+          
+          {/* Security Score Widget */}
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Security Score
+              </span>
+              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+            </div>
+            <div className="my-1">
+              <span className={`text-3xl font-black font-display ${isHealthy ? 'score-safe' : 'score-suspicious'}`}>
+                {safetyScore}
+              </span>
+              <span className="text-xs font-bold text-slate-500 ml-1">/100</span>
+            </div>
+            <span className="text-[10px] text-slate-400 truncate">
+              {isHealthy ? "Strong Awareness" : "Review Alerts"}
+            </span>
+          </div>
+
+          {/* Threats Blocked Counter */}
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Threats Flagged
+              </span>
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+            </div>
+            <div className="my-1">
+              <span className="text-3xl font-black font-display text-rose-400">
+                {threatsBlocked}
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 truncate">
+              High-risk attacks
+            </span>
+          </div>
+
+          {/* Total Inspections */}
+          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 flex flex-col justify-between col-span-2 sm:col-span-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Total Scans
+              </span>
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+            </div>
+            <div className="my-1">
+              <span className="text-3xl font-black font-display text-white">
+                {totalScans}
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 truncate">
+              Multi-modal runs
+            </span>
+          </div>
+
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

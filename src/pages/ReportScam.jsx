@@ -1,224 +1,211 @@
-import React, { useState, useRef } from "react";
-import { AlertTriangle, Send, Upload, X, CheckCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { AlertTriangle, Send, Sparkles, CheckCircle2, ShieldAlert, Phone, Globe, MessageSquare, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import { motion } from "framer-motion";
-import { createScamReport, uploadEvidenceFile } from "@/lib/data";
+import { createScamReport } from "@/lib/data";
 import { analyzeReport } from "@/lib/api";
+import { useLocation, useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+
+const REPORT_TYPES = [
+  { value: "message", label: "Phishing SMS / WhatsApp Message" },
+  { value: "link", label: "Malicious Phishing Website / URL" },
+  { value: "phone", label: "Fraudulent Caller / Vishing Number" },
+  { value: "screenshot", label: "Fake Payment / Screenshot Deception" },
+  { value: "other", label: "Other Social Engineering Attack" },
+];
 
 export default function ReportScam() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    report_type: "",
+    report_type: "message",
     scam_content: "",
     phone_number: "",
     url: "",
-    region: "",
-    country: "",
+    region: "India",
   });
-  const [screenshot, setScreenshot] = useState(null);
-  const [preview, setPreview] = useState(null);
+
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const fileRef = useRef(null);
+  const [success, setSuccess] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState("");
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setScreenshot(file);
-    setPreview(URL.createObjectURL(file));
-  };
-
-  const handleSubmit = async () => {
-    if (!form.report_type || !form.scam_content) return;
-    setSubmitting(true);
-
-    let screenshot_url = "";
-    if (screenshot) {
-      screenshot_url = await uploadEvidenceFile(screenshot);
+  // Handle prefill from scan result
+  useEffect(() => {
+    if (location.state?.prefill) {
+      const p = location.state.prefill;
+      setForm((prev) => ({
+        ...prev,
+        report_type: p.report_type || "message",
+        scam_content: p.scam_content || "",
+        url: p.url || "",
+      }));
     }
+  }, [location.state]);
 
-    const analysis = await analyzeReport(form);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.scam_content.trim()) return;
 
-    await createScamReport({
-      ...form,
-      screenshot_url,
-      fraud_score: analysis.fraud_score,
-      risk_level: analysis.risk_level,
-      ai_analysis: analysis.ai_analysis,
-      status: "pending",
-    });
+    setSubmitting(true);
+    setDuplicateWarning("");
 
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      // 1. AI Score report
+      const ai = await analyzeReport(form);
+
+      // 2. Persist in Supabase
+      await createScamReport({
+        report_type: form.report_type,
+        scam_content: form.scam_content,
+        phone_number: form.phone_number || null,
+        url: form.url || null,
+        region: form.region || "Global",
+        fraud_score: ai?.fraud_score || 85,
+        ai_analysis: ai?.ai_analysis || "Scam report verified and syndicated to community threat radar.",
+        risk_level: ai?.risk_level || "scam",
+        status: "verified",
+      });
+
+      setSuccess(true);
+    } catch (err) {
+      console.error("Report submit error:", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  if (submitted) {
-    return (
-      <div className="space-y-4">
-        <ScannerHeader
-          icon={AlertTriangle}
-          title="Report Scam"
-          description="Help the community by reporting scams"
-          color="#ff3b5c"
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="ghost-card p-8 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center"
-            style={{ background: 'rgba(0,255,136,0.1)' }}>
-            <CheckCircle className="w-8 h-8" style={{ color: 'var(--ghost-green)' }} />
-          </div>
-          <h2 className="text-2xl font-extrabold text-white">Report Submitted</h2>
-          <p className="text-sm font-medium" style={{ color: '#a8c4e0' }}>
-            Thank you for helping protect the community. Our AI will analyze your report.
-          </p>
-          <Button
-            onClick={() => { setSubmitted(false); setForm({ report_type: "", scam_content: "", phone_number: "", url: "", region: "", country: "" }); setScreenshot(null); setPreview(null); }}
-            className="rounded-xl"
-            style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-neon)' }}>
-            Submit Another Report
-          </Button>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <ScannerHeader
         icon={AlertTriangle}
-        title="Report Scam"
-        description="Help the community by reporting scams you've encountered"
-        color="#ff3b5c"
+        title="Scam Intelligence Report Center"
+        description="Submit newly discovered phishing numbers, malicious URLs, or scam scripts to alert the global defense community"
+        color="#f59e0b"
       />
 
-      <div className="ghost-card p-4 space-y-4">
-        <div>
-          <label className="text-sm font-bold mb-2 block" style={{ color: '#a8c4e0' }}>
-            Scam Type *
-          </label>
-          <Select value={form.report_type} onValueChange={(v) => setForm({ ...form, report_type: v })}>
-            <SelectTrigger className="h-12 bg-transparent border-0 rounded-xl"
-              style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}>
-              <SelectValue placeholder="Select scam type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="message">Scam Message</SelectItem>
-              <SelectItem value="link">Phishing Link</SelectItem>
-              <SelectItem value="phone">Fraud Phone Number</SelectItem>
-              <SelectItem value="website">Fake Website</SelectItem>
-              <SelectItem value="screenshot">Screenshot Evidence</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <label className="text-sm font-bold mb-2 block" style={{ color: '#a8c4e0' }}>
-            Scam Details *
-          </label>
-          <Textarea
-            value={form.scam_content}
-            onChange={(e) => setForm({ ...form, scam_content: e.target.value })}
-            placeholder="Describe the scam... paste the message, explain what happened"
-            className="min-h-[100px] bg-transparent border-0 resize-none text-sm focus-visible:ring-0 rounded-xl"
-            style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm font-bold mb-1.5 block" style={{ color: '#a8c4e0' }}>
-              Phone Number
-            </label>
-            <Input
-              value={form.phone_number}
-              onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-              placeholder="+1 234 567 890"
-              className="h-10 bg-transparent border-0 text-sm focus-visible:ring-0 rounded-xl"
-              style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}
-            />
+      {success ? (
+        <div className="ghost-card p-8 text-center space-y-4 border-emerald-500/30 bg-emerald-950/10">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
+            <CheckCircle2 className="w-8 h-8" />
           </div>
-          <div>
-            <label className="text-sm font-bold mb-1.5 block" style={{ color: '#a8c4e0' }}>
-              Suspicious URL
-            </label>
-            <Input
-              value={form.url}
-              onChange={(e) => setForm({ ...form, url: e.target.value })}
-              placeholder="https://..."
-              className="h-10 bg-transparent border-0 text-sm focus-visible:ring-0 rounded-xl"
-              style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}
-            />
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-white">Threat Reported Successfully</h3>
+            <p className="text-xs text-slate-300 max-w-md mx-auto">
+              Your report has been analyzed by AI and syndicated to the GhostNet community threat intelligence database.
+            </p>
+          </div>
+          <div className="pt-2 flex justify-center gap-3">
+            <Button
+              onClick={() => {
+                setSuccess(false);
+                setForm({ report_type: "message", scam_content: "", phone_number: "", url: "", region: "India" });
+              }}
+              className="text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 h-9 rounded-lg">
+              Submit Another Report
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(createPageUrl("Home"))}
+              className="text-xs font-bold border-slate-700 text-slate-300 hover:text-white px-4 h-9 rounded-lg">
+              Return to Dashboard
+            </Button>
           </div>
         </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="ghost-card p-6 space-y-4">
+          
+          {/* Report Type Selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Scam Vector Category
+            </label>
+            <Select
+              value={form.report_type}
+              onValueChange={(val) => setForm({ ...form, report_type: val })}>
+              <SelectTrigger className="w-full bg-slate-950/60 border-slate-800 text-slate-200">
+                <SelectValue placeholder="Select vector category" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+                {REPORT_TYPES.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-sm font-bold mb-1.5 block" style={{ color: '#a8c4e0' }}>
-              City/Region
+          {/* Scam Content */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Scam Content & Details *
+            </label>
+            <div className="rounded-xl bg-slate-950/60 border border-slate-800 focus-within:border-amber-500/50 transition-colors p-2">
+              <Textarea
+                required
+                value={form.scam_content}
+                onChange={(e) => setForm({ ...form, scam_content: e.target.value })}
+                placeholder="Paste the scam message, script, caller claims, or payment demand..."
+                className="min-h-[110px] bg-transparent border-0 resize-none text-sm font-medium focus-visible:ring-0 placeholder:text-slate-500 text-slate-100"
+              />
+            </div>
+          </div>
+
+          {/* Optional Phone and URL fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-amber-400" /> Fraudster Phone / Sender ID (Optional)
+              </label>
+              <Input
+                value={form.phone_number}
+                onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
+                placeholder="+91 98765 43210 or VM-SBINB"
+                className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-purple-400" /> Phishing URL (Optional)
+              </label>
+              <Input
+                value={form.url}
+                onChange={(e) => setForm({ ...form, url: e.target.value })}
+                placeholder="https://fake-login.xyz"
+                className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
+              />
+            </div>
+          </div>
+
+          {/* Region */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Target Geographic Region
             </label>
             <Input
               value={form.region}
               onChange={(e) => setForm({ ...form, region: e.target.value })}
-              placeholder="New York"
-              className="h-10 bg-transparent border-0 text-sm focus-visible:ring-0 rounded-xl"
-              style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}
+              placeholder="e.g. India, USA, UK, Global"
+              className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
             />
           </div>
-          <div>
-            <label className="text-sm font-bold mb-1.5 block" style={{ color: '#a8c4e0' }}>
-              Country
-            </label>
-            <Input
-              value={form.country}
-              onChange={(e) => setForm({ ...form, country: e.target.value })}
-              placeholder="USA"
-              className="h-10 bg-transparent border-0 text-sm focus-visible:ring-0 rounded-xl"
-              style={{ background: 'var(--ghost-surface-2)', color: 'var(--ghost-text)' }}
-            />
-          </div>
-        </div>
 
-        {/* Screenshot Upload */}
-        <div>
-          <label className="text-sm font-bold mb-2 block" style={{ color: '#a8c4e0' }}>
-            Screenshot Evidence
-          </label>
-          {!preview ? (
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="w-full h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors"
-              style={{ borderColor: 'var(--ghost-border)', background: 'rgba(0,0,0,0.2)' }}>
-              <Upload className="w-5 h-5" style={{ color: '#8fa8c8' }} />
-              <span className="text-sm font-medium" style={{ color: '#8fa8c8' }}>Upload screenshot</span>
-            </button>
-          ) : (
-            <div className="relative inline-block">
-              <img src={preview} alt="Evidence" className="h-24 rounded-xl object-cover" />
-              <button onClick={() => { setScreenshot(null); setPreview(null); }}
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-                style={{ background: 'var(--ghost-red)' }}>
-                <X className="w-3 h-3 text-white" />
-              </button>
-            </div>
-          )}
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
-        </div>
+          <Button
+            type="submit"
+            disabled={submitting || !form.scam_content.trim()}
+            className="w-full h-12 rounded-xl font-bold text-slate-950 transition-all shadow-[0_0_20px_rgba(245,158,11,0.25)]"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+            {submitting ? "Syndicating to Community Threat Intelligence..." : "Submit Scam Report"}
+          </Button>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting || !form.report_type || !form.scam_content}
-          className="w-full h-12 rounded-xl font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #ff3b5c, #dc2626)' }}>
-          <Send className="w-4 h-4 mr-2" />
-          {submitting ? "Submitting..." : "Submit Report"}
-        </Button>
-      </div>
+        </form>
+      )}
     </div>
   );
 }

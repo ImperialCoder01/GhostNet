@@ -1,164 +1,15 @@
-function normalize(text) {
-  return (text || '').toLowerCase()
-}
-
-const SCAM_KEYWORDS = [
-  'otp',
-  'verify account',
-  'urgent',
-  'suspended',
-  'lottery',
-  'winner',
-  'bank',
-  'click here',
-  'password',
-  'crypto',
-  'investment',
-  'gift card',
-  'wire transfer',
-  'pay now',
-]
-
-const SHORTENER_DOMAINS = ['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly']
-
-function scoreToRisk(score) {
-  if (score >= 75) return 'scam'
-  if (score >= 40) return 'suspicious'
-  return 'safe'
-}
-
-function analyzeMessageContent(message) {
-  const text = normalize(message)
-  const reasons = []
-  let score = 5
-
-  const matched = SCAM_KEYWORDS.filter((k) => text.includes(k))
-  if (matched.length > 0) {
-    score += matched.length * 10
-    reasons.push(`Contains scam-like keywords: ${matched.slice(0, 4).join(', ')}`)
-  }
-
-  if (/https?:\/\//.test(text)) {
-    score += 15
-    reasons.push('Contains external links')
-  }
-
-  if (/\b(immediately|urgent|act now|final warning)\b/.test(text)) {
-    score += 20
-    reasons.push('Uses urgency pressure language')
-  }
-
-  if (/\b(otp|pin|password|cvv|bank account)\b/.test(text)) {
-    score += 20
-    reasons.push('Requests sensitive information')
-  }
-
-  score = Math.min(100, score)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    reasons,
-    analysis:
-      riskLevel === 'safe'
-        ? 'No strong scam indicators detected in this message.'
-        : 'This message contains patterns commonly associated with phishing or social engineering.',
-  }
-}
-
-function analyzeUrlContent(rawUrl) {
-  let url
-  const reasons = []
-  let score = 10
-
-  try {
-    url = new URL(rawUrl)
-  } catch {
-    return {
-      fraud_score: 95,
-      risk_level: 'scam',
-      reasons: ['Invalid URL format'],
-      analysis: 'The URL format is invalid and should not be trusted.',
-      domain_age_days: 1,
-      ssl_status: 'Invalid',
-      community_reports: 16,
-      is_known_brand_impersonation: false,
-    }
-  }
-
-  const host = url.hostname.toLowerCase()
-  const path = url.pathname.toLowerCase()
-
-  if (url.protocol !== 'https:') {
-    score += 20
-    reasons.push('URL is not using HTTPS')
-  }
-
-  if (SHORTENER_DOMAINS.some((d) => host.includes(d))) {
-    score += 25
-    reasons.push('Uses URL shortener domain')
-  }
-
-  if (/login|verify|secure|update|payment|wallet/.test(path)) {
-    score += 15
-    reasons.push('Suspicious path terms present')
-  }
-
-  if (host.split('.').length > 3) {
-    score += 10
-    reasons.push('Too many subdomains')
-  }
-
-  const lookalike = /(paypa1|g00gle|micr0soft|amaz0n|faceboook)/.test(host)
-  if (lookalike) {
-    score += 30
-    reasons.push('Possible brand impersonation domain')
-  }
-
-  score = Math.min(100, score)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    reasons,
-    analysis:
-      riskLevel === 'safe'
-        ? 'URL appears structurally safe based on heuristic checks.'
-        : 'URL has multiple structural indicators associated with phishing campaigns.',
-    domain_age_days: score > 60 ? 14 : 540,
-    ssl_status: url.protocol === 'https:' ? 'Valid' : 'Invalid',
-    community_reports: Math.max(0, Math.round((score - 20) * 1.7)),
-    is_known_brand_impersonation: lookalike,
-  }
-}
-
-function analyzeReport(form) {
-  const text = normalize(`${form.report_type} ${form.scam_content} ${form.phone_number || ''} ${form.url || ''}`)
-  const matched = SCAM_KEYWORDS.filter((k) => text.includes(k))
-  const score = Math.min(100, 20 + matched.length * 12)
-  const riskLevel = scoreToRisk(score)
-
-  return {
-    fraud_score: score,
-    risk_level: riskLevel,
-    ai_analysis:
-      riskLevel === 'safe'
-        ? 'Report logged with low immediate scam confidence.'
-        : 'Report includes common scam signals and has been marked for further review.',
-  }
-}
-
-function analyzeScreenshot() {
-  return {
-    fraud_score: 55,
-    risk_level: 'suspicious',
-    reasons: ['Image uploaded. Processed using multi-modal AI heuristics.'],
-    analysis: 'Screenshot analyzed using multi-factor detection models.',
-    detected_text: '',
-  }
-}
+import {
+  analyzeMessageContent,
+  analyzeUrlContent,
+  analyzeScamReportContent,
+  analyzeScreenshotFallback,
+  extractAttackSignals,
+  reconstructAttackChain,
+  inferAttackerIntent,
+  findSimilarScams,
+  scoreToRisk,
+  normalize,
+} from '../src/lib/scanner.js'
 
 function parseJsonFromText(text) {
   if (!text) return null
@@ -177,12 +28,19 @@ function parseJsonFromText(text) {
 
 function normalizeVisionResult(parsed) {
   if (!parsed || typeof parsed !== 'object') return null
+  const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+  const risk = ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score)
+  
   return {
-    fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
-    risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
+    fraud_score: score,
+    risk_level: risk,
+    confidence: parsed.confidence || (score > 70 ? 'high' : 'medium'),
     reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
     analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+    ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
     detected_text: String(parsed.detected_text || ''),
+    attack_intent: parsed.attack_intent || inferAttackerIntent(parsed.detected_text || '', '', risk),
+    threat_reconstruction: reconstructAttackChain(parsed.detected_text || 'Screenshot image analysis', '', risk)
   }
 }
 
@@ -194,36 +52,46 @@ async function analyzeWithGroq(type, payload) {
 
   let prompt = ''
   if (type === 'message') {
-    prompt = `Analyze this message for phishing, scam, urgency, financial fraud, impersonation, or social engineering.
-Message to analyze:
+    prompt = `You are GhostNet AI, an elite cybersecurity fraud and phishing detection engine.
+Analyze this message for social engineering, phishing, urgency, financial fraud, impersonation, credential harvesting, or coercion.
+
+Message:
 """${payload?.message || ''}"""
 
 Return STRICT JSON only with keys:
-- fraud_score: number (0-100)
-- risk_level: "safe" | "suspicious" | "scam"
-- reasons: array of string reasons
-- analysis: string explanation`
+- fraud_score (number 0-100)
+- risk_level ("safe" | "suspicious" | "scam")
+- confidence ("low" | "medium" | "high")
+- reasons (array of specific evidence strings)
+- analysis (clear, professional explanation of why this is or isn't a scam)
+- attack_intent (plain-English summary of what the attacker is attempting to accomplish)
+- signals (object with keys: urgency, financial, credential, impersonation, coercion - short string or null for each)`
   } else if (type === 'link') {
-    prompt = `Analyze this URL for phishing, scam, typo-squatting, fake brand impersonation, or malicious indicators.
-URL to analyze:
+    prompt = `You are GhostNet AI, an elite cybersecurity URL and domain inspection engine.
+Analyze this URL for phishing, typosquatting, lookalike domains, credential harvesting, or deceptive redirects.
+
+URL:
 """${payload?.url || ''}"""
 
 Return STRICT JSON only with keys:
-- fraud_score: number (0-100)
-- risk_level: "safe" | "suspicious" | "scam"
-- reasons: array of string reasons
-- analysis: string explanation`
+- fraud_score (number 0-100)
+- risk_level ("safe" | "suspicious" | "scam")
+- confidence ("low" | "medium" | "high")
+- reasons (array of specific evidence strings)
+- analysis (clear, professional explanation of the domain threat)
+- attack_intent (plain-English summary of what the attacker wants)
+- impersonated_brand (string of brand being mimicked, or null)`
   } else if (type === 'report') {
-    prompt = `Analyze this reported scam attempt:
+    prompt = `Analyze this community scam report for threat validation:
 Content: "${payload?.scam_content || ''}"
 Type: "${payload?.report_type || ''}"
 URL: "${payload?.url || ''}"
 Phone: "${payload?.phone_number || ''}"
 
 Return STRICT JSON only with keys:
-- fraud_score: number (0-100)
-- risk_level: "safe" | "suspicious" | "scam"
-- ai_analysis: string explanation`
+- fraud_score (number 0-100)
+- risk_level ("safe" | "suspicious" | "scam")
+- ai_analysis (summary explanation of threat pattern)`
   } else {
     return null
   }
@@ -243,7 +111,7 @@ Return STRICT JSON only with keys:
           messages: [
             {
               role: 'system',
-              content: 'You are GhostNet AI, an expert cybersecurity and anti-fraud detection engine. Output strict JSON only.',
+              content: 'You are GhostNet AI. Always respond in strict, valid JSON format only.',
             },
             {
               role: 'user',
@@ -259,13 +127,26 @@ Return STRICT JSON only with keys:
       const parsed = parseJsonFromText(text)
       if (parsed && typeof parsed.fraud_score !== 'undefined') {
         const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+        const risk = ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score)
+        const contentStr = type === 'message' ? payload.message : (payload.url || '')
+        
         return {
           fraud_score: score,
-          risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score),
+          risk_level: risk,
+          confidence: parsed.confidence || (score > 70 ? 'high' : 'medium'),
           reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
           analysis: String(parsed.analysis || parsed.ai_analysis || ''),
           ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
-          detected_text: String(parsed.detected_text || ''),
+          attack_intent: String(parsed.attack_intent || inferAttackerIntent(contentStr, '', risk)),
+          signals: parsed.signals || extractAttackSignals(contentStr),
+          threat_reconstruction: reconstructAttackChain(contentStr, type === 'link' ? payload.url : '', risk),
+          similar_patterns: findSimilarScams(contentStr),
+          emergency_actions: {
+            stop: 'Do NOT click any links, enter PINs, or share verification codes.',
+            verify: 'Call the organization using their known official hotline.',
+            report: 'Record this threat in the GhostNet community database.',
+            secure: 'Freeze affected cards or rotate credentials immediately if compromised.'
+          }
         }
       }
     } catch {
@@ -295,13 +176,15 @@ async function analyzeScreenshotWithGemini(screenshotUrl) {
     const ab = await imageResp.arrayBuffer()
     const base64 = Buffer.from(ab).toString('base64')
 
-    const prompt = `Analyze this screenshot for scam, phishing, impersonation, urgency pressure, payment fraud, malicious links, and social engineering.
+    const prompt = `Analyze this screenshot for cyber scam, phishing, brand impersonation, urgency manipulation, payment fraud, QR code traps, or social engineering.
 Return strict JSON only with keys:
 - fraud_score (number 0-100)
 - risk_level (safe|suspicious|scam)
-- reasons (array of strings)
-- analysis (string)
-- detected_text (string)`
+- confidence (low|medium|high)
+- reasons (array of specific visual and textual evidence strings)
+- analysis (professional summary of the visual threat)
+- detected_text (all OCR extracted text from the image)
+- attack_intent (what the fraudster is attempting to achieve)`
 
     for (const model of GEMINI_MODELS) {
       try {
@@ -365,13 +248,12 @@ async function analyzeScreenshotWithOpenAI(screenshotUrl) {
         messages: [
           {
             role: 'system',
-            content:
-              'You are a scam detection assistant. Output strict JSON with keys fraud_score (0-100), risk_level (safe|suspicious|scam), reasons (array of strings), analysis (string), detected_text (string).',
+            content: 'You are GhostNet AI vision detector. Output strict JSON with keys fraud_score, risk_level, reasons, analysis, detected_text, attack_intent.',
           },
           {
             role: 'user',
             content: [
-              { type: 'text', text: 'Analyze this screenshot for phishing, impersonation, scam intent, urgency, or payment fraud.' },
+              { type: 'text', text: 'Analyze this screenshot for phishing, fraud, fake branding, or urgency.' },
               { type: 'image_url', image_url: { url: screenshotUrl } },
             ],
           },
@@ -410,47 +292,57 @@ export default async function handler(req, res) {
     return
   }
 
-  if (type === 'message') {
-    const groq = await analyzeWithGroq(type, payload)
-    if (groq) {
-      res.status(200).json(groq)
+  try {
+    if (type === 'message') {
+      const groq = await analyzeWithGroq(type, payload)
+      if (groq) {
+        res.status(200).json(groq)
+        return
+      }
+      res.status(200).json(analyzeMessageContent(payload?.message || ''))
       return
     }
-    res.status(200).json(analyzeMessageContent(payload?.message || ''))
-    return
-  }
 
-  if (type === 'link') {
-    const groq = await analyzeWithGroq(type, payload)
-    if (groq) {
-      res.status(200).json({
-        ...analyzeUrlContent(payload?.url || ''),
-        ...groq,
-      })
+    if (type === 'link') {
+      const groq = await analyzeWithGroq(type, payload)
+      const base = analyzeUrlContent(payload?.url || '')
+      if (groq) {
+        res.status(200).json({
+          ...base,
+          ...groq,
+          trust_profile: base.trust_profile,
+          simulation_steps: base.simulation_steps,
+        })
+        return
+      }
+      res.status(200).json(base)
       return
     }
-    res.status(200).json(analyzeUrlContent(payload?.url || ''))
-    return
-  }
 
-  if (type === 'report') {
-    const groq = await analyzeWithGroq(type, payload)
-    if (groq) {
-      res.status(200).json(groq)
+    if (type === 'report') {
+      const groq = await analyzeWithGroq(type, payload)
+      if (groq) {
+        res.status(200).json(groq)
+        return
+      }
+      res.status(200).json(analyzeScamReportContent(payload || {}))
       return
     }
-    res.status(200).json(analyzeReport(payload || {}))
-    return
-  }
 
-  if (type === 'screenshot') {
-    const ai =
-      (await analyzeScreenshotWithGemini(payload?.screenshot_url)) ||
-      (await analyzeScreenshotWithOpenAI(payload?.screenshot_url)) ||
-      (await analyzeWithGroq('screenshot', payload))
-    res.status(200).json(ai || analyzeScreenshot())
-    return
-  }
+    if (type === 'screenshot') {
+      const ai =
+        (await analyzeScreenshotWithGemini(payload?.screenshot_url)) ||
+        (await analyzeScreenshotWithOpenAI(payload?.screenshot_url))
+      res.status(200).json(ai || analyzeScreenshotFallback())
+      return
+    }
 
-  res.status(400).json({ error: 'Unsupported analysis type' })
+    res.status(400).json({ error: 'Unsupported analysis type' })
+  } catch (error) {
+    console.error('[GhostNet API Error]', error)
+    res.status(500).json({
+      error: 'Analysis could not be completed at this time.',
+      fallback: analyzeMessageContent(payload?.message || '')
+    })
+  }
 }
