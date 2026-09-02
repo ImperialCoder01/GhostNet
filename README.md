@@ -148,6 +148,7 @@ Detailed architectural, security, and developer specifications are organized in 
 
 | Document | Description |
 | :--- | :--- |
+| [**Changelog & Releases**](docs/CHANGELOG.md) | Release notes for v1.0.0-hackathon milestone. |
 | [**Architecture**](docs/ARCHITECTURE.md) | Complete component hierarchy, data flows, and edge gateway design. |
 | [**AI Architecture**](docs/AI_ARCHITECTURE.md) | Multi-model routing, prompt engineering, risk scoring vs confidence, and OCR pipeline. |
 | [**API Reference**](docs/API.md) | Full endpoint specification for `/api/analyze` across all scan types. |
@@ -173,9 +174,9 @@ Detailed architectural, security, and developer specifications are organized in 
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & Security
 
-We welcome community contributions! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
+We welcome community contributions! Please review our [Contributing Guide](.github/CONTRIBUTING.md), [Code of Conduct](.github/CODE_OF_CONDUCT.md), and [Security Policy](.github/SECURITY.md) before submitting a Pull Request.
 
 ---
 
