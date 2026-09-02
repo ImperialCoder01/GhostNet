@@ -16,12 +16,14 @@
     --ghost-bg: #f8fafc;
     --ghost-bg-soft: #f1f5f9;
     --ghost-surface: #ffffff;
-    --ghost-surface-2: #f8fafc;
-    --ghost-surface-3: #f1f5f9;
+    --ghost-surface-2: #f1f5f9;
+    --ghost-surface-3: #e2e8f0;
     --ghost-border: #e2e8f0;
     --ghost-border-hover: #cbd5e1;
     --ghost-card-bg: #ffffff;
     --ghost-card-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+    --ghost-highlight-bg: #e0f2fe;
+    --ghost-highlight-border: #0284c7;
     --ghost-neon: #0284c7;
     --ghost-neon-dim: #0369a1;
     --ghost-green: #059669;
@@ -50,6 +52,8 @@
     --ghost-border-hover: rgba(0, 229, 255, 0.35);
     --ghost-card-bg: linear-gradient(180deg, rgba(12, 22, 42, 0.95) 0%, rgba(8, 15, 29, 0.98) 100%);
     --ghost-card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
+    --ghost-highlight-bg: rgba(0, 229, 255, 0.14);
+    --ghost-highlight-border: #00e5ff;
     --ghost-neon: #00e5ff;
     --ghost-neon-dim: #00a0b2;
     --ghost-green: #10b981;
@@ -80,14 +84,6 @@
       linear-gradient(180deg, #0a1120 0%, #060b14 100%);
     background-attachment: fixed;
   }
-
-  body:not(.dark) {
-    background-image: 
-      radial-gradient(1000px 500px at 85% -5%, rgba(2, 132, 199, 0.04), transparent 60%),
-      radial-gradient(900px 450px at -5% 105%, rgba(16, 185, 129, 0.03), transparent 60%),
-      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    background-attachment: fixed;
-  }
 }
 
 /* Typography display */
@@ -100,7 +96,7 @@ code, pre, .font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Enterprise Cards - Guaranteed Variable Colors */
+/* Enterprise Cards */
 .ghost-card {
   background: var(--ghost-card-bg);
   border: 1px solid var(--ghost-border);
@@ -114,16 +110,9 @@ code, pre, .font-mono {
   border-color: var(--ghost-border-hover);
 }
 
-.dark .ghost-card-highlight {
-  background: linear-gradient(180deg, rgba(18, 33, 62, 0.95) 0%, rgba(10, 19, 36, 0.98) 100%);
-  border: 1px solid rgba(0, 229, 255, 0.4);
-  box-shadow: 0 12px 36px -4px rgba(0, 229, 255, 0.15);
-}
-
-:not(.dark) .ghost-card-highlight {
-  background: #f0fdf4;
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  box-shadow: 0 8px 24px -2px rgba(16, 185, 129, 0.1);
+.ghost-card-highlight {
+  background: var(--ghost-highlight-bg) !important;
+  border-color: var(--ghost-highlight-border) !important;
 }
 
 /* Badges */
