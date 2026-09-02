@@ -8,68 +8,48 @@
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 187 90% 38%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 94%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 88%;
-    --input: 214 32% 88%;
-    --ring: 187 90% 38%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 199 89% 48%;
     --radius: 0.75rem;
 
     --ghost-bg: #f8fafc;
     --ghost-bg-soft: #f1f5f9;
     --ghost-surface: #ffffff;
     --ghost-surface-2: #f8fafc;
-    --ghost-surface-3: #edf2f7;
-    --ghost-border: rgba(15, 23, 42, 0.12);
-    --ghost-border-hover: rgba(0, 160, 180, 0.4);
-    --ghost-neon: #008ba3;
-    --ghost-neon-dim: #006877;
+    --ghost-surface-3: #f1f5f9;
+    --ghost-border: #e2e8f0;
+    --ghost-border-hover: #cbd5e1;
+    --ghost-card-bg: #ffffff;
+    --ghost-card-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+    --ghost-neon: #0284c7;
+    --ghost-neon-dim: #0369a1;
     --ghost-green: #059669;
     --ghost-red: #dc2626;
     --ghost-orange: #d97706;
     --ghost-text: #0f172a;
     --ghost-text-dim: #475569;
-    --ghost-text-muted: #64748b;
+    --ghost-text-muted: #94a3b8;
   }
 
   .dark {
     --background: 224 71% 4%;
     --foreground: 210 40% 98%;
-    --card: 222 47% 8%;
+    --card: 222 47% 7%;
     --card-foreground: 210 40% 98%;
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 187 100% 50%;
-    --primary-foreground: 222 47% 4%;
-    --secondary: 217 33% 14%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 12%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 15%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 18%;
-    --input: 217 33% 16%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
     --ring: 187 100% 50%;
 
     --ghost-bg: #060b14;
     --ghost-bg-soft: #0a1120;
-    --ghost-surface: #0d172b;
-    --ghost-surface-2: #13223f;
-    --ghost-surface-3: #1a2c50;
+    --ghost-surface: #0a1324;
+    --ghost-surface-2: #0f1b33;
+    --ghost-surface-3: #152445;
     --ghost-border: rgba(99, 140, 200, 0.16);
     --ghost-border-hover: rgba(0, 229, 255, 0.35);
+    --ghost-card-bg: linear-gradient(180deg, rgba(12, 22, 42, 0.95) 0%, rgba(8, 15, 29, 0.98) 100%);
+    --ghost-card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
     --ghost-neon: #00e5ff;
     --ghost-neon-dim: #00a0b2;
     --ghost-green: #10b981;
@@ -90,21 +70,21 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     letter-spacing: 0.01em;
     min-height: 100vh;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body.dark {
     background-image: 
-      radial-gradient(1000px 500px at 85% -5%, rgba(0, 229, 255, 0.07), transparent 60%),
-      radial-gradient(900px 450px at -5% 105%, rgba(16, 185, 129, 0.05), transparent 60%),
-      linear-gradient(180deg, var(--ghost-bg-soft) 0%, var(--ghost-bg) 100%);
+      radial-gradient(1000px 500px at 85% -5%, rgba(0, 229, 255, 0.06), transparent 60%),
+      radial-gradient(900px 450px at -5% 105%, rgba(16, 185, 129, 0.04), transparent 60%),
+      linear-gradient(180deg, #0a1120 0%, #060b14 100%);
     background-attachment: fixed;
   }
 
   body:not(.dark) {
     background-image: 
-      radial-gradient(1000px 500px at 85% -5%, rgba(0, 160, 180, 0.06), transparent 60%),
-      radial-gradient(900px 450px at -5% 105%, rgba(16, 185, 129, 0.05), transparent 60%),
+      radial-gradient(1000px 500px at 85% -5%, rgba(2, 132, 199, 0.04), transparent 60%),
+      radial-gradient(900px 450px at -5% 105%, rgba(16, 185, 129, 0.03), transparent 60%),
       linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     background-attachment: fixed;
   }
@@ -120,24 +100,14 @@ code, pre, .font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Enterprise Cards - Adaptive */
+/* Enterprise Cards - Guaranteed Variable Colors */
 .ghost-card {
+  background: var(--ghost-card-bg);
   border: 1px solid var(--ghost-border);
   border-radius: 14px;
   color: var(--ghost-text);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--ghost-card-shadow);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dark .ghost-card {
-  background: linear-gradient(180deg, rgba(13, 23, 43, 0.85) 0%, rgba(9, 16, 30, 0.95) 100%);
-  box-shadow: 0 10px 30px -5px rgba(2, 6, 23, 0.6);
-}
-
-:not(.dark) .ghost-card {
-  background: #ffffff;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
 }
 
 .ghost-card:hover {
@@ -145,18 +115,18 @@ code, pre, .font-mono {
 }
 
 .dark .ghost-card-highlight {
-  background: linear-gradient(180deg, rgba(19, 34, 63, 0.9) 0%, rgba(11, 20, 38, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(18, 33, 62, 0.95) 0%, rgba(10, 19, 36, 0.98) 100%);
   border: 1px solid rgba(0, 229, 255, 0.4);
   box-shadow: 0 12px 36px -4px rgba(0, 229, 255, 0.15);
 }
 
 :not(.dark) .ghost-card-highlight {
-  background: #f0fdfa;
-  border: 1px solid rgba(0, 160, 180, 0.4);
-  box-shadow: 0 8px 24px -2px rgba(0, 160, 180, 0.12);
+  background: #f0fdf4;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 24px -2px rgba(16, 185, 129, 0.1);
 }
 
-/* Security Badges */
+/* Badges */
 .badge-safe {
   background: rgba(16, 185, 129, 0.12);
   border: 1px solid rgba(16, 185, 129, 0.3);

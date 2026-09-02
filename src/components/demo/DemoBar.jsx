@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, ShieldAlert, ArrowRight, Play } from "lucide-react";
+import { Sparkles, ShieldAlert } from "lucide-react";
 import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -20,15 +20,15 @@ export default function DemoBar({ onSelectThreat }) {
   };
 
   return (
-    <div className="ghost-card p-4 space-y-3 border-cyan-500/30 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-950">
+    <div className="ghost-card p-4 space-y-3 border-cyan-500/30">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" /> Judge & Live Demo Mode
           </span>
         </div>
-        <span className="text-[11px] text-slate-400">
+        <span className="text-[11px]" style={{ color: 'var(--ghost-text-dim)' }}>
           Load verified real-world threat benchmarks instantly
         </span>
       </div>
@@ -38,11 +38,16 @@ export default function DemoBar({ onSelectThreat }) {
           <button
             key={threat.id}
             onClick={() => handleSelect(threat)}
-            className="p-2.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-cyan-400/50 hover:bg-slate-900 text-left transition-all group flex flex-col justify-between">
-            <span className="text-[10px] font-mono font-bold text-cyan-400 block truncate">
+            className="p-2.5 rounded-xl border text-left transition-all group flex flex-col justify-between hover:border-cyan-400/50"
+            style={{
+              background: 'var(--ghost-surface-2)',
+              borderColor: 'var(--ghost-border)'
+            }}>
+            <span className="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400 block truncate">
               {threat.category}
             </span>
-            <span className="text-xs font-bold text-slate-200 mt-1 line-clamp-1 group-hover:text-white">
+            <span className="text-xs font-bold mt-1 line-clamp-1 group-hover:text-cyan-500"
+              style={{ color: 'var(--ghost-text)' }}>
               {threat.title}
             </span>
           </button>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, ShieldAlert, ShieldX, Activity, AlertTriangle, Sparkles, Key, DollarSign, Clock, Users, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldX, Activity, Sparkles, Key, DollarSign, Clock, Users } from "lucide-react";
 import ThreatReconstruction from "./ThreatReconstruction";
 import EmergencyActionCard from "./EmergencyActionCard";
 
@@ -16,8 +16,6 @@ export default function FraudScoreDisplay({
   similarPatterns = [],
   rawScanData = {}
 }) {
-  const [activeTab, setActiveTab] = useState("overview"); // "overview" | "evidence" | "chain" | "actions"
-
   const config = {
     safe: {
       icon: ShieldCheck,
@@ -25,7 +23,6 @@ export default function FraudScoreDisplay({
       badgeClass: "badge-safe",
       scoreClass: "score-safe",
       color: "var(--ghost-green)",
-      accentBorder: "rgba(16, 185, 129, 0.3)",
       description: "No recognized social engineering, malware, or phishing indicators detected."
     },
     suspicious: {
@@ -34,7 +31,6 @@ export default function FraudScoreDisplay({
       badgeClass: "badge-suspicious",
       scoreClass: "score-suspicious",
       color: "var(--ghost-orange)",
-      accentBorder: "rgba(245, 158, 11, 0.3)",
       description: "Potential scam or coercion patterns found. Exercise strict caution before proceeding."
     },
     scam: {
@@ -43,7 +39,6 @@ export default function FraudScoreDisplay({
       badgeClass: "badge-scam",
       scoreClass: "score-scam",
       color: "var(--ghost-red)",
-      accentBorder: "rgba(239, 68, 68, 0.4)",
       description: "Strong evidence of malicious deception, credential harvesting, or financial fraud."
     },
   };
@@ -58,8 +53,7 @@ export default function FraudScoreDisplay({
       className="space-y-4">
       
       {/* Main Score Hero Card */}
-      <div className="ghost-card p-6 relative overflow-hidden"
-        style={{ borderColor: c.accentBorder }}>
+      <div className="ghost-card p-6 relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           
           <div className="flex items-start gap-4">
@@ -74,25 +68,26 @@ export default function FraudScoreDisplay({
                   {c.label}
                 </span>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full badge-neutral">
-                  AI Confidence: <strong className="text-white capitalize">{confidence}</strong>
+                  AI Confidence: <strong className="capitalize" style={{ color: 'var(--ghost-text)' }}>{confidence}</strong>
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
+              <h2 className="text-lg font-bold tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
                 Threat Assessment Verdict
               </h2>
-              <p className="text-xs font-medium text-slate-300 max-w-md">
+              <p className="text-xs font-medium max-w-md leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
                 {c.description}
               </p>
             </div>
           </div>
 
           {/* Calibrated Risk Score Gauge */}
-          <div className="flex items-center gap-4 bg-slate-950/40 p-4 rounded-2xl border border-white/5 self-start md:self-auto">
+          <div className="flex items-center gap-4 p-4 rounded-2xl border self-start md:self-auto"
+            style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+              <span className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: 'var(--ghost-text-muted)' }}>
                 Risk Score
               </span>
-              <span className="text-xs font-mono text-slate-400">
+              <span className="text-xs font-mono" style={{ color: 'var(--ghost-text-dim)' }}>
                 0 (Safe) — 100 (Critical)
               </span>
             </div>
@@ -100,13 +95,13 @@ export default function FraudScoreDisplay({
               <span className={`text-4xl sm:text-5xl font-black font-display ${c.scoreClass}`}>
                 {score}
               </span>
-              <span className="text-sm font-bold text-slate-500 ml-1">/100</span>
+              <span className="text-sm font-bold ml-1" style={{ color: 'var(--ghost-text-muted)' }}>/100</span>
             </div>
           </div>
         </div>
 
         {/* Linear Progress Bar */}
-        <div className="w-full h-2 rounded-full overflow-hidden mt-6 bg-slate-900">
+        <div className="w-full h-2 rounded-full overflow-hidden mt-6" style={{ background: 'var(--ghost-surface-3)' }}>
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${score}%` }}
@@ -125,47 +120,51 @@ export default function FraudScoreDisplay({
         />
       )}
 
-      {/* Specific Signals Matrix (Social Engineering Breakdown) */}
+      {/* Signals Matrix */}
       {signals && Object.values(signals).some(Boolean) && (
         <div className="ghost-card p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--ghost-text-dim)' }}>
+            <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
             Detected Manipulation Signals
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {signals.urgency && (
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl border flex items-start gap-2.5"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-xs font-bold text-amber-300 block">Urgency / Time Pressure</span>
-                  <p className="text-xs text-slate-300 mt-0.5">{signals.urgency}</p>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 block">Urgency / Time Pressure</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--ghost-text)' }}>{signals.urgency}</p>
                 </div>
               </div>
             )}
             {signals.credential && (
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-2.5">
-                <Key className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl border flex items-start gap-2.5"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <Key className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-xs font-bold text-rose-300 block">Credential Harvesting</span>
-                  <p className="text-xs text-slate-300 mt-0.5">{signals.credential}</p>
+                  <span className="text-xs font-bold text-rose-600 dark:text-rose-400 block">Credential Harvesting</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--ghost-text)' }}>{signals.credential}</p>
                 </div>
               </div>
             )}
             {signals.financial && (
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-2.5">
-                <DollarSign className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl border flex items-start gap-2.5"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <DollarSign className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-xs font-bold text-emerald-300 block">Financial / Payment Trap</span>
-                  <p className="text-xs text-slate-300 mt-0.5">{signals.financial}</p>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 block">Financial / Payment Trap</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--ghost-text)' }}>{signals.financial}</p>
                 </div>
               </div>
             )}
             {signals.impersonation && (
-              <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-start gap-2.5">
-                <Users className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl border flex items-start gap-2.5"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <Users className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-xs font-bold text-cyan-300 block">Brand Impersonation</span>
-                  <p className="text-xs text-slate-300 mt-0.5">{signals.impersonation}</p>
+                  <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 block">Brand Impersonation</span>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--ghost-text)' }}>{signals.impersonation}</p>
                 </div>
               </div>
             )}
@@ -176,7 +175,7 @@ export default function FraudScoreDisplay({
       {/* Detailed Evidence Points */}
       {reasons && reasons.length > 0 && (
         <div className="ghost-card p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text-dim)' }}>
             Specific Evidence Findings ({reasons.length})
           </h3>
           <div className="space-y-2">
@@ -185,56 +184,26 @@ export default function FraudScoreDisplay({
                 key={i}
                 initial={{ opacity: 0, x: -6 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-950/30 border border-slate-800/60">
-                <span className="text-cyan-400 font-bold text-sm">›</span>
-                <span className="text-xs font-medium text-slate-200 leading-relaxed">{reason}</span>
+                transition={{ delay: i * 0.05 }}
+                className="flex items-start gap-2.5 p-2.5 rounded-lg border"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <span className="text-cyan-500 font-bold text-sm">›</span>
+                <span className="text-xs font-medium leading-relaxed" style={{ color: 'var(--ghost-text)' }}>{reason}</span>
               </motion.div>
             ))}
           </div>
         </div>
       )}
 
-      {/* AI Explanation / Reasoning */}
+      {/* AI Explanation */}
       {analysis && (
         <div className="ghost-card p-5 space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text-dim)' }}>
             Deep Threat Intelligence Summary
           </h3>
-          <p className="text-xs font-medium text-slate-300 leading-relaxed">
+          <p className="text-xs font-medium leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
             {analysis}
           </p>
-        </div>
-      )}
-
-      {/* Similar Verified Community Scams */}
-      {similarPatterns && similarPatterns.length > 0 && (
-        <div className="ghost-card p-5 space-y-3 border-cyan-500/20">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5" /> Similar Community Scam Matches
-            </h3>
-            <span className="text-[10px] font-mono text-slate-400">Benchmark Intelligence</span>
-          </div>
-
-          <div className="space-y-2">
-            {similarPatterns.map((pat, idx) => (
-              <div key={idx} className="p-3 rounded-xl bg-slate-950/40 border border-slate-800 flex items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">{pat.title}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full badge-neutral font-semibold">
-                      {pat.category}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">{pat.attackerIntent}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-mono font-bold text-cyan-400">{pat.similarityPercent}% match</span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 
