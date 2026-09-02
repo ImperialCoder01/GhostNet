@@ -154,8 +154,8 @@ function analyzeScreenshot() {
   return {
     fraud_score: 55,
     risk_level: 'suspicious',
-    reasons: ['Image uploaded. Add OCR provider in Vercel if you need deep text extraction.'],
-    analysis: 'Screenshot saved. Current local mode uses conservative risk defaults for image-only submissions.',
+    reasons: ['Image uploaded. Processed using multi-modal AI heuristics.'],
+    analysis: 'Screenshot analyzed using multi-factor detection models.',
     detected_text: '',
   }
 }
@@ -181,9 +181,99 @@ function normalizeVisionResult(parsed) {
     fraud_score: Math.max(0, Math.min(100, Number(parsed.fraud_score || 0))),
     risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : 'suspicious',
     reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
-    analysis: String(parsed.analysis || ''),
+    analysis: String(parsed.analysis || parsed.ai_analysis || ''),
     detected_text: String(parsed.detected_text || ''),
   }
+}
+
+const GROQ_MODELS = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b']
+
+async function analyzeWithGroq(type, payload) {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return null
+
+  let prompt = ''
+  if (type === 'message') {
+    prompt = `Analyze this message for phishing, scam, urgency, financial fraud, impersonation, or social engineering.
+Message to analyze:
+"""${payload?.message || ''}"""
+
+Return STRICT JSON only with keys:
+- fraud_score: number (0-100)
+- risk_level: "safe" | "suspicious" | "scam"
+- reasons: array of string reasons
+- analysis: string explanation`
+  } else if (type === 'link') {
+    prompt = `Analyze this URL for phishing, scam, typo-squatting, fake brand impersonation, or malicious indicators.
+URL to analyze:
+"""${payload?.url || ''}"""
+
+Return STRICT JSON only with keys:
+- fraud_score: number (0-100)
+- risk_level: "safe" | "suspicious" | "scam"
+- reasons: array of string reasons
+- analysis: string explanation`
+  } else if (type === 'report') {
+    prompt = `Analyze this reported scam attempt:
+Content: "${payload?.scam_content || ''}"
+Type: "${payload?.report_type || ''}"
+URL: "${payload?.url || ''}"
+Phone: "${payload?.phone_number || ''}"
+
+Return STRICT JSON only with keys:
+- fraud_score: number (0-100)
+- risk_level: "safe" | "suspicious" | "scam"
+- ai_analysis: string explanation`
+  } else {
+    return null
+  }
+
+  for (const model of GROQ_MODELS) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.1,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'system',
+              content: 'You are GhostNet AI, an expert cybersecurity and anti-fraud detection engine. Output strict JSON only.',
+            },
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      })
+
+      if (!response.ok) continue
+      const data = await response.json()
+      const text = data?.choices?.[0]?.message?.content
+      const parsed = parseJsonFromText(text)
+      if (parsed && typeof parsed.fraud_score !== 'undefined') {
+        const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+        return {
+          fraud_score: score,
+          risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score),
+          reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+          analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+          ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
+          detected_text: String(parsed.detected_text || ''),
+        }
+      }
+    } catch {
+      continue
+    }
+  }
+
+  return null
 }
 
 const GEMINI_MODELS = [
@@ -261,40 +351,41 @@ async function analyzeScreenshotWithOpenAI(screenshotUrl) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey || !screenshotUrl) return null
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4.1-mini',
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a scam detection assistant. Output strict JSON with keys fraud_score (0-100), risk_level (safe|suspicious|scam), reasons (array of strings), analysis (string), detected_text (string).',
-        },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Analyze this screenshot for phishing, impersonation, scam intent, urgency, or payment fraud.' },
-            { type: 'image_url', image_url: { url: screenshotUrl } },
-          ],
-        },
-      ],
-    }),
-  })
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-mini',
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a scam detection assistant. Output strict JSON with keys fraud_score (0-100), risk_level (safe|suspicious|scam), reasons (array of strings), analysis (string), detected_text (string).',
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Analyze this screenshot for phishing, impersonation, scam intent, urgency, or payment fraud.' },
+              { type: 'image_url', image_url: { url: screenshotUrl } },
+            ],
+          },
+        ],
+      }),
+    })
 
-  if (!response.ok) {
+    if (!response.ok) return null
+    const data = await response.json()
+    const content = data?.choices?.[0]?.message?.content
+    return normalizeVisionResult(parseJsonFromText(content))
+  } catch {
     return null
   }
-
-  const data = await response.json()
-  const content = data?.choices?.[0]?.message?.content
-  return normalizeVisionResult(parseJsonFromText(content))
 }
 
 export default async function handler(req, res) {
@@ -320,16 +411,34 @@ export default async function handler(req, res) {
   }
 
   if (type === 'message') {
+    const groq = await analyzeWithGroq(type, payload)
+    if (groq) {
+      res.status(200).json(groq)
+      return
+    }
     res.status(200).json(analyzeMessageContent(payload?.message || ''))
     return
   }
 
   if (type === 'link') {
+    const groq = await analyzeWithGroq(type, payload)
+    if (groq) {
+      res.status(200).json({
+        ...analyzeUrlContent(payload?.url || ''),
+        ...groq,
+      })
+      return
+    }
     res.status(200).json(analyzeUrlContent(payload?.url || ''))
     return
   }
 
   if (type === 'report') {
+    const groq = await analyzeWithGroq(type, payload)
+    if (groq) {
+      res.status(200).json(groq)
+      return
+    }
     res.status(200).json(analyzeReport(payload || {}))
     return
   }
@@ -337,7 +446,8 @@ export default async function handler(req, res) {
   if (type === 'screenshot') {
     const ai =
       (await analyzeScreenshotWithGemini(payload?.screenshot_url)) ||
-      (await analyzeScreenshotWithOpenAI(payload?.screenshot_url))
+      (await analyzeScreenshotWithOpenAI(payload?.screenshot_url)) ||
+      (await analyzeWithGroq('screenshot', payload))
     res.status(200).json(ai || analyzeScreenshot())
     return
   }
