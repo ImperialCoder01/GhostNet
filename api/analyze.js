@@ -186,6 +186,13 @@ function normalizeVisionResult(parsed) {
   }
 }
 
+const GEMINI_MODELS = [
+  'gemini-flash-latest',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+]
+
 async function analyzeScreenshotWithGemini(screenshotUrl) {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey || !screenshotUrl) return null
@@ -206,37 +213,45 @@ Return strict JSON only with keys:
 - analysis (string)
 - detected_text (string)`
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
+    for (const model of GEMINI_MODELS) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
                 {
-                  inline_data: {
-                    mime_type: contentType,
-                    data: base64,
-                  },
+                  parts: [
+                    { text: prompt },
+                    {
+                      inline_data: {
+                        mime_type: contentType,
+                        data: base64,
+                      },
+                    },
+                  ],
                 },
               ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: 'application/json',
-          },
-        }),
-      }
-    )
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        )
 
-    if (!response.ok) return null
-    const data = await response.json()
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
-    return normalizeVisionResult(parseJsonFromText(text))
+        if (!response.ok) continue
+        const data = await response.json()
+        const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
+        const result = normalizeVisionResult(parseJsonFromText(text))
+        if (result) return result
+      } catch {
+        continue
+      }
+    }
+    return null
   } catch {
     return null
   }
