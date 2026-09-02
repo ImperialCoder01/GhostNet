@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShieldAlert, PhoneCall, OctagonAlert, Send, Lock, CheckCircle2, ChevronRight, ExternalLink } from "lucide-react";
+import { PhoneCall, OctagonAlert, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -11,7 +11,6 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
   if (riskLevel === "safe") return null;
 
   const handlePreFillReport = () => {
-    // Navigate to ReportScam page with query or state
     navigate(createPageUrl("ReportScam"), {
       state: {
         prefill: {
@@ -39,10 +38,10 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
         style={{ borderColor: "var(--ghost-border)" }}>
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/15 border border-rose-500/30">
-            <OctagonAlert className="w-4 h-4 text-rose-400" />
+            <OctagonAlert className="w-4 h-4 text-rose-500" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white tracking-tight">
+            <h3 className="text-sm font-bold tracking-tight" style={{ color: "var(--ghost-text)" }}>
               One-Tap Incident Response Protocol
             </h3>
             <p className="text-xs" style={{ color: "var(--ghost-text-dim)" }}>
@@ -58,14 +57,14 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
           style={{ background: "rgba(239, 68, 68, 0.08)", borderColor: "rgba(239, 68, 68, 0.25)" }}>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-rose-500 text-slate-950 font-black text-xs flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-rose-500 text-white font-black text-xs flex items-center justify-center">
                 1
               </span>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-rose-300">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
                 STOP & DISENGAGE
               </h4>
             </div>
-            <p className="text-xs font-medium text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs font-medium mt-2 leading-relaxed" style={{ color: "var(--ghost-text)" }}>
               Do NOT click links, call telephone numbers inside the message, or share any OTP/UPI PIN.
             </p>
           </div>
@@ -76,20 +75,20 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
           style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)" }}>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-cyan-400 text-slate-950 font-black text-xs flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs flex items-center justify-center">
                 2
               </span>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
                 VERIFY AUTHENTICITY
               </h4>
             </div>
-            <p className="text-xs font-medium text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs font-medium mt-2 leading-relaxed" style={{ color: "var(--ghost-text)" }}>
               Open the authentic mobile app or contact your bank directly via the back of your payment card.
             </p>
           </div>
           <button
             onClick={handleCopyCyberHelpline}
-            className="text-[11px] font-bold text-cyan-400 flex items-center gap-1 hover:underline pt-1">
+            className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-1 hover:underline pt-1">
             <PhoneCall className="w-3 h-3" />
             {copiedHelpline ? "Copied 1930 to clipboard!" : "National Cyber Helpline: 1930"}
           </button>
@@ -100,14 +99,14 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
           style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)" }}>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">
                 3
               </span>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                 COMMUNITY WARNING
               </h4>
             </div>
-            <p className="text-xs font-medium text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs font-medium mt-2 leading-relaxed" style={{ color: "var(--ghost-text)" }}>
               Syndicate this attack pattern to the GhostNet global scam database in one click.
             </p>
           </div>
@@ -124,14 +123,14 @@ export default function EmergencyActionCard({ riskLevel = "safe", scanData = {} 
           style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)" }}>
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-emerald-500 text-white font-black text-xs flex items-center justify-center">
                 4
               </span>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 SECURE ACCOUNTS
               </h4>
             </div>
-            <p className="text-xs font-medium text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs font-medium mt-2 leading-relaxed" style={{ color: "var(--ghost-text)" }}>
               If credentials were entered: freeze NetBanking, enable 2FA with an authenticator app, and reset passwords.
             </p>
           </div>

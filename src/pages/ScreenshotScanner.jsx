@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Image, Upload, X, Sparkles, FileSearch, ShieldAlert, CheckCircle, Info } from "lucide-react";
+import { Image, Upload, X, FileSearch, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import ScanningAnimation from "../components/scanner/ScanningAnimation";
@@ -21,7 +21,6 @@ export default function ScreenshotScanner() {
     const selected = e.target.files?.[0];
     if (!selected) return;
     
-    // File validation: Check image type and size limit (10MB)
     if (!selected.type.startsWith('image/')) {
       setScanError("Please select a valid image file (PNG, JPG, WebP).");
       return;
@@ -52,15 +51,11 @@ export default function ScreenshotScanner() {
     setScanError("");
 
     try {
-      // 1. Upload to Supabase Storage evidence bucket
       const screenshotUrl = await uploadEvidenceFile(file);
-      
-      // 2. Call Multi-modal Vision API
       const res = await analyzeScreenshot({ screenshot_url: screenshotUrl });
       setResult(res);
       notify(res.risk_level, "screenshot");
 
-      // 3. Record in scan history
       await createScanHistory({
         scan_type: "screenshot",
         input_content: res.detected_text ? res.detected_text.substring(0, 200) : "Screenshot image inspection",
@@ -92,25 +87,26 @@ export default function ScreenshotScanner() {
           <button
             onClick={() => fileRef.current?.click()}
             className="w-full h-52 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all hover:border-pink-500 hover:bg-pink-500/5 group"
-            style={{ borderColor: 'var(--ghost-border)', background: 'rgba(0,0,0,0.2)' }}>
+            style={{ borderColor: 'var(--ghost-border)', background: 'var(--ghost-surface-2)' }}>
             <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Upload className="w-6 h-6 text-pink-400" />
+              <Upload className="w-6 h-6 text-pink-500" />
             </div>
             <div className="text-center space-y-1">
-              <span className="text-sm font-bold text-slate-200 group-hover:text-white block">
+              <span className="text-sm font-bold block" style={{ color: 'var(--ghost-text)' }}>
                 Tap or drag & drop a screenshot here
               </span>
-              <span className="text-xs text-slate-400 block">
+              <span className="text-xs block" style={{ color: 'var(--ghost-text-dim)' }}>
                 PNG, JPG, WebP up to 10MB • Auto-OCR & Vision Analysis
               </span>
             </div>
           </button>
         ) : (
-          <div className="relative rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 p-2">
+          <div className="relative rounded-2xl overflow-hidden border p-2"
+            style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
             <img
               src={preview}
               alt="Screenshot Preview"
-              className="w-full rounded-xl max-h-72 object-contain bg-black/40 mx-auto"
+              className="w-full rounded-xl max-h-72 object-contain bg-black/20 mx-auto"
             />
             <button
               onClick={clearFile}
@@ -125,8 +121,7 @@ export default function ScreenshotScanner() {
         <Button
           onClick={handleScan}
           disabled={scanning || !file}
-          className="w-full h-12 rounded-xl font-bold text-white transition-all shadow-[0_0_20px_rgba(244,114,182,0.25)]"
-          style={{ background: 'linear-gradient(135deg, #f472b6, #ec4899)' }}>
+          className="w-full h-12 rounded-xl font-bold text-white transition-all shadow-md bg-pink-600 hover:bg-pink-500">
           {scanning ? "Processing Visual Evidence..." : "Analyze Screenshot with Vision AI"}
         </Button>
       </div>
@@ -135,9 +130,9 @@ export default function ScreenshotScanner() {
 
       {scanError && (
         <div className="ghost-card p-4 border-rose-500/30 flex items-start gap-3">
-          <Info className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
-          <div className="text-xs text-slate-300">
-            <p className="font-bold text-rose-400">{scanError}</p>
+          <Info className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
+          <div className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>
+            <p className="font-bold text-rose-500">{scanError}</p>
             <p className="mt-1">Fallback analysis will evaluate extracted signals automatically.</p>
           </div>
         </div>
@@ -150,12 +145,14 @@ export default function ScreenshotScanner() {
           {result.detected_text && (
             <div className="ghost-card p-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <FileSearch className="w-3.5 h-3.5 text-pink-400" /> Extracted OCR Text from Image
+                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+                  style={{ color: 'var(--ghost-text-dim)' }}>
+                  <FileSearch className="w-3.5 h-3.5 text-pink-500" /> Extracted OCR Text from Image
                 </span>
-                <span className="text-[10px] font-mono text-cyan-400">Gemini Vision OCR</span>
+                <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">Gemini Vision OCR</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs font-mono text-slate-300 max-h-36 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+              <div className="p-3 rounded-xl border text-xs font-mono max-h-36 overflow-y-auto whitespace-pre-wrap leading-relaxed"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                 {result.detected_text}
               </div>
             </div>

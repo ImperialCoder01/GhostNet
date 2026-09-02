@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, Sparkles, Binary, Search, Cpu, CheckCircle } from "lucide-react";
+import { Binary, Search, Cpu, Sparkles } from "lucide-react";
 
 export default function ScanningAnimation({ label = "Analyzing threat vectors..." }) {
   const [stage, setStage] = useState(0);
@@ -23,7 +23,6 @@ export default function ScanningAnimation({ label = "Analyzing threat vectors...
 
   return (
     <div className="ghost-card p-6 flex flex-col items-center justify-center space-y-4 text-center border-cyan-500/30 overflow-hidden relative">
-      {/* Radar scanning background ripple */}
       <div className="relative w-20 h-20 flex items-center justify-center">
         <motion.div
           animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
@@ -35,27 +34,28 @@ export default function ScanningAnimation({ label = "Analyzing threat vectors...
           transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
           className="absolute inset-0 rounded-full border-t-2 border-cyan-400"
         />
-        <div className="w-12 h-12 rounded-xl bg-slate-900 border border-cyan-500/40 flex items-center justify-center z-10">
-          <CurrentIcon className="w-6 h-6 text-cyan-400 animate-pulse" />
+        <div className="w-12 h-12 rounded-xl border border-cyan-500/40 flex items-center justify-center z-10"
+          style={{ background: 'var(--ghost-surface-2)' }}>
+          <CurrentIcon className="w-6 h-6 text-cyan-500 animate-pulse" />
         </div>
       </div>
 
       <div className="space-y-1 z-10 max-w-sm">
-        <h3 className="text-sm font-bold text-white tracking-tight">
+        <h3 className="text-sm font-bold tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
           {stages[stage]?.title || label}
         </h3>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>
           Running deep heuristic and AI-assisted cyber threat verification
         </p>
       </div>
 
-      {/* Mini Stepper Progress */}
+      {/* Stepper Progress */}
       <div className="flex gap-2 z-10 pt-2">
         {stages.map((_, i) => (
           <div
             key={i}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              i <= stage ? "w-8 bg-cyan-400 shadow-[0_0_8px_rgba(0,229,255,0.6)]" : "w-2 bg-slate-800"
+              i <= stage ? "w-8 bg-cyan-500 shadow-[0_0_8px_rgba(0,229,255,0.6)]" : "w-2 bg-slate-400/30"
             }`}
           />
         ))}

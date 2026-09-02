@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, Send, Sparkles, CheckCircle2, ShieldAlert, Phone, Globe, MessageSquare, Info } from "lucide-react";
+import { AlertTriangle, Send, CheckCircle2, Phone, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,9 +32,7 @@ export default function ReportScam() {
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [duplicateWarning, setDuplicateWarning] = useState("");
 
-  // Handle prefill from scan result
   useEffect(() => {
     if (location.state?.prefill) {
       const p = location.state.prefill;
@@ -52,13 +50,10 @@ export default function ReportScam() {
     if (!form.scam_content.trim()) return;
 
     setSubmitting(true);
-    setDuplicateWarning("");
 
     try {
-      // 1. AI Score report
       const ai = await analyzeReport(form);
 
-      // 2. Persist in Supabase
       await createScamReport({
         report_type: form.report_type,
         scam_content: form.scam_content,
@@ -89,13 +84,13 @@ export default function ReportScam() {
       />
 
       {success ? (
-        <div className="ghost-card p-8 text-center space-y-4 border-emerald-500/30 bg-emerald-950/10">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
+        <div className="ghost-card p-8 text-center space-y-4 border-emerald-500/30">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-500">
             <CheckCircle2 className="w-8 h-8" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white">Threat Reported Successfully</h3>
-            <p className="text-xs text-slate-300 max-w-md mx-auto">
+            <h3 className="text-lg font-bold" style={{ color: 'var(--ghost-text)' }}>Threat Reported Successfully</h3>
+            <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--ghost-text-dim)' }}>
               Your report has been analyzed by AI and syndicated to the GhostNet community threat intelligence database.
             </p>
           </div>
@@ -111,7 +106,7 @@ export default function ReportScam() {
             <Button
               variant="outline"
               onClick={() => navigate(createPageUrl("Home"))}
-              className="text-xs font-bold border-slate-700 text-slate-300 hover:text-white px-4 h-9 rounded-lg">
+              className="text-xs font-bold px-4 h-9 rounded-lg">
               Return to Dashboard
             </Button>
           </div>
@@ -119,18 +114,18 @@ export default function ReportScam() {
       ) : (
         <form onSubmit={handleSubmit} className="ghost-card p-6 space-y-4">
           
-          {/* Report Type Selector */}
+          {/* Vector Selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text-dim)' }}>
               Scam Vector Category
             </label>
             <Select
               value={form.report_type}
               onValueChange={(val) => setForm({ ...form, report_type: val })}>
-              <SelectTrigger className="w-full bg-slate-950/60 border-slate-800 text-slate-200">
+              <SelectTrigger className="w-full" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                 <SelectValue placeholder="Select vector category" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800 text-slate-200">
+              <SelectContent style={{ background: 'var(--ghost-surface)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                 {REPORT_TYPES.map((t) => (
                   <SelectItem key={t.value} value={t.value}>
                     {t.label}
@@ -142,65 +137,69 @@ export default function ReportScam() {
 
           {/* Scam Content */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text-dim)' }}>
               Scam Content & Details *
             </label>
-            <div className="rounded-xl bg-slate-950/60 border border-slate-800 focus-within:border-amber-500/50 transition-colors p-2">
+            <div className="rounded-xl border focus-within:border-amber-500/50 transition-colors p-2"
+              style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
               <Textarea
                 required
                 value={form.scam_content}
                 onChange={(e) => setForm({ ...form, scam_content: e.target.value })}
                 placeholder="Paste the scam message, script, caller claims, or payment demand..."
-                className="min-h-[110px] bg-transparent border-0 resize-none text-sm font-medium focus-visible:ring-0 placeholder:text-slate-500 text-slate-100"
+                className="min-h-[110px] bg-transparent border-0 resize-none text-sm font-medium focus-visible:ring-0 placeholder:text-slate-400"
+                style={{ color: 'var(--ghost-text)' }}
               />
             </div>
           </div>
 
-          {/* Optional Phone and URL fields */}
+          {/* Optional Phone and URL */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-amber-400" /> Fraudster Phone / Sender ID (Optional)
+              <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--ghost-text-dim)' }}>
+                <Phone className="w-3.5 h-3.5 text-amber-500" /> Fraudster Phone / Sender ID (Optional)
               </label>
               <Input
                 value={form.phone_number}
                 onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
                 placeholder="+91 98765 43210 or VM-SBINB"
-                className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
+                className="text-xs h-10"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-purple-400" /> Phishing URL (Optional)
+              <label className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--ghost-text-dim)' }}>
+                <Globe className="w-3.5 h-3.5 text-purple-500" /> Phishing URL (Optional)
               </label>
               <Input
                 value={form.url}
                 onChange={(e) => setForm({ ...form, url: e.target.value })}
                 placeholder="https://fake-login.xyz"
-                className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
+                className="text-xs h-10"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
               />
             </div>
           </div>
 
           {/* Region */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text-dim)' }}>
               Target Geographic Region
             </label>
             <Input
               value={form.region}
               onChange={(e) => setForm({ ...form, region: e.target.value })}
               placeholder="e.g. India, USA, UK, Global"
-              className="bg-slate-950/60 border-slate-800 text-slate-200 text-xs h-10"
+              className="text-xs h-10"
+              style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
             />
           </div>
 
           <Button
             type="submit"
             disabled={submitting || !form.scam_content.trim()}
-            className="w-full h-12 rounded-xl font-bold text-slate-950 transition-all shadow-[0_0_20px_rgba(245,158,11,0.25)]"
-            style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>
+            className="w-full h-12 rounded-xl font-bold text-slate-950 transition-all shadow-md bg-amber-500 hover:bg-amber-400">
             {submitting ? "Syndicating to Community Threat Intelligence..." : "Submit Scam Report"}
           </Button>
 

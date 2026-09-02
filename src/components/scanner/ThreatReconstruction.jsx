@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert, ArrowRight, UserX, AlertTriangle, Globe, Key, DollarSign, ChevronRight, Info } from "lucide-react";
+import { ShieldAlert, UserX, AlertTriangle, Globe, Key, DollarSign, Info } from "lucide-react";
 
 const STAGE_ICONS = {
   0: UserX,
@@ -22,10 +22,10 @@ export default function ThreatReconstruction({ attackChain = [], attackerIntent 
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{ background: "rgba(0, 229, 255, 0.12)", border: "1px solid rgba(0, 229, 255, 0.3)" }}>
-            <ShieldAlert className="w-4 h-4" style={{ color: "var(--ghost-neon)" }} />
+            <ShieldAlert className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold tracking-tight text-white">
+            <h3 className="text-sm font-bold tracking-tight" style={{ color: "var(--ghost-text)" }}>
               GhostNet Threat Reconstruction™
             </h3>
             <p className="text-xs" style={{ color: "var(--ghost-text-dim)" }}>
@@ -47,7 +47,7 @@ export default function ThreatReconstruction({ attackChain = [], attackerIntent 
             <span className="text-[11px] font-bold uppercase tracking-wider block" style={{ color: "var(--ghost-red)" }}>
               Attacker Objective
             </span>
-            <p className="text-xs font-medium text-slate-200 mt-0.5 leading-relaxed">
+            <p className="text-xs font-medium mt-0.5 leading-relaxed" style={{ color: "var(--ghost-text)" }}>
               {attackerIntent}
             </p>
           </div>
@@ -77,8 +77,8 @@ export default function ThreatReconstruction({ attackChain = [], attackerIntent 
                   isSelected ? 'ghost-card-highlight ring-1 ring-cyan-400' : ''
                 }`}
                 style={{
-                  background: isSelected ? 'var(--ghost-surface-3)' : 'var(--ghost-surface-2)',
-                  borderColor: isSelected ? 'var(--ghost-neon)' : 'var(--ghost-border)'
+                  background: isSelected ? undefined : 'var(--ghost-surface-2)',
+                  borderColor: isSelected ? undefined : 'var(--ghost-border)'
                 }}>
                 <div className="flex items-center justify-between w-full mb-2">
                   <div className="w-6 h-6 rounded-md flex items-center justify-center"
@@ -91,7 +91,7 @@ export default function ThreatReconstruction({ attackChain = [], attackerIntent 
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold leading-tight line-clamp-1" style={{ color: "var(--ghost-headline)" }}>
+                  <p className="text-xs font-bold leading-tight line-clamp-1" style={{ color: "var(--ghost-text)" }}>
                     {item.title || item.stage}
                   </p>
                   <span className="text-[10px] font-semibold mt-1 inline-block capitalize px-1.5 py-0.5 rounded"
@@ -112,16 +112,16 @@ export default function ThreatReconstruction({ attackChain = [], attackerIntent 
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="mt-3 p-4 rounded-xl border"
-              style={{ background: "var(--ghost-surface-3)", borderColor: "var(--ghost-border)" }}>
+              style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)" }}>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-xs font-mono font-bold text-cyan-400">
+                <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400">
                   Stage {selectedStage + 1} Detail:
                 </span>
-                <span className="text-xs font-bold text-white">
+                <span className="text-xs font-bold" style={{ color: "var(--ghost-text)" }}>
                   {attackChain[selectedStage].title || attackChain[selectedStage].stage}
                 </span>
               </div>
-              <p className="text-xs font-medium leading-relaxed text-slate-300">
+              <p className="text-xs font-medium leading-relaxed" style={{ color: "var(--ghost-text-dim)" }}>
                 {attackChain[selectedStage].detail}
               </p>
             </motion.div>

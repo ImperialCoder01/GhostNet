@@ -1,5 +1,5 @@
 import React from "react";
-import { Cpu, ShieldCheck, Zap, Layers, Server, Lock, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
+import { Cpu, ShieldCheck, Zap, Layers, Sparkles } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 
 const ARCHITECTURE_STEPS = [
@@ -70,26 +70,27 @@ export default function Technology() {
 
       {/* Architecture Stepper */}
       <div className="ghost-card p-6 space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-cyan-400" /> End-to-End Processing Architecture
+        <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--ghost-text-dim)' }}>
+          <Layers className="w-4 h-4 text-cyan-500" /> End-to-End Processing Architecture
         </h3>
 
         <div className="space-y-3">
           {ARCHITECTURE_STEPS.map((step, idx) => (
             <div
               key={idx}
-              className="p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/50"
-              style={{ borderColor: "var(--ghost-border)" }}>
+              className="p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
               <div className="flex items-start gap-3">
-                <span className="w-6 h-6 rounded-md bg-slate-900 font-mono text-xs font-bold text-cyan-400 flex items-center justify-center border border-slate-800 shrink-0 mt-0.5">
+                <span className="w-6 h-6 rounded-md font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400 flex items-center justify-center border shrink-0 mt-0.5"
+                  style={{ background: 'var(--ghost-surface-3)', borderColor: 'var(--ghost-border)' }}>
                   0{idx + 1}
                 </span>
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider block" style={{ color: step.color }}>
                     {step.layer}
                   </span>
-                  <h4 className="text-sm font-bold text-white mt-0.5">{step.title}</h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-xl">{step.description}</p>
+                  <h4 className="text-sm font-bold mt-0.5" style={{ color: 'var(--ghost-text)' }}>{step.title}</h4>
+                  <p className="text-xs mt-1 leading-relaxed max-w-xl" style={{ color: 'var(--ghost-text-dim)' }}>{step.description}</p>
                 </div>
               </div>
             </div>
@@ -97,11 +98,11 @@ export default function Technology() {
         </div>
       </div>
 
-      {/* Competitive Differentiation for Judges */}
+      {/* Competitive Differentiation */}
       <div className="ghost-card p-6 space-y-4 border-cyan-500/30">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+          <Sparkles className="w-4 h-4 text-cyan-500" />
+          <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text)' }}>
             Why GhostNet AI? Key Technical Differentiators
           </h3>
         </div>
@@ -110,14 +111,15 @@ export default function Technology() {
           {DIFFERENTIATION.map((item, i) => {
             const Icon = item.icon;
             return (
-              <div key={i} className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+              <div key={i} className="p-4 rounded-xl border space-y-2"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <Icon className="w-3.5 h-3.5 text-cyan-400" />
+                    <Icon className="w-3.5 h-3.5 text-cyan-500" />
                   </div>
-                  <h4 className="text-xs font-bold text-white">{item.title}</h4>
+                  <h4 className="text-xs font-bold" style={{ color: 'var(--ghost-text)' }}>{item.title}</h4>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">{item.description}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>{item.description}</p>
               </div>
             );
           })}
