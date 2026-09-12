@@ -5,10 +5,10 @@ import QuickActions from "../components/dashboard/QuickActions";
 import RecentScans from "../components/dashboard/RecentScans";
 import ThreatStats from "../components/dashboard/ThreatStats";
 import DemoBar from "../components/demo/DemoBar";
-import { listScanHistory, listScamReports } from "@/lib/data";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import Scene from "../Scene";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -57,6 +57,26 @@ export default function Home() {
           <span className="text-[11px] font-mono text-cyan-400">Multi-Modal AI Engines</span>
         </div>
         <QuickActions />
+      </div>
+
+      {/* ThreeUI Interactive Defense Visualizer */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              ThreeUI Neural Defense Stage
+            </h2>
+          </div>
+          <Link to={createPageUrl("Scene")} className="text-[11px] font-bold text-cyan-400 hover:underline flex items-center gap-1">
+            Full Screen Scene <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="ghost-card p-3 rounded-2xl relative overflow-hidden border border-cyan-500/20 shadow-[0_0_30px_rgba(0,229,255,0.06)]">
+          <div className="h-64 sm:h-72 w-full rounded-xl overflow-hidden relative border border-slate-800/80 bg-[#030509]">
+            <Scene />
+          </div>
+        </div>
       </div>
 
       {/* Threat Statistics & Telemetry */}

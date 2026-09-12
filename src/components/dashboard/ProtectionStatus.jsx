@@ -1,13 +1,31 @@
 import React from "react";
 import { ShieldAlert, Zap, Activity } from "lucide-react";
+import { ConstellationField, LiquidMetalButton } from "@designcodeio/threeui";
+import "@designcodeio/threeui/style.css";
 
 export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100, totalScans = 0 }) {
   const isHealthy = safetyScore >= 75;
 
   return (
-    <div className="ghost-card p-5 sm:p-6 relative overflow-hidden">
+    <div className="ghost-card p-5 sm:p-6 relative overflow-hidden border border-cyan-500/20 shadow-[0_0_35px_rgba(0,229,255,0.08)]">
+      {/* ThreeUI Living Constellation / Particle Drift Background Field */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-screen">
+        <ConstellationField
+          variant="particle-drift"
+          mode="dark"
+          speed={0.85}
+          size={1.0}
+          length={1.0}
+          density={0.85}
+          opacity={0.6}
+        />
+      </div>
+
+      {/* Subtle depth gradient overlay to ensure text readability */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent pointer-events-none" />
+
       {/* Glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
         
@@ -20,10 +38,15 @@ export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display"
-            style={{ color: 'var(--ghost-text)' }}>
-            See the scam before it sees you.
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display"
+              style={{ color: 'var(--ghost-text)' }}>
+              See the scam before it sees you.
+            </h1>
+            <div className="shrink-0 w-16 h-16 hidden sm:flex items-center justify-center">
+              <LiquidMetalButton variant="circle" />
+            </div>
+          </div>
 
           <p className="text-xs sm:text-sm font-medium leading-relaxed"
             style={{ color: 'var(--ghost-text-dim)' }}>
