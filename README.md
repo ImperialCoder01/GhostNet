@@ -58,50 +58,50 @@ Traditional antivirus and threat filters act as opaque black boxes, outputting a
 ```mermaid
 flowchart TB
     subgraph Clients["User Ingress & Client Surfaces"]
-        Web["Web Application\n(React 18 + Vite 6 + Tailwind CSS)"]
-        ThreeUI["Ambient Living Particles\n(ThreeUI ConstellationField)"]
-        Mobile["Android Mobile Shell\n(Capacitor 8.5 Native Bridge)"]
-        Ext["Chromium Extension (MV3)\n(Background SW + Pre-Click Content Script)"]
+        Web["Web Application<br/>React 18 + Vite 6 + Tailwind CSS"]
+        ThreeUI["Ambient Living Particles<br/>ThreeUI ConstellationField"]
+        Mobile["Android Mobile Shell<br/>Capacitor 8.5 Native Bridge"]
+        Ext["Chromium Extension: MV3<br/>Background SW + Pre-Click Content Script"]
     end
 
-    subgraph Gateway["Edge Serverless Gateways (Vercel Node.js)"]
-        AnalyzeGW["POST /api/analyze\n(Multi-Modal Text, URL, Vision)"]
-        VoiceGW["POST /api/analyze-voice\n(Audio FFT + Whisper STT + 6MB Guard)"]
-        BlocklistGW["GET /api/blocklist-lite\n(Low-Latency SHA-256 Hash Stream)"]
-        CronGW["GET|POST /api/cron/sync-feeds\n(CRON_SECRET Auth + OpenPhish/URLhaus)"]
+    subgraph Gateway["Edge Serverless Gateways: Vercel Node.js"]
+        AnalyzeGW["POST /api/analyze<br/>Multi-Modal Text, URL, Vision"]
+        VoiceGW["POST /api/analyze-voice<br/>Audio FFT + Whisper STT + 6MB Guard"]
+        BlocklistGW["GET /api/blocklist-lite<br/>Low-Latency SHA-256 Hash Stream"]
+        CronGW["GET or POST /api/cron/sync-feeds<br/>CRON_SECRET Auth + OpenPhish/URLhaus"]
     end
 
     subgraph AIEngines["Multi-Modal Intelligence Pipeline"]
-        Groq["Groq LPU Acceleration\n(llama-3.3-70b-versatile)"]
-        Gemini["Google Gemini 2.5 Flash\n(Multi-Modal Vision & OCR)"]
-        Whisper["Groq Whisper-large-v3\n(Speech-to-Text Transcription)"]
-        FFT["Acoustic Spectral Analysis\n(In-Memory Wiener Entropy via fft.js)"]
-        HeuristicFallback["Deterministic Heuristic Fallback\n(Regex, Social Engineering NLP, Offline Scoring)"]
+        Groq["Groq LPU Acceleration<br/>llama-3.3-70b-versatile"]
+        Gemini["Google Gemini 2.5 Flash<br/>Multi-Modal Vision and OCR"]
+        Whisper["Groq Whisper-large-v3<br/>Speech-to-Text Transcription"]
+        FFT["Acoustic Spectral Analysis<br/>In-Memory Wiener Entropy via fft.js"]
+        HeuristicFallback["Deterministic Heuristic Fallback<br/>Regex, Social Engineering NLP, Offline Scoring"]
     end
 
-    subgraph DataTier["Data & Intelligence Tier (Supabase PostgreSQL 15)"]
-        RLS["Row-Level Security (RLS)\n(Client Anon Read / Service Role Write)"]
-        ThreatIndicators["threat_indicators\n(Indicator Hash, Category, Severity, Reports)"]
-        PublicBlocklist["public_blocklist\n(Domain SHA-256, Source, Active Status)"]
-        UserScans["scans & reports\n(User Audit Logs, Incident Telemetry)"]
+    subgraph DataTier["Data & Intelligence Tier: Supabase PostgreSQL 15"]
+        RLS["Row-Level Security: RLS<br/>Client Anon Read / Service Role Write"]
+        ThreatIndicators["threat_indicators<br/>Indicator Hash, Category, Severity, Reports"]
+        PublicBlocklist["public_blocklist<br/>Domain SHA-256, Source, Active Status"]
+        UserScans["scans and reports<br/>User Audit Logs, Incident Telemetry"]
     end
 
-    Web -->|JSON Payloads| AnalyzeGW
-    Web -->|Base64 Audio| VoiceGW
-    Mobile -->|WebView Bridge| Web
-    Ext -->|Prefetch Blocklist| BlocklistGW
-    Ext -->|Active Tab Intercept| AnalyzeGW
+    Web -->|"JSON Payloads"| AnalyzeGW
+    Web -->|"Base64 Audio"| VoiceGW
+    Mobile -->|"WebView Bridge"| Web
+    Ext -->|"Prefetch Blocklist"| BlocklistGW
+    Ext -->|"Active Tab Intercept"| AnalyzeGW
 
-    AnalyzeGW -->|Sub-Second Text NLP| Groq
-    AnalyzeGW -->|Visual Evidence OCR| Gemini
-    AnalyzeGW -->|Failover / Timeout (withTimeout)| HeuristicFallback
-    VoiceGW -->|Acoustic Flatness| FFT
-    VoiceGW -->|Linguistic Semantics| Whisper
+    AnalyzeGW -->|"Sub-Second Text NLP"| Groq
+    AnalyzeGW -->|"Visual Evidence OCR"| Gemini
+    AnalyzeGW -->|"Failover or Timeout"| HeuristicFallback
+    VoiceGW -->|"Acoustic Flatness"| FFT
+    VoiceGW -->|"Linguistic Semantics"| Whisper
 
-    AnalyzeGW -->|Upsert Threat Indicators| RLS
-    CronGW -->|Upsert Blocklist| PublicBlocklist
-    BlocklistGW -->|Anon Read Cache| PublicBlocklist
-    Web -->|Anon Read Telemetry| RLS
+    AnalyzeGW -->|"Upsert Threat Indicators"| RLS
+    CronGW -->|"Upsert Blocklist"| PublicBlocklist
+    BlocklistGW -->|"Anon Read Cache"| PublicBlocklist
+    Web -->|"Anon Read Telemetry"| RLS
     RLS --> ThreatIndicators
     RLS --> UserScans
 ```

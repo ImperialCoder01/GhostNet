@@ -58,15 +58,15 @@ journey
     title Margaret's Encounter with an Electricity Disconnection Scam
     section Trigger
       Receives urgent SMS at 8 PM claiming power cutoff: 1: Margaret
-      Feels panic, elevated heart rate, considers clicking link: 1: Margaret
+      Feels panic and considers clicking link: 1: Margaret
     section Intervention
-      Remembers GhostNet AI installed by her daughter: 3: Margaret
+      Remembers GhostNet AI installed by daughter: 3: Margaret
       Pastes SMS text into GhostNet Message Scanner: 4: Margaret
     section Resolution
       GhostNet returns RED SCAM verdict in 620ms: 5: GhostNet
-      Reads plain-English explanation: "This is a fake utility alert": 5: Margaret
-      Follows 1-click checklist: "Do not pay. Call electric company directly": 5: Margaret
-      Breathing returns to normal, financial loss prevented: 5: Margaret
+      Reads plain-English warning of fake utility alert: 5: Margaret
+      Follows 1-click checklist to call utility company: 5: Margaret
+      Breathing returns to normal and financial loss prevented: 5: Margaret
 ```
 
 ---
@@ -100,15 +100,15 @@ journey
 journey
     title Alex Intercepting a QR Phishing Airdrop
     section Encounter
-      Spots a QR code at a DeFi conference booth for "$GHOST Airdrop": 3: Alex
+      Spots a QR code at a DeFi conference booth for token airdrop: 3: Alex
       Opens GhostNet Live Camera QR Scanner: 4: Alex
     section Real-time Detection
       Camera targets QR matrix at 30 FPS: 5: GhostNet
-      Decodes URL payload: https://app.uniswąp-reward.eth.limo: 5: GhostNet
-      Identifies Cyrillic homoglyph 'ą' and Punycode spoofing: 5: GhostNet
+      Decodes malicious lookalike URL payload: 5: GhostNet
+      Identifies Cyrillic homoglyphs and Punycode spoofing: 5: GhostNet
     section Neutralization
-      HUD turns crimson, displays "SUSPICIOUS_DOMAIN" alert: 5: GhostNet
-      Blocks navigation, shows exact typosquatted target: "uniswap.org": 5: GhostNet
+      HUD displays SUSPICIOUS_DOMAIN alert: 5: GhostNet
+      Blocks navigation and exposes uniswap spoof: 5: GhostNet
       Alex avoids signing malicious permit2 signature: 5: Alex
 ```
 
@@ -143,17 +143,17 @@ journey
 journey
     title Priya Verifying an Executive Voice Note
     section Alert
-      Receives 12-second voice memo on WhatsApp from "VP of Finance": 2: Priya
-      Voice sounds familiar, requesting urgent wire of £14,500: 2: Priya
+      Receives 12-second voice memo from spoofed executive: 2: Priya
+      Voice sounds familiar and requests urgent wire: 2: Priya
     section Verification
       Uploads audio snippet to GhostNet Voice Analyzer: 4: Priya
       Browser Web Audio API runs FFT Wiener spectral flatness: 5: GhostNet
-      Acoustic anomaly score hits 88/100 (neural vocoder artifacts detected): 5: GhostNet
-      Groq LPU classifies text: URGENCY_SCARE_TACTICS + PAYMENT_REDIRECT: 5: GhostNet
+      Acoustic anomaly score hits 88 with neural artifacts: 5: GhostNet
+      Groq LPU detects urgency coercion and payment redirect: 5: GhostNet
     section Defense
       GhostNet issues 91% Synthetic Voice Fraud Verdict: 5: GhostNet
       Confirms raw audio is ephemerally wiped from memory: 5: Priya
-      Priya escalates to internal security; fraud attempt logged: 5: Priya
+      Priya escalates to internal security with fraud logged: 5: Priya
 ```
 
 ---
@@ -191,10 +191,10 @@ journey
       Extracts malicious domain and SMS lure template: 4: Marcus
     section Telemetry Sync
       Submits sanitized indicator to GhostNet Global Threat Intelligence: 5: Marcus
-      Supabase RLS validates report; calculates SHA-256 indicator hash: 5: GhostNet
+      Supabase validates report and calculates SHA-256 hash: 5: GhostNet
       Indicator immediately available to edge blocklist: 5: GhostNet
     section Community Impact
-      1,400+ GhostNet users protected before attackers send next wave: 5: Marcus
+      More than 1400 users protected before next wave: 5: Marcus
 ```
 
 ---

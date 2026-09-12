@@ -18,22 +18,22 @@ GhostNet guarantees high availability and zero downtime through a tiered cascade
 
 ```mermaid
 flowchart TD
-    Ingress["Threat Ingress\n(Text / URL / Image / Audio)"] --> RouteType{Vector Type?}
+    Ingress["Threat Ingress<br/>Text / URL / Image / Audio"] --> RouteType{Vector Type?}
 
-    RouteType -->|Text / Message / URL| GroqPrimary["Groq LPU (llama-3.3-70b-versatile)\n[< 800ms Inference Window]"]
-    GroqPrimary -->|Timeout (9s) / Rate Limit| GeminiText["Google Gemini 2.5 Flash\n[Text & Multimodal Fallback]"]
-    GeminiText -->|Network Degradation / Offline| OfflineNLP["Local Heuristic Rule Engine\n[Regex + Social Engineering Tokens]"]
+    RouteType -->|"Text / Message / URL"| GroqPrimary["Groq LPU: llama-3.3-70b-versatile<br/>Sub-800ms Inference Window"]
+    GroqPrimary -->|"Timeout 9s / Rate Limit"| GeminiText["Google Gemini 2.5 Flash<br/>Text and Multimodal Fallback"]
+    GeminiText -->|"Network Degradation / Offline"| OfflineNLP["Local Heuristic Rule Engine<br/>Regex and Social Engineering Tokens"]
 
-    RouteType -->|Screenshot / QR Code| GeminiVision["Google Gemini 2.5 Flash\n[Visual OCR & Brand MIMIC Detection]"]
-    GeminiVision -->|Fallback / Offline| OfflineOCR["Client Canvas OCR + Pattern Engine"]
+    RouteType -->|"Screenshot / QR Code"| GeminiVision["Google Gemini 2.5 Flash<br/>Visual OCR and Brand MIMIC Detection"]
+    GeminiVision -->|"Fallback / Offline"| OfflineOCR["Client Canvas OCR and Pattern Engine"]
 
-    RouteType -->|Voice / Audio Payload| VoicePipeline["Acoustic & Linguistic Analyzer"]
-    VoicePipeline --> AcousticFFT["Acoustic Wiener Entropy (fft.js)\n[Spectral Flatness & HF Energy Ratio]"]
-    VoicePipeline --> WhisperSTT["Groq Whisper-large-v3\n[Speech-to-Text Transcription]"]
+    RouteType -->|"Voice / Audio Payload"| VoicePipeline["Acoustic and Linguistic Analyzer"]
+    VoicePipeline --> AcousticFFT["Acoustic Wiener Entropy: fft.js<br/>Spectral Flatness and HF Energy Ratio"]
+    VoicePipeline --> WhisperSTT["Groq Whisper-large-v3<br/>Speech-to-Text Transcription"]
     AcousticFFT --> VoiceScore["Combined Deepfake Threat Score"]
     WhisperSTT --> VoiceScore
 
-    GroqPrimary --> DefenseFilter["Code-Defense Parser (safeParseVerdict)"]
+    GroqPrimary --> DefenseFilter["Code-Defense Parser: safeParseVerdict"]
     GeminiText --> DefenseFilter
     OfflineNLP --> DefenseFilter
     GeminiVision --> DefenseFilter
@@ -41,7 +41,7 @@ flowchart TD
     VoiceScore --> DefenseFilter
 
     DefenseFilter --> StandardizedCodes["10 Fixed Reason Codes Mapping"]
-    StandardizedCodes --> FinalOutput["Unified Threat Verdict\n(Score 0-100, Kill-Chain, Intent, Reason Badges)"]
+    StandardizedCodes --> FinalOutput["Unified Threat Verdict<br/>Score 0-100, Kill-Chain, Intent, Reason Badges"]
 ```
 
 ---

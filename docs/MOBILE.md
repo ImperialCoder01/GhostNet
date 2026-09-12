@@ -33,9 +33,9 @@ flowchart TD
     ReactApp --> AudioRecord
     ReactApp --> OfflineEngine
 
-    ReactApp -->|Online Network Mode| VercelAPI
-    ReactApp -->|Online Sync| SupabaseDB
-    ReactApp -->|Offline / No Signal Mode| OfflineEngine
+    ReactApp -->|"Online Network Mode"| VercelAPI
+    ReactApp -->|"Online Sync"| SupabaseDB
+    ReactApp -->|"Offline or No Signal Mode"| OfflineEngine
 ```
 
 * **Package Identifier:** `com.ghostnet.app`

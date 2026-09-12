@@ -6,35 +6,35 @@ GhostNet AI is an enterprise-grade, multi-modal cybersecurity and digital fraud 
 
 ```mermaid
 flowchart TB
-    subgraph ClientSurfaces["Client Presentation & Ingress Surfaces"]
-        Web["Web Application\n(React 18 + Vite 6 + Tailwind CSS)"]
-        Shaders["Ambient Living Particles\n(ThreeUI ConstellationField)"]
-        Mobile["Android Mobile Shell\n(Capacitor 8.5 Native Bridge)"]
-        Ext["Chromium Extension (MV3)\n(Service Worker + Content Script Interceptor)"]
+    subgraph ClientSurfaces["Client Presentation and Ingress Surfaces"]
+        Web["Web Application<br/>React 18 + Vite 6 + Tailwind CSS"]
+        Shaders["Ambient Living Particles<br/>ThreeUI ConstellationField"]
+        Mobile["Android Mobile Shell<br/>Capacitor 8.5 Native Bridge"]
+        Ext["Chromium Extension: MV3<br/>Service Worker + Content Script Interceptor"]
     end
 
-    subgraph EdgeGateways["Edge API Gateways (Vercel Serverless / Node.js)"]
-        AnalyzeGW["POST /api/analyze\n(Multi-Modal Text, URL, Screenshot, Threat Ingestion)"]
-        VoiceGW["POST /api/analyze-voice\n(Wiener Flatness FFT + Whisper STT + 6MB Guard)"]
-        BlocklistGW["GET /api/blocklist-lite\n(Low-Latency Plaintext SHA-256 Hash Stream)"]
-        CronGW["GET|POST /api/cron/sync-feeds\n(CRON_SECRET Auth + OpenPhish/URLhaus Ingestion)"]
+    subgraph EdgeGateways["Edge API Gateways: Vercel Serverless"]
+        AnalyzeGW["POST /api/analyze<br/>Multi-Modal Text, URL, Screenshot"]
+        VoiceGW["POST /api/analyze-voice<br/>Wiener Flatness FFT + Whisper STT + 6MB Guard"]
+        BlocklistGW["GET /api/blocklist-lite<br/>Low-Latency Plaintext SHA-256 Hash Stream"]
+        CronGW["POST /api/cron/sync-feeds<br/>CRON_SECRET Auth + OpenPhish/URLhaus"]
     end
 
-    subgraph IntelligenceLayer["Multi-Modal Intelligence & Analysis Layer"]
-        Groq["Groq LPU Acceleration\n(llama-3.3-70b-versatile / llama-3.1-8b-instant)"]
-        Gemini["Google Gemini 2.5 Flash\n(Multi-Modal Vision & Logo Extraction)"]
-        Whisper["Groq Whisper-large-v3\n(Speech-to-Text Transcription)"]
-        FFT["Acoustic Spectral Engine\n(Wiener Entropy & Flatness via fft.js)"]
-        ReasonCodes["Code-Defense Parser\n(10 Standardized Reason Codes & Sanitization)"]
-        Heuristics["Deterministic Offline Engine\n(Regex, Social Engineering NLP, Typosquatting)"]
+    subgraph IntelligenceLayer["Multi-Modal Intelligence and Analysis Layer"]
+        Groq["Groq LPU Acceleration<br/>llama-3.3-70b-versatile"]
+        Gemini["Google Gemini 2.5 Flash<br/>Multi-Modal Vision and Logo Extraction"]
+        Whisper["Groq Whisper-large-v3<br/>Speech-to-Text Transcription"]
+        FFT["Acoustic Spectral Engine<br/>Wiener Entropy and Flatness via fft.js"]
+        ReasonCodes["Code-Defense Parser<br/>10 Standardized Reason Codes"]
+        Heuristics["Deterministic Offline Engine<br/>Regex, Social Engineering NLP, Typosquatting"]
     end
 
-    subgraph PersistenceLayer["Data & Telemetry Tier (Supabase PostgreSQL 15)"]
-        AnonClient["Public Anon Key (Read-Only Client)"]
-        ServiceRoleClient["Service Role Key (Server-Only Writes)"]
-        ThreatIndicators["threat_indicators\n(Indicator Hash, Type, Category, Reports Count)"]
-        PublicBlocklist["public_blocklist\n(Domain SHA-256, Source, Normalized Hostname)"]
-        UserTelemetry["scans & reports\n(User Scan Logs, Incident Containment Telemetry)"]
+    subgraph PersistenceLayer["Data and Telemetry Tier: Supabase PostgreSQL 15"]
+        AnonClient["Public Anon Key: Read-Only Client"]
+        ServiceRoleClient["Service Role Key: Server-Only Writes"]
+        ThreatIndicators["threat_indicators<br/>Indicator Hash, Type, Category, Reports Count"]
+        PublicBlocklist["public_blocklist<br/>Domain SHA-256, Source, Normalized Hostname"]
+        UserTelemetry["scans and reports<br/>User Scan Logs, Incident Telemetry"]
     end
 
     Web --> AnalyzeGW
