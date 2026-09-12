@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { ShieldAlert, Zap, Activity } from "lucide-react";
-import { ConstellationField, LiquidMetalButton } from "@designcodeio/threeui";
+import { ConstellationField } from "@designcodeio/threeui";
 import "@designcodeio/threeui/style.css";
 
 export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100, totalScans = 0 }) {
@@ -53,8 +53,9 @@ export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100
           <div className="pt-2 flex items-center gap-3">
             <Link
               to={createPageUrl("MessageScanner")}
-              className="h-11 w-44 rounded-xl overflow-hidden block border border-cyan-500/40 shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:scale-[1.02] transition-transform">
-              <LiquidMetalButton variant="pill" text="Quick Scan" />
+              className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl text-xs font-bold font-mono tracking-wide uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98]">
+              <Zap className="w-3.5 h-3.5 fill-current" />
+              Quick Threat Scan
             </Link>
             <Link
               to={createPageUrl("LinkScanner")}
