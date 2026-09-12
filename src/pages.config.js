@@ -7,6 +7,7 @@ import ScamHeatmap from './pages/ScamHeatmap';
 import ScreenshotScanner from './pages/ScreenshotScanner';
 import Technology from './pages/Technology';
 import PrivacyCenter from './pages/PrivacyCenter';
+import VoiceScanner from './pages/VoiceScanner';
 import Scene from './Scene';
 import __Layout from './Layout.jsx';
 
@@ -15,6 +16,7 @@ export const PAGES = {
     "LinkScanner": LinkScanner,
     "MessageScanner": MessageScanner,
     "ScreenshotScanner": ScreenshotScanner,
+    "VoiceScanner": VoiceScanner,
     "ScamHeatmap": ScamHeatmap,
     "ReportScam": ReportScam,
     "Technology": Technology,

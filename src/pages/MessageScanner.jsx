@@ -140,6 +140,8 @@ export default function MessageScanner() {
           signals={result.signals}
           threatReconstruction={result.threat_reconstruction}
           similarPatterns={result.similar_patterns}
+          reasonCodes={result.reasonCodes || []}
+          source={result.source}
           rawScanData={{
             scan_type: "message",
             input_content: message,

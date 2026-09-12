@@ -27,9 +27,25 @@ const SCAM_KEYWORDS = [
   'telegram',
   'upi pin',
   'collect request',
+  // Feature 2 additions — new urgency/OTP/payment patterns
+  'verify now',
+  'confirm your details',
+  'reactivate',
+  'click below',
+  'limited time',
+  'one time password',
+  'one-time password',
+  'verification code',
+  'authentication code',
+  'outstanding dues',
+  'pending payment',
+  'immediate payment',
+  'late fee',
 ]
 
-const SHORTENER_DOMAINS = ['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly', 'rb.gy', 'is.gd', 'rebrand.ly']
+// Feature 2 addition — extra URL shorteners
+const SHORTENER_DOMAINS = ['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly', 'rb.gy', 'is.gd', 'rebrand.ly', 'ow.ly', 'short.link', 'buff.ly', 'tiny.cc']
+
 
 const KNOWN_BRANDS = [
   { name: 'State Bank of India (SBI)', match: /(sbi|statebank)/i, legitimate: 'sbi.co.in' },
@@ -356,6 +372,12 @@ export function analyzeUrlContent(rawUrl) {
     criticalSignals.push('Homograph / Punycode character spoofing')
   }
 
+  // Feature 2 addition — IP-literal URL detection
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) {
+    score += 40
+    reasons.push('URL uses raw IP address instead of domain name — strong indicator of malicious infrastructure')
+    criticalSignals.push('IP-literal address (no domain)')
+  }
   const finalScore = Math.min(100, Math.max(5, score))
   const riskLevel = scoreToRisk(finalScore)
   const attackChain = reconstructAttackChain(`Phishing link inspection: ${rawUrl}`, rawUrl, riskLevel)

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Map, AlertTriangle, Globe, Radio, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import { listScamReports } from "@/lib/data";
+import { listScamReports, listThreatIndicatorStats } from "@/lib/data";
 
 const REGIONAL_HOTSPOTS = [
   { city: "Bengaluru", country: "India", reports: 412, trend: "+28%", category: "UPI Cashback Fraud", severity: "critical" },
@@ -32,7 +32,15 @@ export default function ScamHeatmap() {
     queryFn: () => listScamReports(100),
   });
 
-  const totalReportsCount = 4520 + reports.length;
+  // Feature 4 — Live community threat intelligence count
+  const { data: threatStats = [] } = useQuery({
+    queryKey: ['threatIndicatorStats'],
+    queryFn: listThreatIndicatorStats,
+    staleTime: 5 * 60 * 1000, // 5 min
+  });
+  const liveIndicatorCount = threatStats.reduce((sum, s) => sum + (s.count || 0), 0);
+
+  const totalReportsCount = 4520 + reports.length + liveIndicatorCount;
 
   const filteredHotspots = selectedFilter === "all"
     ? REGIONAL_HOTSPOTS

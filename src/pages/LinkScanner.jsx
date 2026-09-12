@@ -212,6 +212,8 @@ export default function LinkScanner() {
             signals={result.signals}
             threatReconstruction={result.threat_reconstruction}
             similarPatterns={result.similar_patterns}
+            reasonCodes={result.reasonCodes || []}
+            source={result.source}
             rawScanData={{
               scan_type: "link",
               input_content: url,

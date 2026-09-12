@@ -1,8 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, ShieldAlert, ShieldX, Sparkles, Key, DollarSign, Clock, Users } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldX, Sparkles, Key, DollarSign, Clock, Users, Globe, AlertTriangle, QrCode, UserX, Banknote, CalendarX, ShieldOff, KeyRound } from "lucide-react";
 import ThreatReconstruction from "./ThreatReconstruction";
 import EmergencyActionCard from "./EmergencyActionCard";
+import SourceBadge from "./SourceBadge";
+import { REASON_CODE_DICT } from "@/lib/reasonCodes";
 
 export default function FraudScoreDisplay({
   score = 0,
@@ -14,7 +16,9 @@ export default function FraudScoreDisplay({
   signals = {},
   threatReconstruction = [],
   similarPatterns: _similarPatterns = [],
-  rawScanData = {}
+  rawScanData = {},
+  reasonCodes = [],
+  source = null,
 }) {
   const config = {
     safe: {
@@ -70,6 +74,7 @@ export default function FraudScoreDisplay({
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full badge-neutral">
                   AI Confidence: <strong className="capitalize" style={{ color: 'var(--ghost-text)' }}>{confidence}</strong>
                 </span>
+                <SourceBadge source={source} />
               </div>
               <h2 className="text-lg font-bold tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
                 Threat Assessment Verdict
@@ -111,6 +116,42 @@ export default function FraudScoreDisplay({
           />
         </div>
       </div>
+
+      {/* Reason Code Chips — Feature 1: Explainable Risk Scoring */}
+      {reasonCodes && reasonCodes.length > 0 && (() => {
+        const ICON_MAP = {
+          Clock, Globe, AlertTriangle, QrCode, UserX, Banknote, CalendarX, ShieldOff, KeyRound, ShieldX: ShieldX,
+        };
+        return (
+          <div className="ghost-card p-5 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--ghost-text-dim)' }}>
+              <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
+              Structured Risk Indicators ({reasonCodes.length})
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {reasonCodes.map((code) => {
+                const meta = REASON_CODE_DICT[code];
+                if (!meta) return null;
+                const IconComp = ICON_MAP[meta.icon] || AlertTriangle;
+                return (
+                  <span
+                    key={code}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                    style={{
+                      color: meta.color,
+                      borderColor: `${meta.color}40`,
+                      background: `${meta.color}15`,
+                    }}
+                  >
+                    <IconComp className="w-3 h-3 shrink-0" />
+                    {meta.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Threat Reconstruction Component */}
       {threatReconstruction && threatReconstruction.length > 0 && (

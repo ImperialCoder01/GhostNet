@@ -1,4 +1,4 @@
-{
+﻿{
   "version": 2,
   "headers": [
     {
@@ -19,6 +19,12 @@
     {
       "source": "/(.*)",
       "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/sync-feeds",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

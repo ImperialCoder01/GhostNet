@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+﻿import { supabase } from '@/lib/supabase'
 
 async function requireUserId() {
   const { data, error } = await supabase.auth.getUser()
@@ -98,4 +98,37 @@ export async function uploadEvidenceFile(file) {
   }
 
   return signed?.signedUrl || ''
+}
+
+/**
+ * Feature 4 — Community Threat Intelligence
+ * Lists threat indicators from the last 7 days grouped by region.
+ * Uses anon key — read-only, matches RLS SELECT policy.
+ * Returns [{ region, count }] or [] on any error.
+ */
+export async function listThreatIndicatorStats() {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { data, error } = await supabase
+      .from('threat_indicators')
+      .select('region')
+      .gte('last_seen', sevenDaysAgo)
+    
+    if (error) {
+      console.warn('[data] listThreatIndicatorStats failed:', error.message)
+      return []
+    }
+    
+    // Group by region client-side
+    const counts = {}
+    for (const row of (data || [])) {
+      const region = row.region || 'Unknown'
+      counts[region] = (counts[region] || 0) + 1
+    }
+    
+    return Object.entries(counts).map(([region, count]) => ({ region, count }))
+  } catch (err) {
+    console.warn('[data] listThreatIndicatorStats error:', err.message)
+    return []
+  }
 }
