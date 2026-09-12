@@ -36,7 +36,7 @@ Use this step-by-step presentation script for hackathon judging and live demonst
 12. Click the **`Senior Mode`** button in the header:
     * *"Senior citizens are the #1 target for financial scams. One click enlarges typography and simplifies alerts into plain-English instructions."*
 13. Click the **`Theme Toggle (Sun/Moon)`** to show crisp, high-contrast Light and Dark mode rendering.
-14. Navigate to **`Global Threat Heatmap`** (`/ScamHeatmap`) to show geographic threat clustering.
+14. Navigate to **`Global Threat Intelligence`** (`/ScamHeatmap`) to show geographic threat clustering.
 
 ---
 

@@ -20,7 +20,7 @@ const detectionNav = [
 ];
 
 const intelligenceNav = [
-  { name: "Global Threat Heatmap", page: "ScamHeatmap", icon: Map },
+  { name: "Global Threat Intelligence", page: "ScamHeatmap", icon: Map },
   { name: "Browser Shield & Ext", page: "BrowserShield", icon: Shield },
   { name: "Report Threat", page: "ReportScam", icon: AlertTriangle },
 ];

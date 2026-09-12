@@ -1,4 +1,4 @@
-﻿# GhostNet AI — Hackathon Demonstration & Judging Playbook
+# GhostNet AI — Hackathon Demonstration & Judging Playbook
 
 ---
 
@@ -18,7 +18,7 @@
 | **0:25 - 0:50** | **Domain and Typosquatting** | `Link Inspector` | Test `sbi-kyc-verification-portal.online`. Show brand mimicry detection and Sandbox. |
 | **0:50 - 1:15** | **QR Camera and Threat Extraction** | `QR Code Inspector` | Open camera or click 1-Click QR benchmark. Show instant payload decode and risk scoring. |
 | **1:15 - 1:40** | **Voice and Deepfake Call Detection** | `Voice & Audio Scam` | Click synthetic voice benchmark. Show acoustic Wiener entropy and linguistic analysis. |
-| **1:40 - 2:00** | **Global Radar and Browser Shield** | `Threat Heatmap` / `Browser Shield` | Show live Supabase indicator feed, pre-click blocklist interceptor, and 40/40 test suite. |
+| **1:40 - 2:00** | **Global Radar and Browser Shield** | `Global Threat Intelligence` / `Browser Shield` | Show live Supabase indicator feed, pre-click blocklist interceptor, and 40/40 test suite. |
 
 ---
 

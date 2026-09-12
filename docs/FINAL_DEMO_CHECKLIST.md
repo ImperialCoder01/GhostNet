@@ -1,4 +1,4 @@
-﻿# GhostNet AI — Final Production Demo Lock & Judging Checklist
+# GhostNet AI — Final Production Demo Lock & Judging Checklist
 
 This document is the authoritative quick-reference checklist for demonstrating GhostNet AI during hackathon judging.
 
@@ -84,8 +84,8 @@ This document is the authoritative quick-reference checklist for demonstrating G
 
 ---
 
-## 8. Heatmap Verification
-- **Page**: Navigate to `Global Threat Heatmap`.
+## 8. Global Threat Intelligence Verification
+- **Page**: Navigate to `Global Threat Intelligence`.
 - **Verify**:
   - Total Syndicated Threats count displays live community & synced indicators.
   - Interactive city nodes (Bengaluru, Mumbai, Delhi, London, New York) render with surge velocity.

@@ -66,7 +66,7 @@ export default function Home() {
             Global & Local Intelligence
           </h2>
           <Link to={createPageUrl("ScamHeatmap")} className="text-[11px] font-bold text-cyan-400 hover:underline flex items-center gap-1">
-            Open Heatmap <ArrowRight className="w-3 h-3" />
+            Open Threat Intelligence <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <ThreatStats reports={reports} scans={scans} />

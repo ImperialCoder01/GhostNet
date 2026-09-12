@@ -7,7 +7,7 @@
 * [x] **Safe Threat Simulator:** "What Happens If I Click?" educational phishing sandbox.
 * [x] **Accessibility:** Family & Senior Citizen Safety Mode with enlarged touch targets.
 * [x] **Theme Engine:** Instant Light / Dark theme switching with persistent local storage.
-* [x] **Threat Intelligence:** Global Scam Heatmap with regional severity filtering and community reporting.
+* [x] **Threat Intelligence:** Global Threat Intelligence with regional severity filtering and community reporting.
 * [x] **Mobile:** Native Android build setup via Capacitor 8.
 * [x] **Security:** Supabase PostgreSQL with strict Row-Level Security (RLS) and personal data purge.
 

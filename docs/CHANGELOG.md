@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * **Family & Senior Safety Mode:** Dedicated high-contrast, enlarged touch target accessibility mode designed for elderly users.
 * **Light & Dark Theme Engine:** Seamless instant theme switching with persistent local storage and CSS custom properties.
 * **Operator Profile & Account Modal:** Real-time authenticated session viewer with instant data purge controls.
-* **Global Scam Heatmap:** Geographic threat radar clustering scam reports across major urban nodes.
+* **Global Threat Intelligence:** Geographic threat radar clustering scam reports across major urban nodes.
 * **Unit Testing Suite:** Native test harness (`node --test`) covering signal extraction, intent inference, kill-chain reconstruction, and domain analysis.
 
 ### Changed

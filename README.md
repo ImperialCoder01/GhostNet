@@ -34,7 +34,7 @@ Digital fraud and social-engineering scams cause over **$10B in annual losses gl
 | **Attacker Intent Engine** | Translates technical threat vectors into plain-English attacker objectives. | ✅ Implemented |
 | **Family & Senior Safety Mode** | High-contrast accessibility mode with enlarged touch targets and simplified safety guidance for non-technical users. | ✅ Implemented |
 | **Theme Engine** | Instant Light / Dark theme switching with persistent local storage. | ✅ Implemented |
-| **Global Scam Heatmap & Radar** | Telemetry dashboard mapping geographic threat clusters across major urban nodes. | ✅ Implemented |
+| **Global Threat Intelligence & Radar** | Telemetry dashboard mapping geographic threat clusters across major urban nodes. | ✅ Implemented |
 | **Incident Response Protocol** | One-tap containment checklist (STOP, VERIFY with National Cyber Helpline 1930, REPORT, SECURE). | ✅ Implemented |
 | **Cross-Platform Android Mobile** | Native Android package configured via Capacitor 8. | ✅ Implemented |
 

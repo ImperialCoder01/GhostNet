@@ -54,7 +54,7 @@ const actions = [
     bg: "rgba(16, 185, 129, 0.12)",
   },
   {
-    title: "Global Heatmap",
+    title: "Global Threat Intelligence",
     subtitle: "Live community threat telemetry",
     page: "ScamHeatmap",
     icon: AlertTriangle,

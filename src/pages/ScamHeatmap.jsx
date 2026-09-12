@@ -50,7 +50,7 @@ export default function ScamHeatmap() {
     <div className="space-y-6">
       <ScannerHeader
         icon={Map}
-        title="Global Scam Heatmap & Threat Radar"
+        title="Global Threat Intelligence & Radar"
         description="Real-time global threat intelligence, emerging cyber fraud campaigns, and geographic scam distribution"
         color="#00d4ff"
       />
