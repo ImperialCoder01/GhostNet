@@ -1,4 +1,4 @@
-﻿import {
+import {
   analyzeMessageContent,
   analyzeUrlContent,
   analyzeScamReportContent,
@@ -9,6 +9,7 @@
   findSimilarScams,
   scoreToRisk,
   normalize,
+  inferReasonCodes,
 } from '../src/lib/scanner.js'
 import { filterValidReasonCodes } from '../src/lib/reasonCodes.js'
 import crypto from 'node:crypto'
@@ -382,7 +383,9 @@ ${REASON_CODES_INSTRUCTION}`
           signals: parsed.signals || extractAttackSignals(contentStr),
           threat_reconstruction: reconstructAttackChain(contentStr, type === 'link' ? payload.url : '', risk),
           similar_patterns: findSimilarScams(contentStr),
-          reasonCodes: verdict?.reasonCodes || [],
+          reasonCodes: (verdict?.reasonCodes && verdict.reasonCodes.length > 0)
+            ? verdict.reasonCodes
+            : inferReasonCodes(contentStr, type === 'link' ? payload.url : '', parsed.signals || extractAttackSignals(contentStr), risk),
           explanation: verdict?.explanation || null,
           source: 'groq',
           emergency_actions: {
@@ -581,7 +584,7 @@ export default async function handler(req, res) {
       }
 
       // Fallback to heuristic
-      const fallback = { ...analyzeMessageContent(payload?.message || ''), source: 'offline-heuristic', reasonCodes: [], explanation: null }
+      const fallback = { ...analyzeMessageContent(payload?.message || ''), source: 'offline-heuristic' }
       res.status(200).json(fallback)
       return
     }
@@ -630,7 +633,7 @@ export default async function handler(req, res) {
       }
 
       // Fallback to heuristic
-      const fallback = { ...base, source: 'offline-heuristic', reasonCodes: [], explanation: null }
+      const fallback = { ...base, source: 'offline-heuristic' }
       res.status(200).json(fallback)
       return
     }

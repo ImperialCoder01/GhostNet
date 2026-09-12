@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import UserModal from "@/components/auth/UserModal";
 import { MessageSquareWarning, Link2, Image, Map, 
   AlertTriangle, User, Home, Menu, X, Ghost, Cpu, Lock, 
-  HeartHandshake, Sun, Moon, Mic
+  HeartHandshake, Sun, Moon, Mic, QrCode, Shield
 } from "lucide-react";
 import { ConstellationField } from "@designcodeio/threeui";
 import "@designcodeio/threeui/style.css";
@@ -15,13 +15,13 @@ const detectionNav = [
   { name: "Message Scanner", page: "MessageScanner", icon: MessageSquareWarning },
   { name: "Link Inspector", page: "LinkScanner", icon: Link2 },
   { name: "Vision Screenshot", page: "ScreenshotScanner", icon: Image },
-  ...(import.meta.env.VITE_ENABLE_VOICE_SCANNER === 'true'
-    ? [{ name: "Voice & Audio", page: "VoiceScanner", icon: Mic }]
-    : []),
+  { name: "QR Code Inspector", page: "QRScanner", icon: QrCode },
+  { name: "Voice & Audio Scam", page: "VoiceScanner", icon: Mic },
 ];
 
 const intelligenceNav = [
   { name: "Global Threat Heatmap", page: "ScamHeatmap", icon: Map },
+  { name: "Browser Shield & Ext", page: "BrowserShield", icon: Shield },
   { name: "Report Threat", page: "ReportScam", icon: AlertTriangle },
 ];
 

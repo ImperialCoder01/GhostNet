@@ -1,29 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { MessageSquareWarning, Link2, Image, AlertTriangle, ArrowRight } from "lucide-react";
+import { MessageSquareWarning, Link2, Image, AlertTriangle, ArrowRight, QrCode, Mic, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 
 const actions = [
   {
     title: "Scan Message",
-    subtitle: "SMS, WhatsApp, Email text",
+    subtitle: "SMS, WhatsApp, Email smishing",
     page: "MessageScanner",
     icon: MessageSquareWarning,
     color: "#00e5ff",
-    lightColor: "#0284c7",
     bg: "rgba(0, 229, 255, 0.12)",
-    lightBg: "rgba(2, 132, 199, 0.1)",
   },
   {
     title: "Scan Link / URL",
-    subtitle: "Inspect domain & typosquatting",
+    subtitle: "Domain inspection & typosquatting",
     page: "LinkScanner",
     icon: Link2,
     color: "#a78bfa",
-    lightColor: "#7c3aed",
     bg: "rgba(167, 139, 250, 0.12)",
-    lightBg: "rgba(124, 58, 237, 0.1)",
   },
   {
     title: "Scan Screenshot",
@@ -31,19 +27,47 @@ const actions = [
     page: "ScreenshotScanner",
     icon: Image,
     color: "#f472b6",
-    lightColor: "#db2777",
     bg: "rgba(244, 114, 182, 0.12)",
-    lightBg: "rgba(219, 39, 119, 0.1)",
   },
   {
-    title: "Report Scam",
-    subtitle: "Contribute to global threat intel",
-    page: "ReportScam",
+    title: "QR Code Inspector",
+    subtitle: "Decode & inspect suspicious QRs",
+    page: "QRScanner",
+    icon: QrCode,
+    color: "#8b5cf6",
+    bg: "rgba(139, 92, 246, 0.12)",
+  },
+  {
+    title: "Voice & Audio Scam",
+    subtitle: "Deepfakes, vocoders & fraud calls",
+    page: "VoiceScanner",
+    icon: Mic,
+    color: "#06b6d4",
+    bg: "rgba(6, 182, 212, 0.12)",
+  },
+  {
+    title: "Browser Shield & Ext",
+    subtitle: "Real-time navigation & pre-click block",
+    page: "BrowserShield",
+    icon: Shield,
+    color: "#10b981",
+    bg: "rgba(16, 185, 129, 0.12)",
+  },
+  {
+    title: "Global Heatmap",
+    subtitle: "Live community threat telemetry",
+    page: "ScamHeatmap",
     icon: AlertTriangle,
     color: "#f59e0b",
-    lightColor: "#d97706",
     bg: "rgba(245, 158, 11, 0.12)",
-    lightBg: "rgba(217, 119, 6, 0.1)",
+  },
+  {
+    title: "Report Scam Threat",
+    subtitle: "Syndicate indicators to database",
+    page: "ReportScam",
+    icon: AlertTriangle,
+    color: "#ef4444",
+    bg: "rgba(239, 68, 68, 0.12)",
   }
 ];
 
@@ -65,7 +89,7 @@ export default function QuickActions() {
                 <div
                   className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
                   style={{ background: action.bg }}>
-                  <Icon className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+                  <Icon className="w-5 h-5" style={{ color: action.color }} />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold transition-colors group-hover:text-cyan-500"

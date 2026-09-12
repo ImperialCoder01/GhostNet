@@ -1,4 +1,4 @@
-﻿import {
+import {
   analyzeMessageContent,
   scoreToRisk,
 } from '../src/lib/scanner.js'
@@ -13,8 +13,8 @@ export const config = {
 }
 
 export default async function handler(req, res) {
-  // Flag-gate Feature 6
-  const isEnabled = process.env.ENABLE_VOICE_SCANNER === 'true'
+  // Feature 6: Enabled by default, can be disabled with ENABLE_VOICE_SCANNER=false
+  const isEnabled = process.env.ENABLE_VOICE_SCANNER !== 'false'
   if (!isEnabled) {
     res.status(404).json({ error: 'Voice scanner is disabled on this environment.' })
     return

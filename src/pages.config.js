@@ -8,6 +8,8 @@ import ScreenshotScanner from './pages/ScreenshotScanner';
 import Technology from './pages/Technology';
 import PrivacyCenter from './pages/PrivacyCenter';
 import VoiceScanner from './pages/VoiceScanner';
+import QRScannerPage from './pages/QRScannerPage';
+import BrowserShield from './pages/BrowserShield';
 import Scene from './Scene';
 import __Layout from './Layout.jsx';
 
@@ -16,7 +18,9 @@ export const PAGES = {
     "LinkScanner": LinkScanner,
     "MessageScanner": MessageScanner,
     "ScreenshotScanner": ScreenshotScanner,
+    "QRScanner": QRScannerPage,
     "VoiceScanner": VoiceScanner,
+    "BrowserShield": BrowserShield,
     "ScamHeatmap": ScamHeatmap,
     "ReportScam": ReportScam,
     "Technology": Technology,

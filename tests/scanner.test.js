@@ -163,3 +163,24 @@ describe('Feature 6 — Voice Acoustic & Spectral Scoring', () => {
   })
 })
 
+describe('Feature 1 & 2 — Deterministic Reason Code Inference', () => {
+  it('should attach reasonCodes and source to analyzeMessageContent', () => {
+    const text = 'URGENT: Your SBI account is blocked. Verify OTP immediately.'
+    const result = analyzeMessageContent(text)
+    assert.ok(Array.isArray(result.reasonCodes), 'Expected reasonCodes array')
+    assert.ok(result.reasonCodes.length > 0, 'Expected at least one reason code')
+    assert.ok(result.reasonCodes.includes('URGENCY_LANGUAGE'))
+    assert.ok(result.reasonCodes.includes('REQUESTS_OTP'))
+    assert.strictEqual(result.source, 'offline-heuristic')
+  })
+
+  it('should attach reasonCodes and source to analyzeUrlContent', () => {
+    const url = 'https://sbi-kyc-verification-portal.online/login'
+    const result = analyzeUrlContent(url)
+    assert.ok(Array.isArray(result.reasonCodes), 'Expected reasonCodes array')
+    assert.ok(result.reasonCodes.length > 0, 'Expected at least one reason code')
+    assert.strictEqual(result.source, 'offline-heuristic')
+  })
+})
+
+

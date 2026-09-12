@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import analyzeHandler from './api/analyze.js'
 import healthHandler from './api/health.js'
+import analyzeVoiceHandler from './api/analyze-voice.js'
+import blocklistLiteHandler from './api/blocklist-lite.js'
+
 
 function createMockRequest(req, body) {
   return {
@@ -80,6 +83,33 @@ function localApiPlugin() {
         const mockRes = createMockResponse(res)
 
         await analyzeHandler(mockReq, mockRes)
+      })
+
+      server.middlewares.use('/api/analyze-voice', async (req, res) => {
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        const body = req.method === 'POST' ? await readJsonBody(req) : {}
+        const mockReq = createMockRequest(req, body)
+        const mockRes = createMockResponse(res)
+
+        await analyzeVoiceHandler(mockReq, mockRes)
+      })
+
+      server.middlewares.use('/api/blocklist-lite', async (req, res) => {
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        const mockReq = createMockRequest(req, {})
+        const mockRes = createMockResponse(res)
+
+        await blocklistLiteHandler(mockReq, mockRes)
       })
     },
   }

@@ -1,4 +1,5 @@
 import { SAMPLE_THREATS } from './threatLibrary.js'
+import { filterValidReasonCodes } from './reasonCodes.js'
 
 const SCAM_KEYWORDS = [
   'otp',
@@ -239,6 +240,46 @@ export function findSimilarScams(text) {
 }
 
 /**
+ * Infers structured explainable reason codes deterministically from text/signals/URL.
+ */
+export function inferReasonCodes(text, url = '', signals = {}, riskLevel = 'safe') {
+  if (riskLevel === 'safe') return []
+  const norm = (text || '').toLowerCase()
+  const normUrl = (url || '').toLowerCase()
+  const codes = []
+
+  if (signals.urgency || /\b(immediately|urgent|act now|final warning|tonight|today|limited time|expires|suspended|blocked)\b/i.test(norm)) {
+    codes.push('URGENCY_LANGUAGE')
+  }
+  if (signals.impersonation || KNOWN_BRANDS.some(b => b.match.test(norm) || (normUrl && b.match.test(normUrl)))) {
+    codes.push('IMPERSONATES_BRAND')
+  }
+  if (signals.credential || /\b(otp|pin|password|cvv|credentials|pan|aadhaar|cif|verify account|verification code|authentication code)\b/i.test(norm)) {
+    codes.push('REQUESTS_OTP')
+  }
+  if (signals.financial || /\b(pay|debit|transfer|cashback|refund|rs \d+|inr|\$|collect request|bank account|deposit|gift card|dues|payment|late fee)\b/i.test(norm)) {
+    codes.push('REQUESTS_PAYMENT')
+  }
+  if (/xn--/i.test(normUrl || norm)) {
+    codes.push('PUNYCODE_DOMAIN')
+  }
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(normUrl) || /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/i.test(norm)) {
+    codes.push('KNOWN_MALICIOUS_DOMAIN')
+  }
+  if (SHORTENER_DOMAINS.some(d => (normUrl || norm).includes(d)) || /login|verify|secure|update|banking/i.test(normUrl)) {
+    codes.push('LOOKALIKE_DOMAIN')
+  }
+  if (/qr|barcode|scan/i.test(norm)) {
+    codes.push('SUSPICIOUS_ATTACHMENT_QR')
+  }
+  if (/\b(dear customer|dear user|valued member|hello friend|attention)\b/i.test(norm)) {
+    codes.push('GENERIC_GREETING')
+  }
+
+  return filterValidReasonCodes(codes)
+}
+
+/**
  * Analyzes raw message content with detailed multi-factor evidence
  */
 export function analyzeMessageContent(message) {
@@ -273,6 +314,7 @@ export function analyzeMessageContent(message) {
   const attackChain = reconstructAttackChain(message, '', riskLevel)
   const intent = inferAttackerIntent(message, '', riskLevel)
   const similar = findSimilarScams(message)
+  const reasonCodes = inferReasonCodes(message, '', signals, riskLevel)
 
   return {
     fraud_score: finalScore,
@@ -291,6 +333,8 @@ export function analyzeMessageContent(message) {
     signals,
     threat_reconstruction: attackChain,
     similar_patterns: similar,
+    reasonCodes,
+    source: 'offline-heuristic',
     emergency_actions: {
       stop: 'Do NOT click any links, call unverified numbers, or enter any PIN/OTP.',
       verify: 'Contact the organization directly via official apps or verified phone directories (e.g. 1930 for cybercrime in India).',
@@ -382,6 +426,7 @@ export function analyzeUrlContent(rawUrl) {
   const riskLevel = scoreToRisk(finalScore)
   const attackChain = reconstructAttackChain(`Phishing link inspection: ${rawUrl}`, rawUrl, riskLevel)
   const intent = inferAttackerIntent(rawUrl, rawUrl, riskLevel)
+  const reasonCodes = inferReasonCodes(rawUrl, rawUrl, { impersonation: matchedBrand?.name }, riskLevel)
 
   return {
     fraud_score: finalScore,
@@ -407,6 +452,8 @@ export function analyzeUrlContent(rawUrl) {
     },
     threat_reconstruction: attackChain,
     attack_intent: intent,
+    reasonCodes,
+    source: 'offline-heuristic',
     simulation_steps: [
       { step: 1, title: 'Link Clicked', description: 'Browser opens untrusted domain', safe: false },
       { step: 2, title: 'Fake Portal Loaded', description: `Rendered lookalike template mimicking ${matchedBrand ? matchedBrand.name : 'service'}`, safe: false },
@@ -441,6 +488,8 @@ export function analyzeScreenshotFallback() {
     analysis: 'Screenshot processed. Multi-modal vision scanned for suspicious text, brand mimicry, and unauthorized payment QR prompts.',
     detected_text: '',
     threat_reconstruction: reconstructAttackChain('Screenshot image scan', '', 'suspicious'),
-    attack_intent: 'Social engineering and visual deception via fabricated chat, invoice, or banking screenshot.'
+    attack_intent: 'Social engineering and visual deception via fabricated chat, invoice, or banking screenshot.',
+    reasonCodes: ['SUSPICIOUS_ATTACHMENT_QR'],
+    source: 'offline-heuristic'
   }
 }
