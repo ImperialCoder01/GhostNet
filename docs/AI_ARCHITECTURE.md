@@ -1,69 +1,125 @@
-# AI Architecture & Threat Modeling Pipeline
+# AI Architecture & Multi-Modal Threat Pipeline
 
-## 1. Overview of the AI Pipeline
+## 1. Multi-Modal Pipeline Overview
 
-GhostNet AI employs a multi-tiered, multi-modal artificial intelligence pipeline designed to inspect, score, and reconstruct cyber threats across four distinct vectors:
+GhostNet AI operates a multi-modal artificial intelligence pipeline designed to inspect, score, explain, and reconstruct cyber threats across five distinct attack surfaces:
 
-1. **Natural Language Messages:** SMS, WhatsApp, Telegram, and Phishing Emails.
-2. **Hyperlinks & Domains:** Typosquatting URLs, brand lookalikes, and deceptive redirect gateways.
-3. **Screenshots & Visual Media:** Fake payment receipts, cloned banking portals, and fraudulent QR codes.
-4. **Community Scam Reports:** Crowdsourced threat submissions and deduplication matching.
+1. **Natural Language Messages:** SMS smishing, WhatsApp lures, Telegram extortion, and spear-phishing emails.
+2. **Hyperlinks & Lookalike Domains:** Typosquatting URLs, brand lookalikes, IP-literal URLs, and obfuscated redirect gateways.
+3. **Screenshots & Visual Evidence:** Fake banking portals, counterfeit payment receipts, and QR code phishing traps.
+4. **Synthetic Audio & Voice Calls:** Deepfake audio impersonation, AI voice cloning, and robotic IVR fraud calls.
+5. **Decentralized Threat Indicators:** Community threat telemetry and synchronized global blocklists.
 
 ---
 
-## 2. Multi-Model Inference & Fallback Chain
+## 2. Multi-Model Inference Cascade & Failover
+
+GhostNet guarantees high availability and zero downtime through a tiered cascade:
 
 ```mermaid
 flowchart TD
-    Request["Scan Request (Message / Link / Screenshot)"] --> CheckType{Analysis Type?}
-    
-    CheckType -->|Text / Link| GroqPrimary["Groq LPU (openai/gpt-oss-120b)"]
-    GroqPrimary -->|Timeout / Quota| GroqSecondary["Groq LPU (qwen/qwen3.8-27b)"]
-    GroqSecondary -->|Fallback| HeuristicText["Local Linguistic & Regex Engine"]
-    
-    CheckType -->|Screenshot| GeminiVision["Google Gemini Flash Vision OCR"]
-    GeminiVision -->|Fallback| OpenAIVision["OpenAI gpt-4.1-mini Vision"]
-    OpenAIVision -->|Fallback| HeuristicVision["Local OCR & Visual Heuristics"]
-    
-    HeuristicText --> Synthesizer["Threat Reconstruction & Signal Synthesizer"]
-    GroqPrimary --> Synthesizer
-    GroqSecondary --> Synthesizer
-    GeminiVision --> Synthesizer
-    OpenAIVision --> Synthesizer
-    HeuristicVision --> Synthesizer
-    
-    Synthesizer --> Output["Unified Verdict (Score, Risk, Chain, Actions)"]
+    Ingress["Threat Ingress\n(Text / URL / Image / Audio)"] --> RouteType{Vector Type?}
+
+    RouteType -->|Text / Message / URL| GroqPrimary["Groq LPU (llama-3.3-70b-versatile)\n[< 800ms Inference Window]"]
+    GroqPrimary -->|Timeout (9s) / Rate Limit| GeminiText["Google Gemini 2.5 Flash\n[Text & Multimodal Fallback]"]
+    GeminiText -->|Network Degradation / Offline| OfflineNLP["Local Heuristic Rule Engine\n[Regex + Social Engineering Tokens]"]
+
+    RouteType -->|Screenshot / QR Code| GeminiVision["Google Gemini 2.5 Flash\n[Visual OCR & Brand MIMIC Detection]"]
+    GeminiVision -->|Fallback / Offline| OfflineOCR["Client Canvas OCR + Pattern Engine"]
+
+    RouteType -->|Voice / Audio Payload| VoicePipeline["Acoustic & Linguistic Analyzer"]
+    VoicePipeline --> AcousticFFT["Acoustic Wiener Entropy (fft.js)\n[Spectral Flatness & HF Energy Ratio]"]
+    VoicePipeline --> WhisperSTT["Groq Whisper-large-v3\n[Speech-to-Text Transcription]"]
+    AcousticFFT --> VoiceScore["Combined Deepfake Threat Score"]
+    WhisperSTT --> VoiceScore
+
+    GroqPrimary --> DefenseFilter["Code-Defense Parser (safeParseVerdict)"]
+    GeminiText --> DefenseFilter
+    OfflineNLP --> DefenseFilter
+    GeminiVision --> DefenseFilter
+    OfflineOCR --> DefenseFilter
+    VoiceScore --> DefenseFilter
+
+    DefenseFilter --> StandardizedCodes["10 Fixed Reason Codes Mapping"]
+    StandardizedCodes --> FinalOutput["Unified Threat Verdict\n(Score 0-100, Kill-Chain, Intent, Reason Badges)"]
 ```
 
 ---
 
-## 3. Risk Score vs. Model Confidence
+## 3. Explainable Risk Scoring & Reason Codes Defense
 
-GhostNet explicitly distinguishes between **Risk Score** and **Model Confidence**:
+Traditional machine learning classifiers suffer from opaque confidence scores and prompt hallucination vulnerabilities. GhostNet enforces strict explainability through **10 Standardized Reason Codes**:
 
-* **Risk Score (0–100):** Represents the estimated severity and presence of malicious social engineering, credential harvesting, or financial fraud indicators in the payload.
-  * `0 – 34`: **Safe / Low Risk** (no malicious indicators detected).
-  * `35 – 69`: **Suspicious / Elevated Risk** (coercive, urgent, or unverified patterns).
-  * `70 – 100`: **High Threat Scam** (explicit phishing, lookalike branding, or fraudulent payment trap).
+| Reason Code | Category | Plain-English Detection Criterion |
+|:---|:---|:---|
+| `URGENCY_SCARE_TACTICS` | Psychological Manipulation | Threatening account closure, power disconnection, or immediate legal action within short deadlines (e.g., "within 24 hours"). |
+| `REQUEST_OTP_PASSWORD` | Credential Harvesting | Explicit solicitation of One-Time Passwords (OTPs), PINs, passwords, or CVVs. |
+| `PAYMENT_REDIRECT` | Financial Coercion | Directing users to unauthorized payment gateways, gift card purchases, or reverse UPI collect requests. |
+| `SUSPICIOUS_DOMAIN` | Infrastructure Deception | Lookalike domains, typosquats, newly registered domains, Punycode, or raw IP addresses (`http://192.168.x.x`). |
+| `IMPERSONATION_BRAND` | Identity Spoofing | Mimicking recognized financial institutions, government agencies, delivery couriers, or telecom providers. |
+| `MALICIOUS_ATTACHMENT` | Malware Delivery | Unsolicited executable files, disguised APKs (`.apk`), malicious macros, or invoice scripts. |
+| `UNSOLICITED_CONTACT` | Cold Ingress | Messages received from unknown numbers, international dial codes (+92, +234), or non-consensual channels. |
+| `POOR_GRAMMAR_FORMAT` | Formatting Anomaly | Glaring grammatical errors, awkward machine translations, irregular capitalization, or zero-width character obfuscation. |
+| `REWARD_BAIT` | Incentive Lure | Fabricated lottery prizes, unrequested cashback, part-time YouTube review jobs, or crypto investment windfalls. |
+| `THREAT_BLACKMAIL` | Sextortion / Intimidation | Accusations of illicit activities, fabricated webcam recordings, or ransomware extortion. |
 
-* **Model Confidence (`high` | `medium` | `low`):** Represents the certainty level of the AI models given the clarity and volume of evidence provided in the user input.
-
-> **Technical Disclosure:** Risk scores are calculated heuristic and LLM probability estimates based on extracted semantic signals. They are intended for decision-support and awareness, not as absolute mathematical certainty.
+### Code-Defense Parsing (`safeParseVerdict`)
+All LLM responses pass through `safeParseVerdict()`:
+1. Strips markdown code fences (` ```json ... ``` `).
+2. Parses raw JSON strictly.
+3. Filters the `reasonCodes` array against an immutable set of the 10 authorized reason codes.
+4. Drops any hallucinated or arbitrary tokens, ensuring deterministic downstream rendering.
 
 ---
 
-## 4. Threat Reconstruction™ (5-Stage Kill Chain)
+## 4. Acoustic Wiener Spectral Flatness Engine
 
-Instead of outputting a generic black-box score, GhostNet reconstructs the attack sequence into an actionable 5-stage progression:
+For synthetic call and voice scam detection, GhostNet utilizes a hybrid acoustic-linguistic engine:
 
-1. **Stage 1 — Ingress Vector:** How the attacker initiates contact (unsolicited SMS, WhatsApp invite, spoofed email).
-2. **Stage 2 — Social Engineering Cue:** The psychological trigger utilized (time urgency, bank account suspension panic, lottery euphoria).
-3. **Stage 3 — Phishing / Trap Gateway:** The mechanism used to redirect the victim (lookalike URL, shortened hyperlink, fake APK download).
-4. **Stage 4 — Credential Harvesting:** The data collection phase (fake NetBanking login, debit card CVV prompt, secret OTP request).
-5. **Stage 5 — Financial Impact & Loss:** The final objective (unauthorized UPI debit, account takeover, identity theft).
+### A. Acoustic Spectral Analysis (`src/lib/spectralFeatures.js`)
+* Uses `fft.js` to perform an in-memory 512-point Fast Fourier Transform on 16kHz PCM audio waveforms.
+* **Spectral Flatness (Wiener Entropy):** Ratio of the geometric mean to the arithmetic mean of the power spectrum:
+  $$\text{Flatness} = \frac{\exp\left(\frac{1}{N} \sum_{k=0}^{N-1} \ln S(k)\right)}{\frac{1}{N} \sum_{k=0}^{N-1} S(k)}$$
+* Human biological vocal tract resonances create distinct harmonic formant peaks (lower spectral flatness ~0.1 - 0.35).
+* Neural vocoders and synthetic text-to-speech generators exhibit higher high-frequency noise and flattened distributions (>0.45), indicating synthetic or voice-cloned origins.
+* Additional extracted features: **Zero-Crossing Rate (ZCR)**, **High-Frequency Energy Ratio**, and **Pitch Jitter Variance**.
+
+### B. Linguistic Social Engineering Analysis
+* Transcribes audio in real-time via Groq Whisper-large-v3.
+* Scans the transcribed text for high-pressure extortion keywords (e.g., "digital arrest", "customs detention", "verify OTP").
+* Combines acoustic synthetic probability (40% weight) with linguistic threat severity (60% weight).
 
 ---
 
-## 5. Attacker Intent Inference
+## 5. Threat Reconstruction™ (5-Stage Cyber Kill-Chain)
 
-GhostNet evaluates the underlying objective of the attacker and translates it into plain English for the user (e.g., *"Attacker is attempting to initiate a reverse UPI collect request to drain funds from your linked bank account"*).
+GhostNet contextualizes every attack into an interactive 5-stage progression:
+
+```
+[1. Ingress Vector]
+      │ (Unsolicited SMS, WhatsApp message, cold IVR call)
+      ▼
+[2. Social Engineering Pretext]
+      │ (Urgent bank KYC expiration, electricity disconnection panic)
+      ▼
+[3. Phishing / Trap Gateway]
+      │ (Typosquatting link, QR code trap, APK download)
+      ▼
+[4. Credential Harvesting]
+      │ (Fake NetBanking portal, OTP interception form)
+      ▼
+[5. Loss & Impact]
+      │ (Unauthorized UPI fund transfer, account takeover, identity theft)
+```
+
+---
+
+## 6. Attacker Intent Inference Taxonomy
+
+The Attacker Intent Engine translates technical markers into plain-English adversary motivations:
+
+* **Financial Extraction:** Unauthorized fund transfers via reverse UPI collect requests or credit card fraud.
+* **Credential Harvesting:** Stealing authentication secrets (passwords, PINs, OTPs) for downstream account takeovers.
+* **Identity Impersonation:** Collecting government ID numbers (Aadhaar, PAN, SSN) to facilitate synthetic identity theft.
+* **Device Compromise:** Coercing victims to download hostile APKs or remote access tools (AnyDesk, TeamViewer).
+* **Extortion / Blackmail:** Pressuring victims into cryptocurrency transfers under duress or fabricated legal accusations.

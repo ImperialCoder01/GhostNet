@@ -2,101 +2,180 @@
 
 ## 1. High-Level Architecture Overview
 
-GhostNet AI is engineered as a cross-platform, multi-modal cyber threat detection and digital safety system. It operates on a tiered defense model separating client interaction, edge API gateway evaluation, multi-model AI routing, and encrypted database persistence with Row-Level Security.
+GhostNet AI is an enterprise-grade, multi-modal cybersecurity and digital fraud prevention platform. Engineered with a defense-in-depth architecture, GhostNet spans web, mobile, and browser extension surfaces, backed by serverless edge microservices, a multi-model AI inference pipeline with acoustic spectral analysis, and a real-time PostgreSQL database with strict Row-Level Security (RLS).
 
 ```mermaid
-flowchart TD
-    subgraph Client["Client Tier (Web & Mobile)"]
-        UI["React 18 + Vite 6 + Tailwind CSS"]
-        Mobile["Capacitor 8 Native Android Shell"]
-        State["TanStack React Query + AuthContext"]
-        UI --- Mobile
+flowchart TB
+    subgraph ClientSurfaces["Client Presentation & Ingress Surfaces"]
+        Web["Web Application\n(React 18 + Vite 6 + Tailwind CSS)"]
+        Shaders["Ambient Living Particles\n(ThreeUI ConstellationField)"]
+        Mobile["Android Mobile Shell\n(Capacitor 8.5 Native Bridge)"]
+        Ext["Chromium Extension (MV3)\n(Service Worker + Content Script Interceptor)"]
     end
 
-    subgraph Gateway["Edge API Gateway (Vercel Serverless)"]
-        Endpoint["/api/analyze Endpoint"]
-        Health["/api/health Healthcheck"]
-        CORS["CORS & Request Sanitization"]
-        Endpoint --- CORS
+    subgraph EdgeGateways["Edge API Gateways (Vercel Serverless / Node.js)"]
+        AnalyzeGW["POST /api/analyze\n(Multi-Modal Text, URL, Screenshot, Threat Ingestion)"]
+        VoiceGW["POST /api/analyze-voice\n(Wiener Flatness FFT + Whisper STT + 6MB Guard)"]
+        BlocklistGW["GET /api/blocklist-lite\n(Low-Latency Plaintext SHA-256 Hash Stream)"]
+        CronGW["GET|POST /api/cron/sync-feeds\n(CRON_SECRET Auth + OpenPhish/URLhaus Ingestion)"]
     end
 
-    subgraph AIRouting["Multi-Modal AI Pipeline"]
-        Groq["Groq LPU (gpt-oss-120b, qwen3.8-27b)"]
-        Gemini["Google Gemini Vision OCR"]
-        OpenAI["OpenAI Vision Fallback"]
-        Heuristics["Local Social Engineering & Pattern Engine"]
-        
-        Groq --> Heuristics
-        Gemini --> OpenAI --> Heuristics
+    subgraph IntelligenceLayer["Multi-Modal Intelligence & Analysis Layer"]
+        Groq["Groq LPU Acceleration\n(llama-3.3-70b-versatile / llama-3.1-8b-instant)"]
+        Gemini["Google Gemini 2.5 Flash\n(Multi-Modal Vision & Logo Extraction)"]
+        Whisper["Groq Whisper-large-v3\n(Speech-to-Text Transcription)"]
+        FFT["Acoustic Spectral Engine\n(Wiener Entropy & Flatness via fft.js)"]
+        ReasonCodes["Code-Defense Parser\n(10 Standardized Reason Codes & Sanitization)"]
+        Heuristics["Deterministic Offline Engine\n(Regex, Social Engineering NLP, Typosquatting)"]
     end
 
-    subgraph DataTier["Data & Storage Tier (Supabase)"]
-        Auth["Supabase Auth (JWT & OAuth)"]
-        Postgres["PostgreSQL DB (RLS Enforced)"]
-        Storage["Evidence Bucket (Encrypted Uploads)"]
+    subgraph PersistenceLayer["Data & Telemetry Tier (Supabase PostgreSQL 15)"]
+        AnonClient["Public Anon Key (Read-Only Client)"]
+        ServiceRoleClient["Service Role Key (Server-Only Writes)"]
+        ThreatIndicators["threat_indicators\n(Indicator Hash, Type, Category, Reports Count)"]
+        PublicBlocklist["public_blocklist\n(Domain SHA-256, Source, Normalized Hostname)"]
+        UserTelemetry["scans & reports\n(User Scan Logs, Incident Containment Telemetry)"]
     end
 
-    Client -->|HTTPS / REST API| Gateway
-    Gateway -->|Sub-second NLP & Link Inspection| Groq
-    Gateway -->|Image OCR & Screenshot Analysis| Gemini
-    Gateway -->|Offline Heuristic Fallback| Heuristics
-    Client -->|Auth & Sync| DataTier
+    Web --> AnalyzeGW
+    Web --> VoiceGW
+    Mobile --> Web
+    Ext --> BlocklistGW
+    Ext --> AnalyzeGW
+
+    AnalyzeGW --> Groq
+    AnalyzeGW --> Gemini
+    AnalyzeGW --> Heuristics
+    VoiceGW --> FFT
+    VoiceGW --> Whisper
+    Groq --> ReasonCodes
+    Gemini --> ReasonCodes
+    Heuristics --> ReasonCodes
+
+    AnalyzeGW --> ServiceRoleClient
+    CronGW --> ServiceRoleClient
+    BlocklistGW --> AnonClient
+    Web --> AnonClient
+
+    AnonClient --> PublicBlocklist
+    AnonClient --> ThreatIndicators
+    ServiceRoleClient --> ThreatIndicators
+    ServiceRoleClient --> PublicBlocklist
+    AnonClient --> UserTelemetry
 ```
 
 ---
 
-## 2. Component Layers & Responsibilities
+## 2. Component Layers & Engineering Specifications
 
-### A. Frontend Presentation Layer
-* **Stack:** React 18, Vite 6, Tailwind CSS, Lucide React, Framer Motion, Recharts.
-* **Responsibilities:**
-  * Real-time client-side input validation and payload structuring.
-  * Interactive **Threat Reconstruction (Kill-Chain)** visualization.
-  * Educational **"What Happens If I Click?" Safe Threat Sandbox**.
-  * Dynamic Light and Dark theme switching with persistent local storage.
-  * Dedicated **Family & Senior Safety Mode** for non-technical users.
+### A. Presentation & Ingress Layer
+* **Frontend Architecture:** React 18, Vite 6, Tailwind CSS 3.4, Lucide React, Framer Motion, Recharts.
+* **Ambient Three.js Shaders:** Integrated ThreeUI `ConstellationField` ("particle-drift" mode) provides dynamic living telemetry feedback across both Dark and Light themes.
+* **Accessibility Architecture:**
+  * Instant Dark/Light theme switching with CSS custom properties and persistent localStorage state.
+  * **Senior & Family Safety Mode**: Enlarges typography, magnifies touch targets, and converts technical cyber indicators into clear, actionable advice.
+* **Judge / Guest Access:** One-click `AuthGate` demo bypass (`⚡ Explore as Guest / Judge Demo Mode`) allowing immediate evaluation without requiring active Supabase credentials.
 
-### B. API Gateway Tier (`/api/analyze.js`)
-* **Runtime:** Vercel Edge Serverless Function (Node.js runtime).
-* **Responsibilities:**
-  * Secure server-side isolation of all AI credentials (`GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`).
-  * Request payload normalization (message text, link URLs, screenshot URLs, community reports).
-  * Enforcing security headers (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`).
-  * Coordinating autonomous model fallback upon latency spikes or quota depletion.
+### B. Edge Serverless Gateways
+Hosted on Vercel Serverless (Node.js runtime) with strict edge security policies:
+1. **`POST /api/analyze`**:
+   * Multi-modal ingestion of messages, links, screenshots, and community threat reports.
+   * Enforces `withTimeout(promise, 9000)` fail-safe execution to eliminate hanging serverless functions.
+   * Implements `safeParseVerdict()` to extract and validate JSON responses from LLM markdown code blocks.
+   * Sanitizes reason codes against a fixed whitelist of 10 standardized threat codes.
+   * Employs Supabase read/write key separation: uses the public anonymous key for read operations and reserves `SUPABASE_SERVICE_ROLE_KEY` strictly for indicator ingestion.
+2. **`POST /api/analyze-voice`**:
+   * Accepts base64-encoded audio payloads with a strict HTTP 413 guard rejecting requests >6MB.
+   * Calculates spectral flatness (Wiener entropy), high-frequency energy ratio, zero-crossing rate, and jitter variance.
+   * Transcribes audio using Groq Whisper-large-v3 to detect linguistic social engineering vectors.
+   * Combines acoustic synthetic anomalies with linguistic risk signals for unified scoring.
+3. **`GET /api/blocklist-lite`**:
+   * Ultra-low-latency endpoint streaming normalized SHA-256 domain hashes to the browser extension.
+   * Operates via public anonymous Supabase client with zero server overhead.
+4. **`GET|POST /api/cron/sync-feeds`**:
+   * Automated scheduled background worker fetching live malicious URLs from OpenPhish and URLhaus feeds.
+   * Protected by HTTP Bearer token validation matching `CRON_SECRET`.
+   * Scheduled at `0 0 * * *` (once daily) for 100% compliance with Vercel Hobby plan tier limits.
 
-### C. Multi-Modal AI Engine Tier
-* **Text & Link Intelligence:** Groq LPU processing structured JSON prompts in sub-second inference windows.
-* **Screenshot Vision Engine:** Gemini Vision OCR extracting visual text, detecting brand impersonation logos, and analyzing payment QR trap vectors.
-* **Local Heuristic Engine:** Offline rule engine evaluating 30+ linguistic urgency tokens, Punycode, typosquatting distance, and credential harvesting patterns.
+### C. Multi-Modal Intelligence Tier
+* **Sub-Second NLP (Groq LPU):** `llama-3.3-70b-versatile` and `llama-3.1-8b-instant` provide structured semantic evaluation in <800ms.
+* **Vision OCR (Google Gemini):** `gemini-2.5-flash` analyzes screenshot evidence, identifying visual brand mimicry, fake payment receipts, and QR code traps.
+* **Acoustic Wiener Entropy (`fft.js`):** In-memory spectral FFT decomposes raw audio waveforms into frequency buckets. Synthetic AI vocoders and cloned voices exhibit distinct spectral flatness and harmonic anomalies compared to human biological speech.
+* **Deterministic Offline Fallback:** When external AI APIs or networks are unreachable, an autonomous local regex and NLP heuristic engine computes threat scores and populates reason codes with zero downtime.
 
-### D. Data & Storage Tier (Supabase)
-* **PostgreSQL:** Stores `scan_history` and `scam_reports` with strict PostgreSQL Row-Level Security (RLS) guaranteeing user data partition.
-* **Evidence Storage:** Encrypted `evidence` bucket for screenshot uploads with authenticated access policies.
+### D. Data & Intelligence Persistence (Supabase)
+* **PostgreSQL 15:** Enforces PostgreSQL Row-Level Security (RLS) across all user tables.
+* **Threat Indicators Table (`threat_indicators`):** Stores SHA-256 hashed scam indicators (domains, phone numbers, UPI IDs, QR payloads) with report count tracking and category indexing. PostgREST upsert is secured via `on_conflict=indicator_hash`.
+* **Public Blocklist Table (`public_blocklist`):** Stores synced threat intelligence from OpenPhish and URLhaus with SHA-256 domain hashes for rapid O(1) indexed lookups.
+
+### E. Client-Side Edge Defense (Chrome Extension MV3)
+* **Manifest V3 Architecture:** Background service worker (`background.js`), pre-click DOM content script (`content.js`), and popup interface (`popup.html`).
+* **Pre-Click Interception:** Evaluates destination links on hover and click against the local blocklist cache. Suspicious navigations are halted and redirected to an educational interstitial (`warning.html`).
 
 ---
 
-## 3. End-to-End Data Flow
+## 3. End-to-End Threat Analysis Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Operator / User
-    participant Frontend as GhostNet Client
+    actor User as Operator / Judge
+    participant UI as GhostNet Client
     participant API as /api/analyze Gateway
-    participant AI as AI Engine (Groq / Gemini)
+    participant AI as AI Cascade (Groq / Gemini)
+    participant Heuristic as Local Heuristic Engine
     participant DB as Supabase PostgreSQL
 
-    User->>Frontend: Input suspicious text, link, or screenshot
-    Frontend->>API: POST /api/analyze { type, payload }
-    
-    alt Primary Cloud AI Available
-        API->>AI: Query Groq LPU / Gemini Vision
-        AI-->>API: Structured Threat Evaluation JSON
-    else Cloud AI Depleted / Offline
-        API->>API: Execute Local Heuristic Engine
+    User->>UI: Submit Message / URL / QR / Audio
+    UI->>API: POST /api/analyze (or /api/analyze-voice)
+
+    API->>DB: Pre-Check Public Blocklist (SHA-256 Domain Hash)
+    alt Found in Public Blocklist
+        DB-->>API: Match: Known Malicious Indicator
+        API-->>UI: Return Immediate High-Risk Verdict (Source: Public Blocklist)
+    else Indicator Clean or Unknown
+        alt Primary AI Engine Available
+            API->>AI: Send Structured JSON Prompt (withTimeout 9000ms)
+            AI-->>API: Return Threat Verdict JSON
+            API->>API: safeParseVerdict() & Filter 10 Fixed Reason Codes
+        else Timeout / Rate Limit / Offline
+            API->>Heuristic: Execute Deterministic Regex & NLP Engine
+            Heuristic-->>API: Return Heuristic Verdict & Derived Reason Codes
+        end
+
+        opt Malicious Indicator Detected
+            API->>DB: Upsert Threat Indicator (Service Role / on_conflict=indicator_hash)
+        end
+
+        API-->>UI: Normalized Response (Score, Kill-Chain, Intent, Reason Codes)
     end
 
-    API-->>Frontend: Return Normalized Verdict & Attack Chain
-    Frontend->>DB: Record scan log in scan_history (with RLS)
-    Frontend->>User: Render Score, Intent, Evidence & Threat Reconstruction
+    UI->>DB: Save User Scan Record (Anon Key with RLS)
+    UI->>User: Render Interactive Attack Chain & Containment Protocol
 ```
+
+---
+
+## 4. Hardware Permissions & Edge Security Posture
+
+GhostNet configures enterprise-grade security headers across all edge responses via `vercel.json`:
+
+```json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(self), geolocation=()" }
+      ]
+    }
+  ]
+}
+```
+
+* **`camera=(self)`**: Authorizes HTML5 video streaming for live QR code scanning on the primary origin.
+* **`microphone=(self)`**: Authorizes Web Audio API recording for real-time deepfake call analysis.
+* **`geolocation=()`**: Explicitly denies geolocation access to preserve operator anonymity.

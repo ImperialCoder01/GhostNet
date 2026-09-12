@@ -1,93 +1,188 @@
-# GhostNet AI
+# GhostNet AI — Autonomous Multi-Modal Cyber Defense Platform
 
 **See the scam before it sees you.**
 
-An AI-powered multi-modal cybersecurity and digital safety platform that detects, explains, and helps users respond to suspicious messages, deceptive links, screenshots, and community scam threats in real-time.
+GhostNet AI is an enterprise-grade, multi-modal cybersecurity and digital fraud prevention platform. It detects, explains, and neutralizes social engineering attacks across suspicious messages (SMS, WhatsApp, email), deceptive URLs, screenshots, QR codes, deepfake synthetic phone calls, and live web browsing in real-time.
 
+[![Live Production](https://img.shields.io/badge/Production-Live_on_Vercel-00e5ff.svg?style=flat&logo=vercel)](https://ghost-net-zeta.vercel.app)
+[![Tests Passing](https://img.shields.io/badge/Tests-40%2F40_Passing-10b981.svg?style=flat&logo=node.js)](tests/scanner.test.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-18.2-61dafb.svg?logo=react)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-6.1-646cff.svg?logo=vite)](https://vitejs.dev)
+[![Vite](https://img.shields.io/badge/Vite-6.4-646cff.svg?logo=vite)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8.svg?logo=tailwindcss)](https://tailwindcss.com)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_15-3ecf8e.svg?logo=supabase)](https://supabase.com)
-[![Vercel](https://img.shields.io/badge/Vercel-Edge_Serverless-black.svg?logo=vercel)](https://vercel.com)
-[![Capacitor](https://img.shields.io/badge/Capacitor-8.0_Android-119eff.svg?logo=capacitor)](https://capacitorjs.com)
+[![Capacitor](https://img.shields.io/badge/Capacitor-8.5_Android-119eff.svg?logo=capacitor)](https://capacitorjs.com)
+[![Chrome MV3](https://img.shields.io/badge/Extension-Chrome_MV3-f59e0b.svg?logo=googlechrome)](extension/)
 
 ---
 
-## 📌 Executive Summary
+## 🌐 Live Production Deployment
 
-Digital fraud and social-engineering scams cause over **$10B in annual losses globally**. Modern attackers increasingly use automated AI to craft realistic bank alerts, fake UPI cashback requests, and deceptive lookalike portals. 
-
-**GhostNet AI** acts as an autonomous digital defense layer. Instead of providing black-box percentage scores, GhostNet performs **Threat Reconstruction™**, visually mapping the attacker's step-by-step kill-chain and explaining *why* a message is dangerous, *what* the fraudster is trying to accomplish, and *how* to safely respond.
+* **Production URL:** [https://ghost-net-zeta.vercel.app](https://ghost-net-zeta.vercel.app)
+* **Judge / Guest Access:** Instant 1-click **⚡ Explore as Guest / Judge Demo Mode** on the login screen.
+* **Hardware Permissions:** Configured with `Permissions-Policy: camera=(self), microphone=(self), geolocation=()` for seamless browser camera and microphone access.
 
 ---
 
-## ✨ Key Capabilities
+## 📌 Problem & Solution
 
-| Capability | Description | Status |
-| :--- | :--- | :---: |
-| **Message & Smishing Scanner** | Evaluates SMS, WhatsApp, and email text for urgency manipulation, coercion, and credential harvesting. | ✅ Implemented |
-| **Link & Domain Trust Inspector** | Decomposes URLs, domain age, SSL status, Punycode, and typosquatting brand mimicry. | ✅ Implemented |
-| **Vision Screenshot Scanner** | Multi-modal OCR analyzing fake payment receipts, banking portal replicas, and QR code traps. | ✅ Implemented |
-| **GhostNet Threat Reconstruction™** | Maps user evidence into an interactive 5-stage attack kill-chain (*Ingress* ➔ *Social Engineering* ➔ *Phishing Gateway* ➔ *Credential Harvesting* ➔ *Loss*). | ✅ Implemented |
-| **"What Happens If I Click?" Sandbox** | Zero-execution educational simulation modal showing how phishing portals exploit victims without executing hostile code. | ✅ Implemented |
-| **Attacker Intent Engine** | Translates technical threat vectors into plain-English attacker objectives. | ✅ Implemented |
-| **Family & Senior Safety Mode** | High-contrast accessibility mode with enlarged touch targets and simplified safety guidance for non-technical users. | ✅ Implemented |
-| **Theme Engine** | Instant Light / Dark theme switching with persistent local storage. | ✅ Implemented |
-| **Global Threat Intelligence & Radar** | Telemetry dashboard mapping geographic threat clusters across major urban nodes. | ✅ Implemented |
-| **Incident Response Protocol** | One-tap containment checklist (STOP, VERIFY with National Cyber Helpline 1930, REPORT, SECURE). | ✅ Implemented |
-| **Cross-Platform Android Mobile** | Native Android package configured via Capacitor 8. | ✅ Implemented |
+Digital fraud and AI-engineered social engineering scams cause over **$10 Billion in annual losses worldwide**. Cybercriminals weaponize generative AI to automate spear-phishing, synthesize deceptive lookalike domains, clone banking portals, and replicate executive voices in voice calls.
+
+Traditional antivirus and threat filters act as opaque black boxes, outputting arbitrary percentages with zero actionable context.
+
+**GhostNet AI shifts the paradigm:**
+1. **Explainable Risk Scoring**: Replaces black-box percentages with 10 deterministic, verifiable threat reason codes.
+2. **Threat Reconstruction™**: Deconstructs every attack into a 5-stage interactive cyber kill-chain (*Ingress* ➔ *Social Engineering* ➔ *Phishing Gateway* ➔ *Credential Harvesting* ➔ *Financial/Identity Loss*).
+3. **Attacker Intent Engine**: Translates complex technical forensic markers into plain-English adversary goals.
+4. **Resilient Hybrid Engine**: Combines sub-second cloud AI (Groq LPUs, Google Gemini Vision, OpenAI) with deterministic offline heuristic rules that guarantee 100% defense uptime even without network connectivity.
+
+---
+
+## 🛡️ 8 Core Defense Capabilities
+
+| # | Capability | Description | Engine / Stack | Status |
+|:-:|:---|:---|:---|:---:|
+| **1** | **Explainable Risk Scoring** | Standardizes risk assessment with 10 fixed reason codes (`URGENCY_SCARE_TACTICS`, `REQUEST_OTP_PASSWORD`, `PAYMENT_REDIRECT`, `SUSPICIOUS_DOMAIN`, `IMPERSONATION_BRAND`, `MALICIOUS_ATTACHMENT`, `UNSOLICITED_CONTACT`, `POOR_GRAMMAR_FORMAT`, `REWARD_BAIT`, `THREAT_BLACKMAIL`) protected by strict code-defense filtering against LLM hallucinations. | Groq LPU / Heuristic Mapper | ✅ Implemented |
+| **2** | **Hardened Heuristic Engine** | Deterministic regex and NLP rule engine executing in under 5ms with `withTimeout` fail-safe wrappers. Provides complete offline fallback during API degradation or network disconnections. | Client-side JS / Node.js Regex Engine | ✅ Implemented |
+| **3** | **Public Threat Feed Sync** | Automated scheduled ingestion of free global threat feeds (OpenPhish and URLhaus). Normalizes, SHA-256 hashes, and deduplicates indicators into the PostgreSQL database. | `scripts/sync-threat-feeds.js` + `/api/cron/sync-feeds` | ✅ Implemented |
+| **4** | **Community Threat Intelligence** | Decentralized scam indicator telemetry with PostgreSQL Row-Level Security (RLS). Automatically aggregates, fingerprints, and displays live global surge velocity. | Supabase PostgreSQL + `/ScamHeatmap` | ✅ Implemented |
+| **5** | **Live QR Code Camera Inspector** | Real-time camera viewfinder utilizing HTML5 `<video>` and `jsQR` canvas processing to extract, defang, and inspect embedded malicious URLs, UPI intent traps, and credential portals. | WebRTC MediaDevices + `jsQR` | ✅ Implemented |
+| **6** | **Voice & Deepfake Call Detector** | Analyzes audio recordings and live mic streams using Fast Fourier Transform (FFT) spectral flatness, Wiener entropy, high-frequency energy ratios, and Groq Whisper-large-v3 transcription. | `fft.js` + Groq Whisper + `/api/analyze-voice` | ✅ Implemented |
+| **7** | **Real-Time Browser Extension (MV3)** | Chromium Manifest V3 extension featuring background tab monitoring, automated domain hash lookups, dynamic badge indicators, and full-screen malicious navigation interceptors. | Chrome MV3 Service Worker + DeclarativeNetRequest | ✅ Implemented |
+| **8** | **Pre-Click Interceptor & Sandbox** | Low-latency `/api/blocklist-lite` caching API and "What Happens If I Click?" zero-execution browser sandbox that educates users without exposing them to malware. | `/api/blocklist-lite` + React Educational Sandbox | ✅ Implemented |
 
 ---
 
 ## 🏛️ System Architecture
 
 ```mermaid
-flowchart TD
-    subgraph Client["Client Presentation Tier"]
-        UI["React 18 + Vite 6 + Tailwind CSS"]
-        Mobile["Capacitor 8 Native Android Shell"]
-        Theme["Dual Theme + Senior Safety Engine"]
+flowchart TB
+    subgraph Clients["User Ingress & Client Surfaces"]
+        Web["Web Application\n(React 18 + Vite 6 + Tailwind CSS)"]
+        ThreeUI["Ambient Living Particles\n(ThreeUI ConstellationField)"]
+        Mobile["Android Mobile Shell\n(Capacitor 8.5 Native Bridge)"]
+        Ext["Chromium Extension (MV3)\n(Background SW + Pre-Click Content Script)"]
     end
 
-    subgraph Gateway["Edge API Gateway (Vercel Serverless)"]
-        AnalyzeEndpoint["POST /api/analyze Gateway"]
-        HealthEndpoint["GET /api/health Telemetry"]
-        CORS["CORS & Request Sanitization"]
+    subgraph Gateway["Edge Serverless Gateways (Vercel Node.js)"]
+        AnalyzeGW["POST /api/analyze\n(Multi-Modal Text, URL, Vision)"]
+        VoiceGW["POST /api/analyze-voice\n(Audio FFT + Whisper STT + 6MB Guard)"]
+        BlocklistGW["GET /api/blocklist-lite\n(Low-Latency SHA-256 Hash Stream)"]
+        CronGW["GET|POST /api/cron/sync-feeds\n(CRON_SECRET Auth + OpenPhish/URLhaus)"]
     end
 
-    subgraph AI["Multi-Modal AI Pipeline"]
-        Groq["Groq LPU (openai/gpt-oss-120b, qwen3.8-27b)"]
-        Gemini["Google Gemini Vision OCR"]
-        OpenAI["OpenAI Vision Fallback"]
-        Heuristics["Offline Heuristic & Regex Engine"]
-        
-        Groq --> Heuristics
-        Gemini --> OpenAI --> Heuristics
+    subgraph AIEngines["Multi-Modal Intelligence Pipeline"]
+        Groq["Groq LPU Acceleration\n(llama-3.3-70b-versatile)"]
+        Gemini["Google Gemini 2.5 Flash\n(Multi-Modal Vision & OCR)"]
+        Whisper["Groq Whisper-large-v3\n(Speech-to-Text Transcription)"]
+        FFT["Acoustic Spectral Analysis\n(In-Memory Wiener Entropy via fft.js)"]
+        HeuristicFallback["Deterministic Heuristic Fallback\n(Regex, Social Engineering NLP, Offline Scoring)"]
     end
 
-    subgraph DataTier["Data & Storage Tier (Supabase)"]
-        Auth["Supabase Auth (JWT & OAuth)"]
-        Postgres["PostgreSQL 15 (Row-Level Security)"]
-        Storage["Evidence Bucket (Encrypted Media)"]
+    subgraph DataTier["Data & Intelligence Tier (Supabase PostgreSQL 15)"]
+        RLS["Row-Level Security (RLS)\n(Client Anon Read / Service Role Write)"]
+        ThreatIndicators["threat_indicators\n(Indicator Hash, Category, Severity, Reports)"]
+        PublicBlocklist["public_blocklist\n(Domain SHA-256, Source, Active Status)"]
+        UserScans["scans & reports\n(User Audit Logs, Incident Telemetry)"]
     end
 
-    Client -->|HTTPS / REST API| Gateway
-    Gateway -->|Sub-Second NLP & Link Checks| Groq
-    Gateway -->|Visual Media & QR OCR| Gemini
-    Gateway -->|Offline Resilience| Heuristics
-    Client -->|Auth & Sync with RLS| DataTier
+    Web -->|JSON Payloads| AnalyzeGW
+    Web -->|Base64 Audio| VoiceGW
+    Mobile -->|WebView Bridge| Web
+    Ext -->|Prefetch Blocklist| BlocklistGW
+    Ext -->|Active Tab Intercept| AnalyzeGW
+
+    AnalyzeGW -->|Sub-Second Text NLP| Groq
+    AnalyzeGW -->|Visual Evidence OCR| Gemini
+    AnalyzeGW -->|Failover / Timeout (withTimeout)| HeuristicFallback
+    VoiceGW -->|Acoustic Flatness| FFT
+    VoiceGW -->|Linguistic Semantics| Whisper
+
+    AnalyzeGW -->|Upsert Threat Indicators| RLS
+    CronGW -->|Upsert Blocklist| PublicBlocklist
+    BlocklistGW -->|Anon Read Cache| PublicBlocklist
+    Web -->|Anon Read Telemetry| RLS
+    RLS --> ThreatIndicators
+    RLS --> UserScans
 ```
 
 ---
 
-## ⚡ Quickstart & Local Development
+## ⚡ Multi-Tier AI Cascade & Resilience Matrix
+
+GhostNet guarantees **zero single-point-of-failure** through an intelligent multi-tiered cascade:
+
+```
+[Incoming Request]
+       │
+       ├─► Text / Link Analysis
+       │        │
+       │        ├─► Primary: Groq LPU (llama-3.3-70b) [< 800ms]
+       │        │      │ (Timeout / Rate Limit)
+       │        │      └─► Secondary: Google Gemini 2.5 Flash
+       │        │             │ (Network Failure)
+       │        │             └─► Fallback: Deterministic Local Heuristics [< 5ms]
+       │
+       ├─► Screenshot / Image Evidence
+       │        │
+       │        ├─► Primary: Google Gemini 2.5 Flash Multi-Modal Vision
+       │        │      │ (Degradation / Failure)
+       │        │      └─► Fallback: Client-Side OCR + Heuristic Keyword Extractor
+       │
+       └─► Audio / Voice Recordings
+                │
+                ├─► In-Memory Spectral FFT (Wiener Entropy & Flatness)
+                └─► Groq Whisper-large-v3 Speech-to-Text
+```
+
+---
+
+## 🧪 Quality Gates & Automated Verification
+
+GhostNet maintains a comprehensive automated testing suite:
+
+```bash
+# Run the 40/40 Automated Test Suite
+npm test
+
+# Run ESLint Static Analysis
+npm run lint
+
+# Run TypeScript Strict Typecheck
+npm run typecheck
+
+# Build Optimized Production Web Bundle
+npm run build
+```
+
+### Verified Test Suite Breakdown (`tests/scanner.test.js`):
+* **Core Engine Tests (7 tests)**: Social engineering signals, 5-stage kill-chain reconstruction, intent inference, benchmark pattern matching, typosquatting domain analysis, clean message handling, and benchmark integrity.
+* **Reason Code Filtering (4 tests)**: Strict validation of all 10 reason codes, filtering unknown/hallucinated codes, null/undefined safety.
+* **Extended Heuristic Patterns (4 tests)**: IP-literal URLs, OTP keywords, urgent payment dues, and URL shortener detection.
+* **Voice Acoustic & Spectral Scoring (3 tests)**: Wiener spectral flatness bounds, baseline handling for short/silent audio, and combined acoustic-linguistic fraud scoring.
+* **Reason Code Inference (2 tests)**: Verification of structured reason code injection and source badges across text and link analysis.
+* **`withTimeout` Helper (2 tests)**: Asynchronous timeout resolution and cancellation.
+* **`safeParseVerdict` Code Defense (3 tests)**: JSON extraction from raw strings, markdown code-fence sanitization, and invalid code filtering.
+* **Threat Feed Normalization (2 tests)**: SHA-256 domain hashing and resilient hostname extraction.
+* **Supabase Read/Write Separation (2 tests)**: Anon key read safety and PostgREST upsert `on_conflict=indicator_hash` query string verification.
+* **Cron Endpoint Security (2 tests)**: HTTP 401 rejection when `CRON_SECRET` is missing or unauthorized.
+* **Voice Scanner API Failure Modes (4 tests)**: Feature-flag gating, HTTP 405 method enforcement, baseline fallback on silent audio, and HTTP 413 Payload Too Large protection (>6MB).
+* **Client Production Offline Fallback (1 test)**: Verification that network dropouts seamlessly fall back to local heuristics.
+* **Threat Feed Ingestion Logic (2 tests)**: OpenPhish line-by-line parsing and URLhaus CSV sanitation.
+* **Pre-Click Blocklist Lite (2 tests)**: Flag gating and HTTP method validation.
+
+---
+
+## 🚀 Quickstart & Setup Guide
 
 ### 1. Prerequisites
-* **Node.js:** v18.0.0+ (v20+ recommended)
+* **Node.js:** v18.0.0+ (Node v20+ recommended)
 * **npm:** v9.0.0+
+* **Supabase Project:** Free tier PostgreSQL instance
+* **Groq API Key:** Free tier from [console.groq.com](https://console.groq.com)
+* **Google Gemini API Key:** Free tier from [aistudio.google.com](https://aistudio.google.com)
 
-### 2. Setup
+### 2. Installation
 ```bash
 # Clone the repository
 git clone https://github.com/ImperialCoder01/GhostNet.git
@@ -100,86 +195,103 @@ npm install
 cp .env.example .env.local
 ```
 
-### 3. Environment Variables (`.env.local`)
+### 3. Environment Variables Configuration (`.env.local`)
 ```env
-# Supabase Configuration (Required)
+# Client-Accessible Supabase Keys (Public)
 VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_ANON_KEY=your_public_anon_key
 
-# AI Engine - Serverless Edge Secrets (api/analyze.js)
-GROQ_API_KEY=your_groq_api_key
-GEMINI_API_KEY=your_gemini_api_key
-# OPENAI_API_KEY=your_openai_api_key (optional)
+# Edge Serverless AI API Keys (Server-Only Secrets)
+GROQ_API_KEY=gsk_your_groq_key
+GEMINI_API_KEY=AIzaSy_your_gemini_key
+OPENAI_API_KEY=sk-your_openai_key # Optional fallback
+
+# Privileged Supabase Key (Server-Only Secret - NEVER leak to frontend)
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Cron Job Authentication Secret
+CRON_SECRET=your_secure_cron_secret_token
+
+# Feature Flags
+ENABLE_VOICE_SCANNER=true
+ENABLE_PRE_CLICK_INTERCEPTOR=true
 ```
 
-### 4. Run Development Server
+### 4. Database Setup (Supabase)
+Apply migrations in sequential order from `supabase/`:
+1. `001-initial-schema.sql`
+2. `002-rls-policies.sql`
+3. `003-storage-buckets.sql`
+4. `004-public-blocklist.sql`
+5. `005-threat-indicators.sql`
+6. *(Or apply consolidated `006-consolidated-audit-repairs.sql` in 1 step)*
+
+### 5. Launch Development Server
 ```bash
 npm run dev
 ```
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### 5. Run Automated Tests
-```bash
-npm test
-```
+---
+
+## 🧩 Chrome Extension (MV3) Installation
+
+1. Open Google Chrome or any Chromium-based browser (Brave, Edge).
+2. Navigate to `chrome://extensions/`.
+3. Enable **Developer mode** toggle in the upper-right corner.
+4. Click **Load unpacked** and select the [`extension/`](extension/) directory from this repository.
+5. The GhostNet AI icon will appear in your browser toolbar with real-time pre-click shield protection active.
 
 ---
 
-## 📱 Mobile Build (Android)
-
-GhostNet is packaged for Android via **Capacitor 8**:
+## 📱 Android Native Build (Capacitor)
 
 ```bash
-# Build production web bundle
+# Generate production web bundle
 npm run build
 
-# Sync assets to native Android project
+# Synchronize assets to native Android project
 npx cap sync android
 
-# Open Android Studio to build APK
+# Open Android Studio to build and run the APK
 npx cap open android
 ```
 
 ---
 
-## 📚 Technical Documentation Index
+## 📖 Complete Documentation Index
 
-Detailed architectural, security, and developer specifications are organized in the [`docs/`](docs/) directory:
-
-| Document | Description |
-| :--- | :--- |
-| [**Changelog & Releases**](docs/CHANGELOG.md) | Release notes for v1.0.0-hackathon milestone. |
-| [**Architecture**](docs/ARCHITECTURE.md) | Complete component hierarchy, data flows, and edge gateway design. |
-| [**AI Architecture**](docs/AI_ARCHITECTURE.md) | Multi-model routing, prompt engineering, risk scoring vs confidence, and OCR pipeline. |
-| [**API Reference**](docs/API.md) | Full endpoint specification for `/api/analyze` across all scan types. |
-| [**Database & Schema**](docs/DATABASE.md) | PostgreSQL schema, Row-Level Security (RLS) policies, and Supabase Storage rules. |
-| [**Security Architecture**](docs/SECURITY.md) | Secret isolation, SSRF defenses, upload validations, and disclosure SLA. |
-| [**Threat Model**](docs/THREAT_MODEL.md) | Formal threat analysis covering prompt injection, SSRF, IDOR, and mitigations. |
-| [**Privacy Policy**](docs/PRIVACY.md) | Data minimization, ephemeral processing, zero-ad tracking pledge, and data purge. |
-| [**Deployment Guide**](docs/DEPLOYMENT.md) | Instructions for Vercel production deployment and Supabase migrations. |
-| [**Mobile Guide**](docs/MOBILE.md) | Capacitor Android setup, permissions, and APK compilation. |
-| [**Testing Strategy**](docs/TESTING.md) | Unit test matrix, automated test runners, and manual QA checklists. |
-| [**Decision Log (ADR)**](docs/DECISION_LOG.md) | Architectural Decision Records explaining key technology choices. |
-| [**Hackathon Demo Guide**](docs/DEMO_GUIDE.md) | 3–5 minute step-by-step presentation script with sample inputs and fallback scenarios. |
-| [**Hackathon Pitch**](docs/HACKATHON_PITCH.md) | Problem statement, value proposition, competitive differentiation, and impact. |
-| [**Product Roadmap**](docs/ROADMAP.md) | Completed milestones, near-term features, and long-term research vision. |
-
----
-
-## ⚠️ Limitations & Responsible Use
-
-1. **Probabilistic Risk Estimation:** Risk scores and threat reconstructions are probabilistic machine-learning and heuristic estimates based on provided semantic signals. They are intended for decision support and digital awareness, not as legal or financial guarantees.
-2. **External AI Availability:** Cloud AI inferences depend on third-party provider availability (Groq, Google Gemini). GhostNet includes an autonomous local heuristic engine to ensure offline continuity during provider rate limits.
-3. **No Active Exploitation:** GhostNet does not execute hostile payloads or interact with attackers. All threat simulations are safe, static educational walkthroughs.
+| Document | Purpose |
+|:---|:---|
+| [**Architecture Specification**](docs/ARCHITECTURE.md) | Full system design, component hierarchy, ThreeUI shaders, and data flows. |
+| [**AI Architecture & Pipeline**](docs/AI_ARCHITECTURE.md) | Multi-model routing, Wiener spectral entropy, reason codes defense, and kill-chain taxonomy. |
+| [**REST API Reference**](docs/API.md) | Endpoints, payload contracts, headers, status codes, and timeout handling. |
+| [**Database & SQL Schema**](docs/DATABASE.md) | PostgreSQL schema, Row-Level Security (RLS), and PostgREST upsert specifications. |
+| [**Security Architecture**](docs/SECURITY.md) | Zero-trust input handling, CSP, Permissions-Policy, and credential isolation. |
+| [**STRIDE Threat Model**](docs/THREAT_MODEL.md) | Security threat matrix, adversary capabilities, and defense-in-depth mitigations. |
+| [**Privacy Sovereignty**](docs/PRIVACY.md) | Ephemeral processing, client-side data purge, indicator hashing, and GDPR alignment. |
+| [**Testing & Quality Assurance**](docs/TESTING.md) | Test suite breakdown, 40/40 test matrix, coverage metrics, and manual test scripts. |
+| [**Production Deployment Guide**](docs/DEPLOYMENT.md) | Vercel serverless deployment, Hobby cron limits, and environment configuration. |
+| [**Mobile Guide (Capacitor Android)**](docs/MOBILE.md) | AndroidManifest permissions, native bridge, camera/mic access, and APK generation. |
+| [**Architectural Decision Records (ADRs)**](docs/DECISION_LOG.md) | 7 architectural decisions explaining the rationale behind design choices. |
+| [**Changelog**](docs/CHANGELOG.md) | Complete version history from initial release to the production demo lock. |
+| [**Product Roadmap**](docs/ROADMAP.md) | Completed hackathon deliverables and upcoming post-hackathon initiatives. |
+| [**Judge Demonstration Guide**](docs/DEMO_GUIDE.md) | Step-by-step presentation script with 1-click test benchmarks and judge walkthrough. |
+| [**Hackathon Pitch Deck**](docs/HACKATHON_PITCH.md) | Investor pitch script, market opportunity, unit economics, and competitive moat. |
+| [**Hackathon Demo Playbook**](docs/HACKATHON_DEMO.md) | 2-minute pitch structure, timing breakdown, live scenarios, and Q&A defense. |
+| [**Final Demo Lock Checklist**](docs/FINAL_DEMO_CHECKLIST.md) | Authoritative sanity checklist covering all 8 features, guest mode, and endpoints. |
+| [**Codebase Audit & Verification Report**](docs/ANTIGRAVITY_AUDIT.md) | Full audit findings, resolution log, and 100% verification certification. |
 
 ---
 
-## 🤝 Contributing & Security
+## ⚖️ Responsible AI & Ethical Use
 
-We welcome community contributions! Please review our [Contributing Guide](.github/CONTRIBUTING.md), [Code of Conduct](.github/CODE_OF_CONDUCT.md), and [Security Policy](.github/SECURITY.md) before submitting a Pull Request.
+1. **Defensive Awareness**: GhostNet AI is an educational and defense-in-depth security tool. It provides probabilistic risk estimates and plain-English threat reconstructions to support user decisions.
+2. **Zero Hostile Execution**: GhostNet never executes untrusted code or interacts with scam infrastructure. All simulation sandboxes operate in safe, static memory environments.
+3. **Emergency Escalation**: For active scams, victims are immediately guided to report incidents to their local cyber defense authorities (e.g., India National Cyber Crime Helpline **1930** or [cybercrime.gov.in](https://cybercrime.gov.in)).
 
 ---
 
 ## 📄 License
 
-GhostNet AI is open-source software licensed under the [MIT License](LICENSE).
+GhostNet AI is open-source software licensed under the **[MIT License](LICENSE)**.

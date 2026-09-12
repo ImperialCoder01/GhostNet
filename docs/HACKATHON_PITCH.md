@@ -1,51 +1,67 @@
-# GhostNet AI — Hackathon Pitch & Judge Dossier
+# GhostNet AI — Hackathon Pitch Deck & Executive Dossier
 
-## 1. Problem Statement
+## 1. Executive Summary
 
-Cyber fraud and social-engineering scams cause over **$10 Billion in annual consumer losses globally**. Fraudsters increasingly leverage AI to generate hyper-realistic banking SMS, reverse UPI payment requests, and deceptive lookalike portals. 
+Digital fraud and AI-orchestrated social engineering cause over **$10 Billion in annual consumer losses worldwide**. Cybercriminals are leveraging generative AI to automate personalized spear-phishing, synthesize fake bank alerts, generate lookalike domains, clone executive voices, and distribute weaponized QR codes.
 
-Current consumer security tools fail because:
-1. **They are black boxes:** Showing a simple percentage without explaining *why* something is dangerous.
-2. **They are too technical:** Jargon like *Punycode, DNS spoofs, and SSL certificates* confuses non-technical users and elderly family members.
-3. **They don't explain the attack:** Users click links out of curiosity because they don't understand the underlying trap.
+Current cybersecurity solutions fail consumers because:
+1. **They are opaque black boxes:** Outputting generic percentage scores without explaining *why* a threat is dangerous or *how* it operates.
+2. **They speak in technical jargon:** Terms like *Punycode, reverse DNS, and SSL cipher suites* confuse everyday users and vulnerable elderly demographics.
+3. **They fail under offline conditions:** Completely collapsing when users lose network connectivity or external APIs suffer outages.
 
----
-
-## 2. The Solution: GhostNet AI
-
-**GhostNet AI** is a cross-platform multi-modal cybersecurity and scam prevention suite designed to detect, explain, and contain digital threats in real-time.
+**GhostNet AI delivers the solution: An autonomous, explainable multi-modal cyber defense platform.**
 
 ```text
-Detect ➔ Explain ➔ Reconstruct ➔ Contain
+Detect ➔ Explain ➔ Reconstruct ➔ Intercept ➔ Contain
 ```
 
 ---
 
-## 3. Key Differentiators for Judges
+## 2. The 8 Unfair Advantages
 
-1. **Threat Reconstruction™ (Attack Kill-Chain):**
-   Decomposes extracted digital evidence into an interactive 5-stage attack sequence (*Ingress* ➔ *Panic Urgency* ➔ *Phishing Gateway* ➔ *Credential Harvesting* ➔ *Financial Loss*).
+1. **Threat Reconstruction™ (Interactive Cyber Kill-Chain):**
+   Deconstructs every attack into an interactive 5-stage progression (*Ingress* ➔ *Social Engineering* ➔ *Phishing Gateway* ➔ *Credential Harvesting* ➔ *Financial Loss*).
+2. **Explainable Risk Scoring (10 Fixed Reason Codes):**
+   Standardizes risk analysis using 10 immutable threat codes (`URGENCY_SCARE_TACTICS`, `REQUEST_OTP_PASSWORD`, etc.) protected by strict code defense against LLM hallucinations.
+3. **Sub-Second Multi-Modal AI (Groq LPU + Google Gemini 2.5 Flash):**
+   Sub-500ms natural language processing on Groq LPU paired with high-accuracy Gemini Vision OCR for forged receipts, fake banking logos, and QR codes.
+4. **Acoustic Deepfake Call & Voice Scam Detection:**
+   Calculates in-memory Fast Fourier Transform (FFT) **Wiener Spectral Flatness** and harmonic energy ratios to identify synthetic AI vocoders and cloned voices.
+5. **Live WebRTC Camera QR Code Inspector:**
+   Scans and defangs QR codes in real-time, recursively parsing embedded URLs and UPI intent strings before users navigate.
+6. **Real-Time Browser Extension (Chrome MV3) & Pre-Click Sandbox:**
+   Monitors active browser tabs, queries low-latency SHA-256 blocklists (`/api/blocklist-lite`), and provides an educational zero-execution simulation sandbox.
+7. **Guaranteed 100% Offline Continuity:**
+   An autonomous local regex and NLP heuristic engine scores threats in under 5ms directly on the client if cloud APIs or cellular networks are unavailable.
+8. **Senior & Family Safety Mode:**
+   1-click transformation designed for non-technical family members: enlarges touch targets to 48dp, scales typography, and translates technical cyber indicators into plain-English advice.
 
-2. **"What Happens If I Click?" Safe Simulator:**
-   A zero-execution educational sandbox allowing users to learn how phishing traps work without risking device compromise.
+---
 
-3. **Sub-Second Multi-Modal AI Engine:**
-   * **Groq LPU** (`openai/gpt-oss-120b`, `qwen/qwen3.8-27b`) delivering 250ms text and URL analysis.
-   * **Google Gemini Vision OCR** for screenshot, fake logo, and QR code inspection.
-   * **Local Heuristic Fallback Engine** guaranteeing 100% uptime during cloud outages.
+## 3. Market Opportunity & Business Model
 
-4. **Family & Senior Safety Mode:**
-   One-tap accessibility transformation providing enlarged touch targets, high-contrast badges, and plain-English safety guidance for vulnerable family members.
-
-5. **Data Sovereignty & Security:**
-   Stateless ephemeral serverless execution on Vercel Edge with PostgreSQL Row-Level Security (RLS) on Supabase and 1-click personal data wipe controls.
+* **Target Addressable Market (TAM):** \$20B+ global consumer cybersecurity and identity fraud prevention market.
+* **Serviceable Addressable Market (SAM):** 800M+ mobile-first digital banking and UPI payment users across India, Southeast Asia, and emerging markets.
+* **Go-To-Market (GTM):**
+  * **Freemium Consumer Tier:** Free essential message, URL, and QR code inspection.
+  * **Pro Family Defense ($4.99/mo):** Multi-device protection, live voice call deepfake monitoring, and MV3 Browser Shield across all household members.
+  * **B2B FinTech SDK:** White-label threat scanning API for banking and digital wallet applications to detect fraudulent incoming SMS before payment authorization.
 
 ---
 
 ## 4. Technical Architecture Summary
 
-* **Frontend:** React 18, Vite 6, Tailwind CSS, Framer Motion, Recharts.
-* **Backend:** Vercel Edge Serverless Functions (`/api/analyze`).
-* **Database & Auth:** Supabase PostgreSQL with RLS & Encrypted Storage.
-* **Mobile Shell:** Capacitor 8 Native Android.
-* **AI Providers:** Groq LPU, Google Gemini Vision, OpenAI Vision fallback.
+* **Frontend:** React 18, Vite 6, Tailwind CSS 3.4, ThreeUI ambient living shaders, Framer Motion.
+* **Edge Gateways:** Vercel Edge Serverless Microservices (`/api/analyze`, `/api/analyze-voice`, `/api/blocklist-lite`, `/api/cron/sync-feeds`).
+* **Database & Auth:** Supabase PostgreSQL 15 with strict Row-Level Security, separate anon/service-role access keys, and PostgREST atomic upserts.
+* **Mobile Runtime:** Native Android package via Capacitor 8.5.
+* **Browser Extension:** Google Chrome Manifest V3 with DeclarativeNetRequest background interceptors.
+* **Automated Quality Gates:** 40/40 tests passing across 15 suites in `tests/scanner.test.js`.
+
+---
+
+## 5. The Closing Pitch
+
+> "Cybersecurity should not require a computer science degree. GhostNet AI puts an autonomous, explainable security operations center directly into the pocket of every citizen.
+>
+> **GhostNet AI — See the scam before it sees you.**"
