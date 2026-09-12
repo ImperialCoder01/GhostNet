@@ -134,5 +134,21 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [react(), localApiPlugin()],
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('three')) return 'three'
+              if (id.includes('framer-motion')) return 'motion'
+              if (id.includes('lucide-react')) return 'icons'
+              if (id.includes('@radix-ui')) return 'radix'
+              return 'vendor'
+            }
+          },
+        },
+      },
+    },
   }
 })
