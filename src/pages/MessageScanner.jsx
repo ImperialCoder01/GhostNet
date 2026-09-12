@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MessageSquareWarning, Sparkles, Trash2, Shield, Upload, FileText, ArrowRight } from "lucide-react";
+import { MessageSquareWarning, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ScannerHeader from "../components/scanner/ScannerHeader";

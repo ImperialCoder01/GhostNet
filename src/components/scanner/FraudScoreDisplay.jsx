@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, ShieldAlert, ShieldX, Activity, Sparkles, Key, DollarSign, Clock, Users } from "lucide-react";
+import { ShieldCheck, ShieldAlert, ShieldX, Sparkles, Key, DollarSign, Clock, Users } from "lucide-react";
 import ThreatReconstruction from "./ThreatReconstruction";
 import EmergencyActionCard from "./EmergencyActionCard";
 
@@ -13,7 +13,7 @@ export default function FraudScoreDisplay({
   attackIntent = "",
   signals = {},
   threatReconstruction = [],
-  similarPatterns = [],
+  similarPatterns: _similarPatterns = [],
   rawScanData = {}
 }) {
   const config = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Sparkles, ShieldAlert } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";

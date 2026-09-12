@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, ShieldAlert, Zap, Activity } from "lucide-react";
+import { ShieldAlert, Zap, Activity } from "lucide-react";
 
 export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100, totalScans = 0 }) {
   const isHealthy = safetyScore >= 75;

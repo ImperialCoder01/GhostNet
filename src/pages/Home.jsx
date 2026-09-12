@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import ProtectionStatus from "../components/dashboard/ProtectionStatus";
 import QuickActions from "../components/dashboard/QuickActions";
 import RecentScans from "../components/dashboard/RecentScans";
 import ThreatStats from "../components/dashboard/ThreatStats";
 import DemoBar from "../components/demo/DemoBar";
-import { motion } from "framer-motion";
 import { listScanHistory, listScamReports } from "@/lib/data";
-import { Shield, Sparkles, Activity, AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 

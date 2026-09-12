@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles, AlertTriangle, ShieldCheck, CheckCircle2, ShieldAlert } from "lucide-react";
+import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ScannerHeader from "../components/scanner/ScannerHeader";
@@ -10,7 +10,6 @@ import { useNotify } from "../components/useNotify";
 import { motion } from "framer-motion";
 import { createScanHistory } from "@/lib/data";
 import { analyzeLink } from "@/lib/api";
-import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useLocation } from "react-router-dom";
 
 export default function LinkScanner() {

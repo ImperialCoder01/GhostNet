@@ -7,6 +7,7 @@ import ScamHeatmap from './pages/ScamHeatmap';
 import ScreenshotScanner from './pages/ScreenshotScanner';
 import Technology from './pages/Technology';
 import PrivacyCenter from './pages/PrivacyCenter';
+import Scene from './Scene';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
@@ -19,6 +20,7 @@ export const PAGES = {
     "Technology": Technology,
     "PrivacyCenter": PrivacyCenter,
     "Profile": Profile,
+    "Scene": Scene,
 }
 
 export const pagesConfig = {

@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAuth } from "@/lib/AuthContext";
-import { supabase } from "@/lib/supabase";
 import UserModal from "@/components/auth/UserModal";
-import { 
-  Shield, MessageSquareWarning, Link2, Image, Map, 
+import { MessageSquareWarning, Link2, Image, Map, 
   AlertTriangle, User, Home, Menu, X, Ghost, Cpu, Lock, 
-  HeartHandshake, Sun, Moon, LogOut
+  HeartHandshake, Sun, Moon, Sparkles
 } from "lucide-react";
 
 const detectionNav = [
@@ -24,6 +22,7 @@ const intelligenceNav = [
 
 const governanceNav = [
   { name: "Architecture & AI", page: "Technology", icon: Cpu },
+  { name: "ThreeUI Scene", page: "Scene", icon: Sparkles },
   { name: "Privacy Sovereignty", page: "PrivacyCenter", icon: Lock },
   { name: "Security Profile", page: "Profile", icon: User },
 ];

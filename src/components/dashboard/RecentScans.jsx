@@ -1,8 +1,6 @@
 import React from "react";
-import { MessageSquareWarning, Link2, Image, ShieldAlert, ArrowUpRight, Calendar, ShieldCheck } from "lucide-react";
+import { MessageSquareWarning, Link2, Image, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 
 const iconMap = {
   message: MessageSquareWarning,

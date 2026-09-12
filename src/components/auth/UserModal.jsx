@@ -1,9 +1,9 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, User, Mail, ShieldCheck, Calendar, Key, Lock, LogOut, ArrowRight, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import { X, User, Mail, Calendar, Key, Lock, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function UserModal({ isOpen, onClose, user }) {
