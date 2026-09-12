@@ -5,8 +5,10 @@ import { useAuth } from "@/lib/AuthContext";
 import UserModal from "@/components/auth/UserModal";
 import { MessageSquareWarning, Link2, Image, Map, 
   AlertTriangle, User, Home, Menu, X, Ghost, Cpu, Lock, 
-  HeartHandshake, Sun, Moon, Sparkles
+  HeartHandshake, Sun, Moon
 } from "lucide-react";
+import { ConstellationField } from "@designcodeio/threeui";
+import "@designcodeio/threeui/style.css";
 
 const detectionNav = [
   { name: "Command Center", page: "Home", icon: Home },
@@ -22,7 +24,6 @@ const intelligenceNav = [
 
 const governanceNav = [
   { name: "Architecture & AI", page: "Technology", icon: Cpu },
-  { name: "ThreeUI Scene", page: "Scene", icon: Sparkles },
   { name: "Privacy Sovereignty", page: "PrivacyCenter", icon: Lock },
   { name: "Security Profile", page: "Profile", icon: User },
 ];
@@ -78,8 +79,21 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300"
+    <div className="min-h-screen flex flex-col transition-colors duration-300 relative"
       style={{ background: 'var(--ghost-bg)', color: 'var(--ghost-text)' }}>
+      
+      {/* ThreeUI Ambient Living Particle Drift Field */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-25 dark:opacity-35 transition-opacity">
+        <ConstellationField
+          variant="particle-drift"
+          mode={theme === 'light' ? 'light' : 'dark'}
+          speed={0.65}
+          size={0.9}
+          length={1.0}
+          density={0.75}
+          opacity={0.45}
+        />
+      </div>
       
       {/* Top Command Bar */}
       <header className="fixed top-0 left-0 right-0 z-40 h-14 border-b backdrop-blur-xl transition-colors duration-300"
@@ -366,7 +380,7 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Main Content Viewport - Fully Responsive */}
-      <main className="pt-16 pb-24 md:pb-8 md:pl-64 flex-1 w-full overflow-x-hidden">
+      <main className="relative z-10 pt-16 pb-24 md:pb-8 md:pl-64 flex-1 w-full overflow-x-hidden">
         <div className="max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
           {children}
         </div>

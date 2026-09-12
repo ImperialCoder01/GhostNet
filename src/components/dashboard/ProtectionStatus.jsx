@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { ShieldAlert, Zap, Activity } from "lucide-react";
 import { ConstellationField, LiquidMetalButton } from "@designcodeio/threeui";
 import "@designcodeio/threeui/style.css";
@@ -38,20 +40,28 @@ export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display"
-              style={{ color: 'var(--ghost-text)' }}>
-              See the scam before it sees you.
-            </h1>
-            <div className="shrink-0 w-16 h-16 hidden sm:flex items-center justify-center">
-              <LiquidMetalButton variant="circle" />
-            </div>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display"
+            style={{ color: 'var(--ghost-text)' }}>
+            See the scam before it sees you.
+          </h1>
 
           <p className="text-xs sm:text-sm font-medium leading-relaxed"
             style={{ color: 'var(--ghost-text-dim)' }}>
             Autonomous multi-modal defense layer analyzing messages, deceptive links, and screenshots in real-time.
           </p>
+
+          <div className="pt-2 flex items-center gap-3">
+            <Link
+              to={createPageUrl("MessageScanner")}
+              className="h-11 w-44 rounded-xl overflow-hidden block border border-cyan-500/40 shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:scale-[1.02] transition-transform">
+              <LiquidMetalButton variant="pill" text="Quick Scan" />
+            </Link>
+            <Link
+              to={createPageUrl("LinkScanner")}
+              className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+              Inspect Link →
+            </Link>
+          </div>
         </div>
 
         {/* Right Security Awareness Score & Metrics */}
