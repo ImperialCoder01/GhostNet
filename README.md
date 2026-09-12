@@ -263,6 +263,12 @@ npx cap open android
 
 | Document | Purpose |
 |:---|:---|
+| [**Product Requirements Document (PRD)**](docs/PRD.md) | Official PRD detailing problem statement, 8 core capabilities, non-functional requirements, and data entities. |
+| [**Competitive Analysis & Moat**](docs/COMPETITIVE_ANALYSIS.md) | Landscape comparison (VirusTotal, Safe Browsing, Truecaller), zero-day social engineering gap, and 5 unfair advantages. |
+| [**User Personas & Customer Journeys**](docs/USER_PERSONAS.md) | 4 target personas (Senior citizen, Crypto trader, Remote PM, SOC defender) with JTBD and end-to-end journey maps. |
+| [**Business Model, GTM & Unit Economics**](docs/BUSINESS_MODEL.md) | Business Model Canvas, B2C/B2B monetization, $0.0001/scan COGS on Groq LPUs, and 3-year ARR projections. |
+| [**Accessibility & Inclusivity (WCAG 2.1 AA)**](docs/ACCESSIBILITY.md) | WCAG 2.1 AA compliance audit, high-contrast dark theme ratios, screen reader ARIA roles, and cognitive safety. |
+| [**Contributing Guidelines**](CONTRIBUTING.md) | Open-source and hackathon contribution guide, local setup, conventional commits, and quality gate checklists. |
 | [**Architecture Specification**](docs/ARCHITECTURE.md) | Full system design, component hierarchy, ThreeUI shaders, and data flows. |
 | [**AI Architecture & Pipeline**](docs/AI_ARCHITECTURE.md) | Multi-model routing, Wiener spectral entropy, reason codes defense, and kill-chain taxonomy. |
 | [**REST API Reference**](docs/API.md) | Endpoints, payload contracts, headers, status codes, and timeout handling. |
@@ -273,7 +279,7 @@ npx cap open android
 | [**Testing & Quality Assurance**](docs/TESTING.md) | Test suite breakdown, 40/40 test matrix, coverage metrics, and manual test scripts. |
 | [**Production Deployment Guide**](docs/DEPLOYMENT.md) | Vercel serverless deployment, Hobby cron limits, and environment configuration. |
 | [**Mobile Guide (Capacitor Android)**](docs/MOBILE.md) | AndroidManifest permissions, native bridge, camera/mic access, and APK generation. |
-| [**Architectural Decision Records (ADRs)**](docs/DECISION_LOG.md) | 7 architectural decisions explaining the rationale behind design choices. |
+| [**Architectural Decision Records (ADRs)**](docs/DECISION_LOG.md) | 8 architectural decisions explaining the rationale behind design choices. |
 | [**Changelog**](docs/CHANGELOG.md) | Complete version history from initial release to the production demo lock. |
 | [**Product Roadmap**](docs/ROADMAP.md) | Completed hackathon deliverables and upcoming post-hackathon initiatives. |
 | [**Judge Demonstration Guide**](docs/DEMO_GUIDE.md) | Step-by-step presentation script with 1-click test benchmarks and judge walkthrough. |
