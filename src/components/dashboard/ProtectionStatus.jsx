@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ShieldAlert, Zap, Activity } from "lucide-react";
+import { ShieldAlert, Zap, Activity, QrCode, Mic, Shield } from "lucide-react";
 import { ConstellationField } from "@designcodeio/threeui";
 import "@designcodeio/threeui/style.css";
 
@@ -47,20 +47,38 @@ export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100
 
           <p className="text-xs sm:text-sm font-medium leading-relaxed"
             style={{ color: 'var(--ghost-text-dim)' }}>
-            Autonomous multi-modal defense layer analyzing messages, deceptive links, and screenshots in real-time.
+            Autonomous multi-modal defense layer analyzing messages, deceptive links, screenshots, QR codes, deepfake audio, and web traffic in real-time.
           </p>
 
-          <div className="pt-2 flex items-center gap-3">
+          <div className="pt-2 flex flex-wrap items-center gap-2.5">
             <Link
               to={createPageUrl("MessageScanner")}
-              className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl text-xs font-bold font-mono tracking-wide uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98]">
+              className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-xl text-xs font-bold font-mono tracking-wide uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98]">
               <Zap className="w-3.5 h-3.5 fill-current" />
               Quick Threat Scan
             </Link>
             <Link
               to={createPageUrl("LinkScanner")}
-              className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+              className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-cyan-500/10">
               Inspect Link →
+            </Link>
+            <Link
+              to={createPageUrl("QRScanner")}
+              className="text-xs font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-purple-500/10">
+              <QrCode className="w-3.5 h-3.5" />
+              QR Scanner →
+            </Link>
+            <Link
+              to={createPageUrl("VoiceScanner")}
+              className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-teal-500/10">
+              <Mic className="w-3.5 h-3.5" />
+              Voice Radar →
+            </Link>
+            <Link
+              to={createPageUrl("BrowserShield")}
+              className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-emerald-500/10">
+              <Shield className="w-3.5 h-3.5" />
+              Browser Shield →
             </Link>
           </div>
         </div>

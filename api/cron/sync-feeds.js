@@ -8,15 +8,18 @@
 import { syncThreatFeeds } from "../../scripts/sync-threat-feeds.js"
 
 export default async function handler(req, res) {
-  // Validate cron secret
+  // Validate cron secret - strictly require CRON_SECRET to be configured
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret) {
-    const authHeader = req.headers.authorization || ""
-    const token = authHeader.replace(/^Bearer\s+/i, "")
-    if (token !== cronSecret) {
-      res.status(401).json({ error: "Unauthorized" })
-      return
-    }
+  if (!cronSecret) {
+    res.status(401).json({ error: "CRON_SECRET is not configured on server" })
+    return
+  }
+
+  const authHeader = req.headers?.authorization || ""
+  const token = authHeader.replace(/^Bearer\s+/i, "")
+  if (token !== cronSecret) {
+    res.status(401).json({ error: "Unauthorized" })
+    return
   }
 
   if (req.method !== "GET" && req.method !== "POST") {

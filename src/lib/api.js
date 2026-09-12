@@ -3,7 +3,7 @@ import {
   analyzeScamReportContent,
   analyzeScreenshotFallback,
   analyzeUrlContent,
-} from '@/lib/scanner'
+} from './scanner.js'
 
 async function postAnalyze(type, payload) {
   try {
@@ -20,10 +20,6 @@ async function postAnalyze(type, payload) {
 
     return res.json()
   } catch {
-    if (import.meta.env.PROD) {
-      throw new Error('Analysis service unavailable. Please try again.')
-    }
-
     if (type === 'message') return analyzeMessageContent(payload?.message || '')
     if (type === 'link') return analyzeUrlContent(payload?.url || '')
     if (type === 'report') return analyzeScamReportContent(payload || {})

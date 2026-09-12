@@ -8,6 +8,7 @@ import DemoBar from "../components/demo/DemoBar";
 import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { listScanHistory, listScamReports } from "@/lib/data";
 
 export default function Home() {
   const navigate = useNavigate();

@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthGate({ children }) {
-  const { user, loading } = useAuth()
+  const { user, loading, continueAsGuest } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -109,14 +109,37 @@ export default function AuthGate({ children }) {
           {busy ? 'Please wait...' : title}
         </Button>
 
-        <button
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => setMode((m) => (m === 'signin' ? 'signup' : 'signin'))}
+            className="text-xs font-semibold"
+            style={{ color: 'var(--ghost-neon)' }}
+          >
+            {mode === 'signin' ? 'Need an account? Sign up' : 'Have an account? Sign in'}
+          </button>
+        </div>
+
+        <div className="relative my-3 pt-2">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t" style={{ borderColor: 'var(--ghost-border)' }} />
+          </div>
+          <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider">
+            <span className="px-2 rounded" style={{ background: 'var(--ghost-surface)', color: 'var(--ghost-text-muted)' }}>
+              Hackathon Evaluation
+            </span>
+          </div>
+        </div>
+
+        <Button
           type="button"
-          onClick={() => setMode((m) => (m === 'signin' ? 'signup' : 'signin'))}
-          className="text-sm font-semibold"
-          style={{ color: 'var(--ghost-neon)' }}
+          variant="outline"
+          onClick={continueAsGuest}
+          className="w-full h-11 rounded-xl font-bold border transition-all hover:border-cyan-400 hover:text-cyan-400"
+          style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
         >
-          {mode === 'signin' ? 'Need an account? Sign up' : 'Have an account? Sign in'}
-        </button>
+          ⚡ Explore as Guest / Judge Demo Mode
+        </Button>
       </div>
     </div>
   )

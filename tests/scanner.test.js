@@ -183,4 +183,382 @@ describe('Feature 1 & 2 — Deterministic Reason Code Inference', () => {
   })
 })
 
+// ============================================================
+// Audit Repairs — withTimeout & safeParseVerdict
+// ============================================================
+import {
+  withTimeout,
+  safeParseVerdict,
+  hashDomain,
+  extractDomain,
+  supabaseFetchUpsert,
+  getSupabaseReadClient,
+  getSupabaseServiceClient,
+} from '../api/analyze.js'
+import syncFeedsHandler from '../api/cron/sync-feeds.js'
+import voiceHandler from '../api/analyze-voice.js'
+import {
+  analyzeMessage,
+  analyzeLink,
+  analyzeScreenshot,
+  analyzeReport,
+} from '../src/lib/api.js'
 
+describe('Audit Repairs — withTimeout Helper', () => {
+  it('should resolve normally when promise completes before timeout', async () => {
+    const fastPromise = new Promise((resolve) => setTimeout(() => resolve('success'), 20))
+    const result = await withTimeout(fastPromise, 200)
+    assert.strictEqual(result, 'success')
+  })
+
+  it('should reject with timeout error when promise exceeds deadline', async () => {
+    const slowPromise = new Promise((resolve) => setTimeout(() => resolve('too-slow'), 200))
+    await assert.rejects(
+      () => withTimeout(slowPromise, 30),
+      /AI call timed out after 30ms/
+    )
+  })
+})
+
+describe('Audit Repairs — safeParseVerdict Parsing & Code Defense', () => {
+  it('should parse clean JSON with valid reason codes and explanation', () => {
+    const raw = JSON.stringify({
+      reasonCodes: ['URGENCY_LANGUAGE', 'REQUESTS_OTP'],
+      explanation: 'Urgent demand for OTP authentication.',
+    })
+    const verdict = safeParseVerdict(raw)
+    assert.ok(verdict, 'Expected parsed verdict')
+    assert.deepStrictEqual(verdict.reasonCodes, ['URGENCY_LANGUAGE', 'REQUESTS_OTP'])
+    assert.strictEqual(verdict.explanation, 'Urgent demand for OTP authentication.')
+  })
+
+  it('should extract JSON from markdown code fences and filter invalid codes', () => {
+    const text = 'Here is the analysis:\n```json\n{\n  "reasonCodes": ["IMPERSONATES_BRAND", "INVALID_HALLUCINATION"],\n  "explanation": "Fake portal mimicking SBI."\n}\n```'
+    const verdict = safeParseVerdict(text)
+    assert.ok(verdict, 'Expected parsed verdict')
+    assert.deepStrictEqual(verdict.reasonCodes, ['IMPERSONATES_BRAND'])
+    assert.strictEqual(verdict.explanation, 'Fake portal mimicking SBI.')
+  })
+
+  it('should return null for malformed or non-JSON input', () => {
+    assert.strictEqual(safeParseVerdict(null), null)
+    assert.strictEqual(safeParseVerdict(''), null)
+    assert.strictEqual(safeParseVerdict('This is just plain text without any JSON structure'), null)
+    assert.strictEqual(safeParseVerdict('{ broken json: true'), null)
+  })
+})
+
+describe('Audit Repairs — Threat Feed & Domain Normalization', () => {
+  it('should hash normalized domain with SHA-256 hex string', () => {
+    const hash1 = hashDomain('Example.COM ')
+    const hash2 = hashDomain('example.com')
+    assert.strictEqual(hash1, hash2, 'Hash must be case- and whitespace-insensitive')
+    assert.strictEqual(hash1.length, 64, 'SHA-256 hash must be 64 characters long')
+  })
+
+  it('should extract lowercase hostname from standard and malformed URLs', () => {
+    assert.strictEqual(extractDomain('https://Phishing-Portal.Top/login?id=1'), 'phishing-portal.top')
+    assert.strictEqual(extractDomain('http://sub.bank.example.co.in/path'), 'sub.bank.example.co.in')
+    assert.strictEqual(extractDomain('not a url'), null)
+  })
+})
+
+describe('Audit Repairs — PostgREST Upsert on_conflict Query Param', () => {
+  it('should include on_conflict query string parameter when specified', async () => {
+    let requestedUrl = ''
+    let requestedHeaders = {}
+    const originalFetch = globalThis.fetch
+
+    globalThis.fetch = async (url, opts) => {
+      requestedUrl = String(url)
+      requestedHeaders = opts.headers
+      return {
+        ok: true,
+        text: async () => '',
+      }
+    }
+
+    try {
+      await supabaseFetchUpsert(
+        'https://test-project.supabase.co',
+        'service-key-123',
+        'threat_indicators',
+        { indicator_hash: 'abc', risk_score: 80 },
+        { onConflict: 'indicator_hash' }
+      )
+
+      assert.ok(
+        requestedUrl.includes('on_conflict=indicator_hash'),
+        `Expected URL to contain on_conflict=indicator_hash, got: ${requestedUrl}`
+      )
+      assert.strictEqual(
+        requestedHeaders.Prefer,
+        'resolution=merge-duplicates,return=minimal',
+        'Expected resolution=merge-duplicates header'
+      )
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+})
+
+describe('Audit Repairs — Supabase Read/Write Separation', () => {
+  const origServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const origAnonKey = process.env.VITE_SUPABASE_ANON_KEY
+  const origUrl = process.env.VITE_SUPABASE_URL
+
+  it('should allow read client using anon key when service role key is absent', () => {
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.VITE_SUPABASE_ANON_KEY = 'anon-key-abc'
+    process.env.VITE_SUPABASE_URL = 'https://demo.supabase.co'
+
+    const readClient = getSupabaseReadClient()
+    const serviceClient = getSupabaseServiceClient()
+
+    assert.ok(readClient, 'Read client should initialize with anon key')
+    assert.strictEqual(serviceClient, null, 'Service client must return null without service role key')
+
+    // Restore
+    if (origServiceKey) process.env.SUPABASE_SERVICE_ROLE_KEY = origServiceKey
+    if (origAnonKey) process.env.VITE_SUPABASE_ANON_KEY = origAnonKey
+    if (origUrl) process.env.VITE_SUPABASE_URL = origUrl
+  })
+})
+
+describe('Audit Repairs — Cron Endpoint Security', () => {
+  function createMockRes() {
+    const res = {
+      statusCode: 200,
+      body: null,
+      status(code) {
+        this.statusCode = code
+        return this
+      },
+      json(payload) {
+        this.body = payload
+        return this
+      },
+    }
+    return res
+  }
+
+  const origSecret = process.env.CRON_SECRET
+
+  it('should reject with 401 when CRON_SECRET is not configured on server', async () => {
+    delete process.env.CRON_SECRET
+    const req = { method: 'GET', headers: {} }
+    const res = createMockRes()
+
+    await syncFeedsHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 401)
+    assert.ok(res.body.error.includes('CRON_SECRET is not configured'))
+  })
+
+  it('should reject with 401 when authorization token does not match CRON_SECRET', async () => {
+    process.env.CRON_SECRET = 'super-secret-cron-token'
+    const req = {
+      method: 'GET',
+      headers: { authorization: 'Bearer wrong-token' },
+    }
+    const res = createMockRes()
+
+    await syncFeedsHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 401)
+    assert.strictEqual(res.body.error, 'Unauthorized')
+
+    // Restore
+    if (origSecret) process.env.CRON_SECRET = origSecret
+    else delete process.env.CRON_SECRET
+  })
+})
+
+describe('Audit Repairs — Voice Scanner API Failure Modes', () => {
+  function createMockRes() {
+    const res = {
+      statusCode: 200,
+      body: null,
+      headers: {},
+      setHeader(k, v) { this.headers[k] = v },
+      status(code) {
+        this.statusCode = code
+        return this
+      },
+      json(payload) {
+        this.body = payload
+        return this
+      },
+    }
+    return res
+  }
+
+  it('should return 404 when voice scanner feature flag is disabled', async () => {
+    const origFlag = process.env.ENABLE_VOICE_SCANNER
+    process.env.ENABLE_VOICE_SCANNER = 'false'
+    const req = { method: 'POST', body: {} }
+    const res = createMockRes()
+
+    await voiceHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 404)
+    assert.ok(res.body.error.includes('disabled'))
+
+    if (origFlag !== undefined) process.env.ENABLE_VOICE_SCANNER = origFlag
+    else delete process.env.ENABLE_VOICE_SCANNER
+  })
+
+  it('should reject unsupported HTTP methods with 405', async () => {
+    const req = { method: 'GET', body: {} }
+    const res = createMockRes()
+
+    await voiceHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 405)
+    assert.strictEqual(res.body.error, 'Method not allowed')
+  })
+
+  it('should fall back to safe baseline analysis when audio is empty/silent', async () => {
+    const req = { method: 'POST', body: { audio_base64: '' } }
+    const res = createMockRes()
+
+    await voiceHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 200)
+    assert.strictEqual(res.body.risk_level, 'safe')
+    assert.strictEqual(res.body.source, 'offline-heuristic')
+    assert.ok(res.body.reasons.some(r => r.includes('No clear speech')))
+  })
+
+  it('should reject oversized audio payload with 413 Payload Too Large', async () => {
+    // Generate simulated oversized payload > 6MB
+    const oversizedBase64 = 'A'.repeat(6 * 1024 * 1024 + 10)
+    const req = { method: 'POST', body: { audio_base64: oversizedBase64 } }
+    const res = createMockRes()
+
+    await voiceHandler(req, res)
+
+    assert.strictEqual(res.statusCode, 413)
+    assert.ok(res.body.error.includes('maximum size limit'))
+  })
+})
+
+describe('Audit Repairs — Client Production Offline Fallback', () => {
+  const originalFetch = globalThis.fetch
+
+  it('should fall back to local heuristic analysis when network fetch fails', async () => {
+    globalThis.fetch = async () => {
+      throw new TypeError('Failed to fetch: Network disconnected')
+    }
+
+    try {
+      const msgResult = await analyzeMessage('Urgent: account locked. Send OTP now.')
+      assert.ok(msgResult, 'Must return fallback message analysis')
+      assert.strictEqual(msgResult.source, 'offline-heuristic')
+      assert.ok(msgResult.fraud_score >= 40, 'Must detect scam heuristically')
+
+      const linkResult = await analyzeLink('https://phishing-sbi-portal.online')
+      assert.ok(linkResult, 'Must return fallback link analysis')
+      assert.strictEqual(linkResult.source, 'offline-heuristic')
+
+      const screenResult = await analyzeScreenshot()
+      assert.ok(screenResult, 'Must return fallback screenshot analysis')
+
+      const reportResult = await analyzeReport({ scam_content: 'Fake electricity bill notice' })
+      assert.ok(reportResult, 'Must return fallback scam report analysis')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+})
+
+import { extractHostname as extractFeedHostname } from '../scripts/sync-threat-feeds.js'
+
+describe('Audit Repairs — Threat Feed Ingestion Logic', () => {
+  it('should parse OpenPhish text feed lines into valid domains', () => {
+    const rawFeed = `
+      http://phish1.example.org/login
+      https://phish2.malicious.net/account
+      ftp://invalid.scheme.com
+      not-a-valid-url
+    `
+    const lines = rawFeed.split('\n').map(l => l.trim()).filter(Boolean)
+    const domains = lines.map(extractFeedHostname).filter(Boolean)
+    assert.deepStrictEqual(domains, ['phish1.example.org', 'phish2.malicious.net', 'invalid.scheme.com'])
+  })
+
+  it('should parse URLhaus CSV records and skip headers/comments', () => {
+    const rawCsv = `# URLhaus Database
+# id,dateadded,url,url_status,last_online,threat,tags,urlhaus_link,reporter
+"1001","2026-09-12 10:00:00","https://urlhaus-badsite.org/malware.exe","online","2026-09-12","malware","exe","https://urlhaus.abuse.ch","admin"
+"1002","2026-09-12 10:05:00","http://second-badsite.biz/drop.php","online","2026-09-12","phish","login","https://urlhaus.abuse.ch","admin"
+`
+    const lines = rawCsv.split('\n')
+    const domains = []
+    for (const line of lines) {
+      if (line.startsWith('#') || !line.trim()) continue
+      const parts = line.split(',')
+      const rawUrl = parts[2]?.replace(/"/g, '').trim()
+      if (rawUrl) {
+        const host = extractFeedHostname(rawUrl)
+        if (host) domains.push(host)
+      }
+    }
+    assert.deepStrictEqual(domains, ['urlhaus-badsite.org', 'second-badsite.biz'])
+  })
+})
+
+import blocklistLiteHandler from '../api/blocklist-lite.js'
+
+describe('Audit Repairs — Pre-Click Blocklist Lite Endpoint', () => {
+  it('should return 404 when ENABLE_PRE_CLICK_INTERCEPTOR is disabled', async () => {
+    const origFlag = process.env.ENABLE_PRE_CLICK_INTERCEPTOR
+    delete process.env.ENABLE_PRE_CLICK_INTERCEPTOR
+
+    const req = { method: 'GET' }
+    let status = 200
+    let text = ''
+    const res = {
+      setHeader: () => {},
+      status: (s) => {
+        status = s
+        return {
+          send: (t) => { text = t },
+          end: () => {},
+        }
+      },
+      end: () => {},
+    }
+
+    await blocklistLiteHandler(req, res)
+    assert.strictEqual(status, 404)
+    assert.ok(text.includes('disabled'))
+
+    if (origFlag !== undefined) process.env.ENABLE_PRE_CLICK_INTERCEPTOR = origFlag
+  })
+
+  it('should reject non-GET requests with 405 Method Not Allowed', async () => {
+    const origFlag = process.env.ENABLE_PRE_CLICK_INTERCEPTOR
+    process.env.ENABLE_PRE_CLICK_INTERCEPTOR = 'true'
+
+    const req = { method: 'POST' }
+    let status = 200
+    const res = {
+      setHeader: () => {},
+      status: (s) => {
+        status = s
+        return {
+          send: () => {},
+          end: () => {},
+        }
+      },
+      end: () => {},
+    }
+
+    await blocklistLiteHandler(req, res)
+    assert.strictEqual(status, 405)
+
+    if (origFlag !== undefined) process.env.ENABLE_PRE_CLICK_INTERCEPTOR = origFlag
+    else delete process.env.ENABLE_PRE_CLICK_INTERCEPTOR
+  })
+})

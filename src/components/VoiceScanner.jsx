@@ -1,8 +1,29 @@
 import React, { useState, useRef } from "react";
-import { Mic, Upload, Square, Activity, AlertCircle, FileAudio } from "lucide-react";
+import { Mic, Upload, Square, Activity, AlertCircle, FileAudio, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
 import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectralFeatures";
+
+const DEMO_VOICE_SAMPLES = [
+  {
+    label: "Synthetic Bank KYC Scam Call",
+    description: "Robotic AI voice demanding immediate OTP & account details",
+    sampleTranscript: "URGENT NOTICE FROM STATE BANK: We have detected suspicious login activity on your net banking. Your account will be frozen today. Please press 1 now and share the verification code sent to your phone to prevent immediate suspension.",
+    flatness: 0.08,
+  },
+  {
+    label: "Family Emergency Deepfake Call",
+    description: "Urgent distress call impersonating a relative asking for UPI transfer",
+    sampleTranscript: "Dad, I am in big trouble. My friend was in a car accident and the hospital requires an urgent advance deposit of twenty thousand rupees. Please don't call mom, just send it immediately to this UPI ID.",
+    flatness: 0.72,
+  },
+  {
+    label: "Legitimate Service Confirmation",
+    description: "Authentic customer service confirmation with natural acoustics",
+    sampleTranscript: "Hello, this is a courtesy call from your bank branch confirming your customer service appointment for tomorrow at 2 PM. No personal information, passwords, or verification codes are required.",
+    flatness: 0.35,
+  },
+];
 
 export default function VoiceScanner() {
   const [isRecording, setIsRecording] = useState(false);
@@ -141,8 +162,76 @@ export default function VoiceScanner() {
     }
   };
 
+  const handleSelectBenchmark = async (sample) => {
+    setErrorMsg("");
+    setAnalyzing(true);
+    setResult(null);
+    setAudioUrl(null);
+    setAudioBlob(null);
+    setSpectralScore(sample.flatness);
+
+    try {
+      const res = await fetch("/api/analyze-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transcript_text: sample.sampleTranscript,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Voice analysis service returned an error.");
+      }
+
+      const data = await res.json();
+      const combinedScore = combineVoiceThreatScore(data.fraud_score || 0, sample.flatness);
+
+      setResult({
+        ...data,
+        fraud_score: combinedScore,
+        spectral_flatness: sample.flatness,
+        transcript: sample.sampleTranscript,
+      });
+    } catch (err) {
+      console.error("Benchmark analysis failed:", err);
+      setErrorMsg(err.message || "Failed to analyze benchmark audio.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* 1-Click Voice & Audio Benchmarks for Judges */}
+      <div className="ghost-card p-4 space-y-2 border-cyan-500/20">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> 1-Click Voice Benchmarks
+          </span>
+          <span className="text-[11px]" style={{ color: "var(--ghost-text-dim)" }}>
+            Instant test vectors without recording
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {DEMO_VOICE_SAMPLES.map((sample, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSelectBenchmark(sample)}
+              className="p-2.5 rounded-xl border text-left transition-all hover:border-cyan-400/60 flex flex-col justify-between"
+              style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)" }}
+            >
+              <span className="text-xs font-bold block" style={{ color: "var(--ghost-text)" }}>
+                {sample.label}
+              </span>
+              <span className="text-[10px] mt-1 line-clamp-2" style={{ color: "var(--ghost-text-dim)" }}>
+                {sample.description}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="ghost-card p-6 space-y-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center sm:text-left">
@@ -230,19 +319,48 @@ export default function VoiceScanner() {
             </div>
           )}
 
-          {spectralScore !== null && (
-            <div className="ghost-card p-4 flex items-center justify-between border" style={{ borderColor: "var(--ghost-border)" }}>
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-bold" style={{ color: "var(--ghost-text)" }}>
-                  Acoustic Spectral Flatness (Wiener Entropy)
-                </span>
+          {spectralScore !== null && (() => {
+            let label = "No strong synthetic indicators detected";
+            let subtext = "Frequency distribution is consistent with natural human vocal resonance.";
+            let color = "var(--ghost-green)";
+            let badgeClass = "badge-safe";
+
+            if (spectralScore < 0.12) {
+              label = "Suspicious synthetic-voice indicators detected";
+              subtext = "High harmonic compression & unnaturally flat spectral distribution observed.";
+              color = "var(--ghost-red)";
+              badgeClass = "badge-scam";
+            } else if (spectralScore > 0.65) {
+              label = "Potential manipulation detected";
+              subtext = "Unusual high-frequency energy ratio or vocoder artifact distribution observed.";
+              color = "var(--ghost-orange)";
+              badgeClass = "badge-suspicious";
+            }
+
+            return (
+              <div className="ghost-card p-4 space-y-2 border" style={{ borderColor: "var(--ghost-border)" }}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4" style={{ color }} />
+                    <span className="text-xs font-bold" style={{ color: "var(--ghost-text)" }}>
+                      Acoustic Spectral Analysis (Wiener Entropy)
+                    </span>
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${badgeClass}`}>
+                    {label}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t text-xs" style={{ borderColor: "var(--ghost-border)" }}>
+                  <span className="text-[11px]" style={{ color: "var(--ghost-text-dim)" }}>
+                    {subtext}
+                  </span>
+                  <span className="font-mono font-bold shrink-0 ml-2" style={{ color }}>
+                    Flatness: {spectralScore.toFixed(3)}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs font-mono font-bold text-cyan-400">
-                {spectralScore.toFixed(3)}
-              </span>
-            </div>
-          )}
+            );
+          })()}
 
           <FraudScoreDisplay
             score={result.fraud_score}

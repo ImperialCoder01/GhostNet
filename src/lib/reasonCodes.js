@@ -1,5 +1,5 @@
 /**
- * GhostNet AI — Explainable Risk Reason Code Dictionary
+ * GhostNet AI - Explainable Risk Reason Code Dictionary
  *
  * This is the FIXED, authoritative set of reason codes the AI is allowed to return.
  * Any code not in this dictionary is filtered out by safeParseVerdict() in api/analyze.js.
@@ -60,7 +60,7 @@ export const REASON_CODE_DICT = {
 }
 
 /**
- * Set of all valid reason code strings — used for fast O(1) lookup during filtering.
+ * Set of all valid reason code strings - used for fast O(1) lookup during filtering.
  */
 export const VALID_REASON_CODES = new Set(Object.keys(REASON_CODE_DICT))
 

@@ -92,6 +92,24 @@ function normalizeVisionResult(parsed) {
 // Supabase server-side client (for blocklist + community feed lookups)
 // ---------------------------------------------------------------------------
 
+function getSupabaseReadClient() {
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  // Read operations can use service role key or fall back to public anon key
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
+  if (!url || !key) return null
+  return {
+    from: (table) => ({
+      select: (cols) => ({
+        eq: (col, val) => ({
+          single: () => supabaseFetch('GET', url, key, table, { select: cols, eq: `${col}.eq.${val}`, limit: 1 }),
+          limit: (n) => supabaseFetch('GET', url, key, table, { select: cols, eq: `${col}.eq.${val}`, limit: n }),
+        }),
+        limit: (n) => supabaseFetch('GET', url, key, table, { select: cols, limit: n }),
+      }),
+    }),
+  }
+}
+
 function getSupabaseServiceClient() {
   const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -136,7 +154,10 @@ async function supabaseFetch(method, url, key, table, params = {}) {
 
 async function supabaseFetchUpsert(url, key, table, row, opts = {}) {
   try {
-    const resp = await fetch(`${url}/rest/v1/${table}`, {
+    const qs = new URLSearchParams()
+    if (opts.onConflict) qs.set('on_conflict', opts.onConflict)
+    const queryString = qs.toString() ? `?${qs.toString()}` : ''
+    const resp = await fetch(`${url}/rest/v1/${table}${queryString}`, {
       method: 'POST',
       headers: {
         apikey: key,
@@ -169,7 +190,7 @@ function extractDomain(rawUrl) {
  * Returns instant verdict object if found with risk_score >= 60, else null.
  */
 async function checkCommunityFeed(indicatorHash) {
-  const db = getSupabaseServiceClient()
+  const db = getSupabaseReadClient()
   if (!db) return null
   try {
     const { data } = await withTimeout(
@@ -208,7 +229,7 @@ async function checkCommunityFeed(indicatorHash) {
  * Returns instant verdict object if found, else null.
  */
 async function checkPublicBlocklist(domainHash) {
-  const db = getSupabaseServiceClient()
+  const db = getSupabaseReadClient()
   if (!db) return null
   try {
     const { data } = await withTimeout(
@@ -249,15 +270,17 @@ async function checkPublicBlocklist(domainHash) {
 
 /**
  * Upsert a high-risk indicator into threat_indicators (fire-and-forget, never blocks response).
+ * Requires privileged SUPABASE_SERVICE_ROLE_KEY to write.
  */
 function recordThreatIndicator(indicatorHash, indicatorType, riskScore, reasonCodes) {
   if (riskScore < 60) return
-  const db = getSupabaseServiceClient()
-  if (!db) return
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !serviceKey) return
   const now = new Date().toISOString()
   supabaseFetchUpsert(
-    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    url,
+    serviceKey,
     'threat_indicators',
     {
       indicator_hash: indicatorHash,
@@ -681,4 +704,19 @@ export default async function handler(req, res) {
       fallback: { ...analyzeMessageContent(payload?.message || ''), source: 'offline-heuristic' }
     })
   }
+}
+
+export {
+  withTimeout,
+  safeParseVerdict,
+  parseJsonFromText,
+  hashDomain,
+  extractDomain,
+  getSupabaseReadClient,
+  getSupabaseServiceClient,
+  supabaseFetch,
+  supabaseFetchUpsert,
+  checkCommunityFeed,
+  checkPublicBlocklist,
+  recordThreatIndicator,
 }

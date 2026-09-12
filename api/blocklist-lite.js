@@ -1,4 +1,4 @@
-﻿/**
+/**
  * GhostNet AI — Pre-Click Blocklist Lite Endpoint (Feature 8)
  * Returns plain-text list of high-confidence malicious domains for browser declarativeNetRequest rules.
  * Gated behind ENABLE_PRE_CLICK_INTERCEPTOR=true.
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   }
 
   const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+  const key = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !key) {
     res.status(200).send("# No database connection configured\n")

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * GhostNet AI — Feature 3: Public Threat Feed Sync
  *
  * Fetches OpenPhish and URLhaus free public threat feeds, extracts hostnames,
@@ -93,7 +93,7 @@ async function fetchURLhaus() {
 }
 
 async function upsertBatch(supabaseUrl, serviceKey, rows) {
-  const resp = await fetch(`${supabaseUrl}/rest/v1/public_blocklist`, {
+  const resp = await fetch(`${supabaseUrl}/rest/v1/public_blocklist?on_conflict=domain_hash`, {
     method: "POST",
     headers: {
       apikey: serviceKey,
@@ -159,6 +159,8 @@ export async function syncThreatFeeds() {
   console.log(`[sync-feeds] Done. Synced ${totalSynced} entries.`)
   return { synced: totalSynced }
 }
+
+export { extractHostname, hashDomain }
 
 // Allow running directly
 if (process.argv[1] && (process.argv[1].endsWith("sync-threat-feeds.js") || process.argv[1].includes("sync-threat-feeds"))) {

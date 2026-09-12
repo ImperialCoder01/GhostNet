@@ -41,6 +41,14 @@ export default async function handler(req, res) {
   try {
     const { audio_base64, mime_type, transcript_text } = req.body || {}
 
+    // Payload size guard: reject oversized payloads (>6MB base64 / ~4.5MB binary) with clear 413
+    if (audio_base64 && typeof audio_base64 === 'string' && audio_base64.length > 6 * 1024 * 1024) {
+      res.status(413).json({
+        error: 'Audio payload exceeds maximum size limit (4.5MB). Please upload a shorter recording under 60 seconds.',
+      })
+      return
+    }
+
     let transcript = transcript_text || ''
 
     // If audio_base64 is provided and Groq API key is set, transcribe using Whisper-large-v3
