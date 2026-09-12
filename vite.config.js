@@ -135,7 +135,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react(), localApiPlugin()],
     build: {
-      chunkSizeWarningLimit: 1500,
+      chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -144,6 +144,9 @@ export default defineConfig(({ mode }) => {
               if (id.includes('framer-motion')) return 'motion'
               if (id.includes('lucide-react')) return 'icons'
               if (id.includes('@radix-ui')) return 'radix'
+              if (id.includes('recharts') || id.includes('d3-')) return 'charts'
+              if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf'
+              if (id.includes('@supabase') || id.includes('@tanstack')) return 'data'
               return 'vendor'
             }
           },
