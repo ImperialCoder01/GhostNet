@@ -18,17 +18,23 @@ export function AuthProvider({ children }) {
         setUser(data.session.user)
       } else {
         try {
-          const saved = localStorage.getItem('ghostnet_guest_session')
+          const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
           if (saved) setUser(JSON.parse(saved))
-        } catch {}
+          else setUser(null)
+        } catch {
+          setUser(null)
+        }
       }
       setLoading(false)
     }).catch(() => {
       if (!mounted) return
       try {
-        const saved = localStorage.getItem('ghostnet_guest_session')
+        const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
         if (saved) setUser(JSON.parse(saved))
-      } catch {}
+        else setUser(null)
+      } catch {
+        setUser(null)
+      }
       setLoading(false)
     })
 
@@ -38,7 +44,7 @@ export function AuthProvider({ children }) {
         setUser(nextSession.user)
       } else {
         try {
-          const saved = localStorage.getItem('ghostnet_guest_session')
+          const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
           setUser(saved ? JSON.parse(saved) : null)
         } catch {
           setUser(null)
@@ -61,12 +67,15 @@ export function AuthProvider({ children }) {
     }
     setUser(demoUser)
     try {
-      localStorage.setItem('ghostnet_guest_session', JSON.stringify(demoUser))
+      sessionStorage.setItem('ghostnet_guest_session', JSON.stringify(demoUser))
+      localStorage.setItem('ghostnet_guest_session_active', JSON.stringify(demoUser))
     } catch {}
   }
 
   const signOut = async () => {
     try {
+      sessionStorage.removeItem('ghostnet_guest_session')
+      localStorage.removeItem('ghostnet_guest_session_active')
       localStorage.removeItem('ghostnet_guest_session')
     } catch {}
     setUser(null)

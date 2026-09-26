@@ -105,6 +105,116 @@ export default function Layout({ children, currentPageName }) {
     { name: "Radar", page: "ScamHeatmap", icon: Map },
   ];
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col transition-colors duration-300 relative" style={{ background: 'var(--ghost-bg)', color: 'var(--ghost-text)' }}>
+        {/* ThreeUI Ambient Living Particle Drift Field */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-25 dark:opacity-35 transition-opacity">
+          <ConstellationField
+            mode={theme === 'light' ? 'light' : 'dark'}
+            speed={0.65}
+            size={0.9}
+            density={0.75}
+            opacity={0.45}
+          />
+        </div>
+
+        {/* Public Page Header */}
+        <header className="sticky top-0 z-40 h-16 border-b backdrop-blur-xl transition-colors duration-300"
+          style={{ background: 'var(--ghost-surface)', borderColor: 'var(--ghost-border)' }}>
+          <div className="flex items-center justify-between h-full px-4 sm:px-6 max-w-7xl mx-auto w-full">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] flex items-center justify-center bg-slate-950">
+                <img src="/logo.jpg" alt="GhostNet.ai Logo" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-base sm:text-lg font-black tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
+                GhostNet<span className="text-cyan-500">.ai</span>
+              </span>
+            </Link>
+
+            {/* Center Policy Nav Links */}
+            <nav className="hidden lg:flex items-center gap-5 text-xs font-bold">
+              <Link to="/PrivacyPolicy" className={`transition-colors ${currentPageName === 'PrivacyPolicy' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'PrivacyPolicy' ? undefined : 'var(--ghost-text-dim)' }}>
+                Privacy Policy
+              </Link>
+              <Link to="/Terms" className={`transition-colors ${currentPageName === 'Terms' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'Terms' ? undefined : 'var(--ghost-text-dim)' }}>
+                Terms of Service
+              </Link>
+              <Link to="/CookiePolicy" className={`transition-colors ${currentPageName === 'CookiePolicy' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'CookiePolicy' ? undefined : 'var(--ghost-text-dim)' }}>
+                Cookie Policy
+              </Link>
+              <Link to="/RefundPolicy" className={`transition-colors ${currentPageName === 'RefundPolicy' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'RefundPolicy' ? undefined : 'var(--ghost-text-dim)' }}>
+                Refund Policy
+              </Link>
+              <Link to="/PrivacyCenter" className={`transition-colors ${currentPageName === 'PrivacyCenter' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'PrivacyCenter' ? undefined : 'var(--ghost-text-dim)' }}>
+                Data Sovereignty
+              </Link>
+              <Link to="/BusinessModel" className={`transition-colors ${currentPageName === 'BusinessModel' ? 'text-cyan-500 font-extrabold' : 'hover:text-cyan-500'}`} style={{ color: currentPageName === 'BusinessModel' ? undefined : 'var(--ghost-text-dim)' }}>
+                Pricing & Business
+              </Link>
+            </nav>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all"
+                style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
+                {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-600" />}
+              </button>
+
+              <button
+                onClick={toggleFamilyMode}
+                title="Toggle Senior & Family Safety Mode"
+                className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all ${familyMode ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300" : ""}`}
+                style={{ background: familyMode ? undefined : 'var(--ghost-surface-2)', borderColor: familyMode ? undefined : 'var(--ghost-border)', color: familyMode ? undefined : 'var(--ghost-text-dim)' }}>
+                <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="hidden sm:inline">{familyMode ? "Senior Mode: ON" : "Senior Mode"}</span>
+              </button>
+
+              <Link
+                to="/"
+                className="h-9 px-3.5 rounded-xl text-xs font-bold flex items-center justify-center bg-gradient-to-r from-cyan-500 to-cyan-400 text-slate-950 shadow-sm transition-all hover:scale-105">
+                Sign In / Workspace →
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Public Content */}
+        <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-8 w-full relative z-10">
+          {children}
+
+          {/* Footer */}
+          <footer className="mt-16 pt-8 pb-12 border-t text-xs space-y-4" style={{ borderColor: 'var(--ghost-border)', color: 'var(--ghost-text-dim)' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 font-bold font-display text-sm text-cyan-600 dark:text-cyan-400">
+                <div className="w-5 h-5 rounded overflow-hidden bg-slate-950 border border-cyan-500/30">
+                  <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+                </div>
+                GhostNet Cyber Defense Systems
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 font-medium text-[11px]">
+                <Link to="/PrivacyPolicy" className="hover:text-cyan-500 transition-colors">Privacy Policy</Link>
+                <Link to="/Terms" className="hover:text-cyan-500 transition-colors">Terms of Service</Link>
+                <Link to="/CookiePolicy" className="hover:text-cyan-500 transition-colors">Cookie Policy</Link>
+                <Link to="/RefundPolicy" className="hover:text-cyan-500 transition-colors">Refund Policy</Link>
+                <Link to="/PrivacyCenter" className="hover:text-cyan-500 transition-colors">Data Sovereignty</Link>
+                <Link to="/BusinessModel" className="hover:text-cyan-500 transition-colors">Pricing</Link>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] font-mono border-t pt-4" style={{ borderColor: 'var(--ghost-border)' }}>
+              <p>© 2026 GhostNet.ai. India DPDP Act 2023 & GDPR Compliant Data Fiduciary.</p>
+              <p>Grievance Officer: dpo@ghostnet.ai | Bengaluru, KA, India</p>
+            </div>
+          </footer>
+        </main>
+
+        <CookieConsentBanner />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 relative"
       style={{ background: 'var(--ghost-bg)', color: 'var(--ghost-text)' }}>

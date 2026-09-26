@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/AuthContext'
@@ -583,11 +583,11 @@ export default function AuthGate({ children }) {
           GhostNet.ai — Autonomous Cyber Defense Platform
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium">
-          <a href="/PrivacyPolicy" className="hover:text-cyan-500 transition-colors">Privacy Policy</a>
-          <a href="/Terms" className="hover:text-cyan-500 transition-colors">Terms of Service</a>
-          <a href="/CookiePolicy" className="hover:text-cyan-500 transition-colors">Cookie Policy</a>
-          <a href="/RefundPolicy" className="hover:text-cyan-500 transition-colors">Refund Policy</a>
-          <a href="/PrivacyCenter" className="hover:text-cyan-500 transition-colors">Data Sovereignty</a>
+          <Link to="/PrivacyPolicy" className="hover:text-cyan-500 transition-colors">Privacy Policy</Link>
+          <Link to="/Terms" className="hover:text-cyan-500 transition-colors">Terms of Service</Link>
+          <Link to="/CookiePolicy" className="hover:text-cyan-500 transition-colors">Cookie Policy</Link>
+          <Link to="/RefundPolicy" className="hover:text-cyan-500 transition-colors">Refund Policy</Link>
+          <Link to="/PrivacyCenter" className="hover:text-cyan-500 transition-colors">Data Sovereignty</Link>
         </div>
         <p className="text-[10px] max-w-md mx-auto font-mono">
           Engineered for Hackathon Evaluation & Local Production. DPDP Act 2023 Compliant.
