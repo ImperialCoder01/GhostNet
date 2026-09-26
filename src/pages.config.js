@@ -10,6 +10,7 @@ import PrivacyCenter from './pages/PrivacyCenter';
 import VoiceScanner from './pages/VoiceScanner';
 import QRScannerPage from './pages/QRScannerPage';
 import BrowserShield from './pages/BrowserShield';
+import BusinessModel from './pages/BusinessModel';
 import Scene from './Scene';
 import __Layout from './Layout.jsx';
 
@@ -23,6 +24,7 @@ export const PAGES = {
     "BrowserShield": BrowserShield,
     "ScamHeatmap": ScamHeatmap,
     "ReportScam": ReportScam,
+    "BusinessModel": BusinessModel,
     "Technology": Technology,
     "PrivacyCenter": PrivacyCenter,
     "Profile": Profile,
