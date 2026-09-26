@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/AuthContext'
@@ -139,20 +139,13 @@ export default function AuthGate({ children }) {
     }
   ]
 
-  const publicPaths = [
-    '/PrivacyPolicy',
-    '/Terms',
-    '/CookiePolicy',
-    '/RefundPolicy',
-    '/PrivacyCenter',
-    '/BusinessModel'
-  ]
+  const location = useLocation()
 
-  const isPublicPage = typeof window !== 'undefined' && publicPaths.some(path => {
-    const currentPath = window.location.pathname.toLowerCase()
-    const targetPath = path.toLowerCase()
-    return currentPath === targetPath || currentPath.endsWith(targetPath) || currentPath === targetPath + '/'
-  })
+  const isPublicPage = useMemo(() => {
+    const currentPath = (location?.pathname || (typeof window !== 'undefined' ? window.location.pathname : '')).toLowerCase()
+    const publicKeywords = ['privacypolicy', 'terms', 'cookiepolicy', 'refundpolicy', 'privacycenter', 'businessmodel']
+    return publicKeywords.some(kw => currentPath.includes(kw))
+  }, [location?.pathname])
 
   if (user || isPublicPage) {
     return children
