@@ -4,6 +4,7 @@ import { Map, AlertTriangle, Globe, Radio, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import { listScamReports, listThreatIndicatorStats } from "@/lib/data";
+import { SkeletonCard, SkeletonRows, MetricCardSkeleton } from "@/components/ui/skeleton";
 
 const REGIONAL_HOTSPOTS = [
   { city: "Bengaluru", country: "India", reports: 412, trend: "+28%", category: "UPI Cashback Fraud", severity: "critical" },
@@ -27,19 +28,19 @@ export default function ScamHeatmap() {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [activeIncident, setActiveIncident] = useState(REGIONAL_HOTSPOTS[0]);
 
-  const { data: reports = [] } = useQuery({
+  const { data: reports = [], isLoading: loadingReports } = useQuery({
     queryKey: ['scamReports'],
     queryFn: () => listScamReports(100),
   });
 
-  // Feature 4 — Live community threat intelligence count
-  const { data: threatStats = [] } = useQuery({
+  const { data: threatStats = [], isLoading: loadingStats } = useQuery({
     queryKey: ['threatIndicatorStats'],
     queryFn: listThreatIndicatorStats,
-    staleTime: 5 * 60 * 1000, // 5 min
+    staleTime: 5 * 60 * 1000,
   });
-  const liveIndicatorCount = threatStats.reduce((sum, s) => sum + (s.count || 0), 0);
 
+  const isLoading = loadingReports || loadingStats;
+  const liveIndicatorCount = threatStats.reduce((sum, s) => sum + (s.count || 0), 0);
   const totalReportsCount = 4520 + reports.length + liveIndicatorCount;
 
   const filteredHotspots = selectedFilter === "all"
@@ -56,35 +57,39 @@ export default function ScamHeatmap() {
       />
 
       {/* Global Intelligence Telemetry */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="ghost-card p-4">
-          <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Total Syndicated Threats</span>
-          <p className="text-2xl sm:text-3xl font-black mt-1" style={{ color: 'var(--ghost-text)' }}>{totalReportsCount.toLocaleString()}</p>
-          <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">Global & Local</span>
-        </motion.div>
+      {isLoading ? (
+        <MetricCardSkeleton count={4} />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+            className="ghost-card p-4">
+            <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Total Syndicated Threats</span>
+            <p className="text-2xl sm:text-3xl font-black mt-1" style={{ color: 'var(--ghost-text)' }}>{totalReportsCount.toLocaleString()}</p>
+            <span className="text-[10px] font-mono text-cyan-600 dark:text-cyan-400">Global & Local</span>
+          </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="ghost-card p-4">
-          <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Active Hotspots</span>
-          <p className="text-2xl sm:text-3xl font-black score-scam mt-1">{REGIONAL_HOTSPOTS.length}</p>
-          <span className="text-[10px] text-rose-500 font-mono">Monitored Metros</span>
-        </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+            className="ghost-card p-4">
+            <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Active Hotspots</span>
+            <p className="text-2xl sm:text-3xl font-black score-scam mt-1">{REGIONAL_HOTSPOTS.length}</p>
+            <span className="text-[10px] text-rose-500 font-mono">Monitored Metros</span>
+          </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="ghost-card p-4">
-          <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Spike Velocity</span>
-          <p className="text-2xl sm:text-3xl font-black score-suspicious mt-1">+24.6%</p>
-          <span className="text-[10px] text-amber-500 font-mono">Past 7 Days</span>
-        </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="ghost-card p-4">
+            <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Spike Velocity</span>
+            <p className="text-2xl sm:text-3xl font-black score-suspicious mt-1">+24.6%</p>
+            <span className="text-[10px] text-amber-500 font-mono">Past 7 Days</span>
+          </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="ghost-card p-4">
-          <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Community Defense</span>
-          <p className="text-2xl sm:text-3xl font-black score-safe mt-1">99.4%</p>
-          <span className="text-[10px] text-emerald-500 font-mono">Early Warning</span>
-        </motion.div>
-      </div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+            className="ghost-card p-4">
+            <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Community Defense</span>
+            <p className="text-2xl sm:text-3xl font-black score-safe mt-1">99.4%</p>
+            <span className="text-[10px] text-emerald-500 font-mono">Early Warning</span>
+          </motion.div>
+        </div>
+      )}
 
       {/* Emerging Threats Radar Banner */}
       <div className="ghost-card p-4 border-cyan-500/30 flex items-center justify-between gap-4">
@@ -137,48 +142,52 @@ export default function ScamHeatmap() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            {filteredHotspots.map((spot) => {
-              const isSelected = activeIncident.city === spot.city;
-              return (
-                <div
-                  key={spot.city}
-                  onClick={() => setActiveIncident(spot)}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    isSelected ? "ghost-card-highlight ring-1 ring-cyan-400" : ""
-                  }`}
-                  style={{
-                    background: isSelected ? undefined : 'var(--ghost-surface-2)',
-                    borderColor: isSelected ? undefined : 'var(--ghost-border)'
-                  }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: spot.severity === 'critical' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)' }}>
-                      <AlertTriangle className="w-4 h-4" style={{ color: spot.severity === 'critical' ? 'var(--ghost-red)' : 'var(--ghost-orange)' }} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold" style={{ color: 'var(--ghost-text)' }}>{spot.city}, {spot.country}</span>
-                        <span className={`text-[10px] font-bold uppercase px-1.5 py-0.2 rounded ${
-                          spot.severity === 'critical' ? 'badge-scam' : 'badge-suspicious'
-                        }`}>
-                          {spot.severity}
-                        </span>
+          {isLoading ? (
+            <SkeletonRows count={5} />
+          ) : (
+            <div className="space-y-2">
+              {filteredHotspots.map((spot) => {
+                const isSelected = activeIncident.city === spot.city;
+                return (
+                  <div
+                    key={spot.city}
+                    onClick={() => setActiveIncident(spot)}
+                    className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      isSelected ? "ghost-card-highlight ring-1 ring-cyan-400" : ""
+                    }`}
+                    style={{
+                      background: isSelected ? undefined : 'var(--ghost-surface-2)',
+                      borderColor: isSelected ? undefined : 'var(--ghost-border)'
+                    }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: spot.severity === 'critical' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)' }}>
+                        <AlertTriangle className="w-4 h-4" style={{ color: spot.severity === 'critical' ? 'var(--ghost-red)' : 'var(--ghost-orange)' }} />
                       </div>
-                      <p className="text-[11px] mt-0.5" style={{ color: 'var(--ghost-text-dim)' }}>
-                        Dominant vector: <strong style={{ color: 'var(--ghost-text)' }}>{spot.category}</strong>
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold" style={{ color: 'var(--ghost-text)' }}>{spot.city}, {spot.country}</span>
+                          <span className={`text-[10px] font-bold uppercase px-1.5 py-0.2 rounded ${
+                            spot.severity === 'critical' ? 'badge-scam' : 'badge-suspicious'
+                          }`}>
+                            {spot.severity}
+                          </span>
+                        </div>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--ghost-text-dim)' }}>
+                          Dominant vector: <strong style={{ color: 'var(--ghost-text)' }}>{spot.category}</strong>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-xs font-mono font-bold block" style={{ color: 'var(--ghost-text)' }}>{spot.reports} incidents</span>
+                      <span className="text-[10px] font-bold text-rose-500 dark:text-rose-400">{spot.trend}</span>
                     </div>
                   </div>
-
-                  <div className="text-right shrink-0">
-                    <span className="text-xs font-mono font-bold block" style={{ color: 'var(--ghost-text)' }}>{spot.reports} incidents</span>
-                    <span className="text-[10px] font-bold text-rose-500 dark:text-rose-400">{spot.trend}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right: Selected Node Detail */}

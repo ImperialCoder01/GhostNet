@@ -32,6 +32,7 @@ export default function ReportScam() {
 
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [agreedConsent, setAgreedConsent] = useState(false);
 
   useEffect(() => {
     if (location.state?.prefill) {
@@ -47,7 +48,7 @@ export default function ReportScam() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.scam_content.trim()) return;
+    if (!form.scam_content.trim() || !agreedConsent) return;
 
     setSubmitting(true);
 
@@ -196,11 +197,25 @@ export default function ReportScam() {
             />
           </div>
 
+          {/* Consent Checkbox */}
+          <div className="flex items-start gap-2 pt-1">
+            <input
+              type="checkbox"
+              id="scam-report-consent"
+              checked={agreedConsent}
+              onChange={(e) => setAgreedConsent(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500 accent-amber-500 cursor-pointer"
+            />
+            <label htmlFor="scam-report-consent" className="text-xs font-medium cursor-pointer" style={{ color: 'var(--ghost-text-dim)' }}>
+              I consent to submit this scam telemetry for automated threat analysis under the <a href="/PrivacyPolicy" className="text-amber-600 dark:text-amber-400 underline font-semibold">GhostNet Privacy Policy</a>.
+            </label>
+          </div>
+
           <Button
             type="submit"
-            disabled={submitting || !form.scam_content.trim()}
-            className="w-full h-12 rounded-xl font-bold text-slate-950 transition-all shadow-md bg-amber-500 hover:bg-amber-400">
-            {submitting ? "Syndicating to Community Threat Intelligence..." : "Submit Scam Report"}
+            disabled={submitting || !form.scam_content.trim() || !agreedConsent}
+            className="w-full h-12 rounded-xl font-bold text-slate-950 transition-all shadow-md bg-amber-500 hover:bg-amber-400 disabled:opacity-50">
+            {submitting ? "Syndicating to Community Threat Intelligence..." : "Submit Scam Incident Report"}
           </Button>
 
         </form>

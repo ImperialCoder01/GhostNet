@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import { createScanHistory } from "@/lib/data";
 import { analyzeLink } from "@/lib/api";
 import { useLocation } from "react-router-dom";
+import { SkeletonScannerResult } from "@/components/ui/skeleton";
+import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function LinkScanner() {
   const location = useLocation();
@@ -114,7 +116,12 @@ export default function LinkScanner() {
         </Button>
       </div>
 
-      {scanning && <ScanningAnimation label="Decomposing URL, SSL certificates, and typosquatting signals..." />}
+      {scanning && (
+        <div className="space-y-4">
+          <ScannerAnalysisProgress isAnalyzing={scanning} title="Domain Infrastructure & Typosquatting Analysis" />
+          <SkeletonScannerResult />
+        </div>
+      )}
 
       {result && !scanning && (
         <div className="space-y-4">

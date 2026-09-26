@@ -10,6 +10,8 @@ import { createScanHistory } from "@/lib/data";
 import { analyzeMessage } from "@/lib/api";
 import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useLocation } from "react-router-dom";
+import { SkeletonScannerResult } from "@/components/ui/skeleton";
+import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function MessageScanner() {
   const location = useLocation();
@@ -125,8 +127,13 @@ export default function MessageScanner() {
         </Button>
       </div>
 
-      {/* Multi-stage scanning radar */}
-      {scanning && <ScanningAnimation label="Running multi-signal linguistic and threat model analysis..." />}
+      {/* Multi-stage scanning radar + Progressive Skeletal Loader */}
+      {scanning && (
+        <div className="space-y-4">
+          <ScannerAnalysisProgress isAnalyzing={scanning} title="Multi-Signal Linguistic AI Inspection" />
+          <SkeletonScannerResult />
+        </div>
+      )}
       
       {/* Rich Explainable Results */}
       {result && !scanning && (

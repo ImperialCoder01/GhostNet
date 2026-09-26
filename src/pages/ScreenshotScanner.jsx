@@ -8,6 +8,8 @@ import QRScanner from "../components/QRScanner";
 import { useNotify } from "../components/useNotify";
 import { createScanHistory, uploadEvidenceFile } from "@/lib/data";
 import { analyzeScreenshot, analyzeLink, analyzeMessage } from "@/lib/api";
+import { SkeletonScannerResult } from "@/components/ui/skeleton";
+import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function ScreenshotScanner() {
   // Tab state — "screenshot" | "qr"
@@ -228,7 +230,12 @@ export default function ScreenshotScanner() {
             </Button>
           </div>
 
-          {scanning && <ScanningAnimation label="Extracting OCR tokens, logos, and visual social engineering cues..." />}
+          {scanning && (
+            <div className="space-y-4">
+              <ScannerAnalysisProgress isAnalyzing={scanning} title="Vision AI & OCR Feature Extraction" />
+              <SkeletonScannerResult />
+            </div>
+          )}
 
           {scanError && (
             <div className="ghost-card p-4 border-rose-500/30 flex items-start gap-3">

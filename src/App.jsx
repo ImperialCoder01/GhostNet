@@ -47,11 +47,11 @@ function App() {
     <AppErrorBoundary>
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
-          <AuthGate>
-            <Router>
+          <Router>
+            <AuthGate>
               <AppRoutes />
-            </Router>
-          </AuthGate>
+            </AuthGate>
+          </Router>
           <Toaster />
         </QueryClientProvider>
       </AuthProvider>

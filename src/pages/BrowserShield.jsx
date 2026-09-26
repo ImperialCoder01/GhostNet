@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Shield, ShieldAlert, Terminal, CheckCircle2, X } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import { Button } from "@/components/ui/button";
+import { TableSkeleton } from "@/components/ui/skeleton";
 
 export default function BrowserShield() {
   const [testDomain, setTestDomain] = useState("sbi-kyc-verification-portal.online");
@@ -258,7 +259,7 @@ export default function BrowserShield() {
         <div className="max-h-48 overflow-y-auto p-3 rounded-xl border font-mono text-xs space-y-1"
           style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)", color: "var(--ghost-text-dim)" }}>
           {feedLoading ? (
-            <p className="text-cyan-400 animate-pulse">Loading synced blocklist telemetry...</p>
+            <TableSkeleton rows={4} />
           ) : (
             blocklistFeed.map((domain, i) => (
               <div key={i} className="flex items-center justify-between text-[11px]">

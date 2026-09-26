@@ -8,21 +8,27 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { ProfileSkeleton } from "@/components/ui/skeleton";
 
 export default function Profile() {
   const { user: authUser } = useAuth();
   const user = authUser;
 
-  const { data: scans = [] } = useQuery({
+  const { data: scans = [], isLoading: loadingScans } = useQuery({
     queryKey: ['scanHistory'],
     queryFn: () => listScanHistory(100),
   });
 
-  const { data: reports = [] } = useQuery({
+  const { data: reports = [], isLoading: loadingReports } = useQuery({
     queryKey: ['myReports'],
     queryFn: () => listScamReports(100),
   });
 
+  const isLoading = loadingScans || loadingReports;
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
   const totalScams = scans.filter(s => s.risk_level === 'scam').length;
   const totalSafe = scans.filter(s => s.risk_level === 'safe').length;
   const scamRatio = scans.length > 0 ? (totalScams / scans.length) : 0;
@@ -39,67 +45,75 @@ export default function Profile() {
     <div className="space-y-6">
       
       {/* Profile Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="ghost-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-cyan-500 to-sky-400">
-            <User className="w-8 h-8 text-slate-950 font-black" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold font-display" style={{ color: 'var(--ghost-text)' }}>
-              {user?.user_metadata?.full_name || "GhostNet Security Analyst"}
-            </h2>
-            <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--ghost-text-dim)' }}>
-              {user?.email || "Authenticated Operator"}
-            </p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full badge-safe flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Active Cyber Defense
-              </span>
+      {isLoading ? (
+        <SkeletonCard className="h-28" />
+      ) : (
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="ghost-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 bg-gradient-to-tr from-cyan-500 to-sky-400">
+              <User className="w-8 h-8 text-slate-950 font-black" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold font-display" style={{ color: 'var(--ghost-text)' }}>
+                {user?.user_metadata?.full_name || "GhostNet Security Analyst"}
+              </h2>
+              <p className="text-xs font-mono mt-0.5" style={{ color: 'var(--ghost-text-dim)' }}>
+                {user?.email || "Authenticated Operator"}
+              </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full badge-safe flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Active Cyber Defense
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Behavioral Awareness Gauge */}
-        <div className="p-3.5 rounded-xl border text-right shrink-0"
-          style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
-          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-dim)' }}>
-            Behavioral Safety Index
-          </span>
-          <div className="flex items-baseline justify-end gap-1 my-0.5">
-            <span className="text-3xl font-black font-display score-safe">{safetyScore}</span>
-            <span className="text-xs font-bold" style={{ color: 'var(--ghost-text-muted)' }}>/100</span>
+          {/* Behavioral Awareness Gauge */}
+          <div className="p-3.5 rounded-xl border text-right shrink-0"
+            style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+            <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-dim)' }}>
+              Behavioral Safety Index
+            </span>
+            <div className="flex items-baseline justify-end gap-1 my-0.5">
+              <span className="text-3xl font-black font-display score-safe">{safetyScore}</span>
+              <span className="text-xs font-bold" style={{ color: 'var(--ghost-text-muted)' }}>/100</span>
+            </div>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Proactive Awareness</span>
           </div>
-          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Proactive Awareness</span>
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
 
       {/* 4 Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {stats.map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-              className="ghost-card p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold" style={{ color: 'var(--ghost-text-dim)' }}>{stat.label}</span>
-                <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: stat.bg }}>
-                  <Icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
+      {isLoading ? (
+        <SkeletonStats />
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {stats.map((stat, i) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+                className="ghost-card p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold" style={{ color: 'var(--ghost-text-dim)' }}>{stat.label}</span>
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: stat.bg }}>
+                    <Icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
+                  </div>
                 </div>
-              </div>
-              <p className="text-2xl font-black font-display" style={{ color: 'var(--ghost-text)' }}>{stat.value}</p>
-            </motion.div>
-          );
-        })}
-      </div>
+                <p className="text-2xl font-black font-display" style={{ color: 'var(--ghost-text)' }}>{stat.value}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Security Navigation Links */}
       <div className="space-y-2">

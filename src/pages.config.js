@@ -11,6 +11,10 @@ import VoiceScanner from './pages/VoiceScanner';
 import QRScannerPage from './pages/QRScannerPage';
 import BrowserShield from './pages/BrowserShield';
 import BusinessModel from './pages/BusinessModel';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import CookiePolicy from './pages/CookiePolicy';
+import RefundPolicy from './pages/RefundPolicy';
 import Scene from './Scene';
 import __Layout from './Layout.jsx';
 
@@ -27,6 +31,10 @@ export const PAGES = {
     "BusinessModel": BusinessModel,
     "Technology": Technology,
     "PrivacyCenter": PrivacyCenter,
+    "PrivacyPolicy": PrivacyPolicy,
+    "Terms": Terms,
+    "CookiePolicy": CookiePolicy,
+    "RefundPolicy": RefundPolicy,
     "Profile": Profile,
     "Scene": Scene,
 }

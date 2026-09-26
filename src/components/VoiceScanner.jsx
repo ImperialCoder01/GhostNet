@@ -3,6 +3,8 @@ import { Mic, Upload, Square, Activity, AlertCircle, FileAudio, Sparkles } from 
 import { Button } from "@/components/ui/button";
 import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
 import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectralFeatures";
+import { SkeletonScannerResult } from "@/components/ui/skeleton";
+import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 const DEMO_VOICE_SAMPLES = [
   {
@@ -294,6 +296,13 @@ export default function VoiceScanner() {
             >
               {analyzing ? "Analyzing Waveform & Speech..." : "Analyze Audio"}
             </Button>
+          </div>
+        )}
+
+        {analyzing && (
+          <div className="space-y-4 pt-2">
+            <ScannerAnalysisProgress isAnalyzing={analyzing} title="Acoustic Spectral & Vocoder Synthesis Inspection" />
+            <SkeletonScannerResult />
           </div>
         )}
 
