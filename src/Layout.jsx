@@ -239,19 +239,6 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center justify-between h-full px-3 sm:px-6 max-w-7xl mx-auto w-full">
           
           <div className="flex items-center gap-3">
-            {/* Desktop & Tablet Sidebar Open/Close Toggle Button */}
-            <button
-              onClick={toggleSidebar}
-              title={sidebarOpen ? "Close Sidebar Navigation" : "Open Sidebar Navigation"}
-              className="hidden md:flex w-8 h-8 rounded-lg items-center justify-center border transition-all hover:border-cyan-400 group"
-              style={{
-                background: 'var(--ghost-surface-2)',
-                borderColor: 'var(--ghost-border)',
-                color: 'var(--ghost-text)'
-              }}>
-              <Menu className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform" />
-            </button>
-
             {/* Brand Logo with updated logo.jpg asset */}
             <Link to={createPageUrl("Home")} className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] group-hover:scale-105 transition-transform flex items-center justify-center bg-slate-950">
@@ -267,6 +254,19 @@ export default function Layout({ children, currentPageName }) {
                 </span>
               </div>
             </Link>
+
+            {/* Desktop & Tablet Sidebar Open/Close Toggle Button */}
+            <button
+              onClick={toggleSidebar}
+              title={sidebarOpen ? "Close Sidebar Navigation" : "Open Sidebar Navigation"}
+              className="hidden md:flex w-8 h-8 rounded-lg items-center justify-center border transition-all hover:border-cyan-400 group"
+              style={{
+                background: 'var(--ghost-surface-2)',
+                borderColor: 'var(--ghost-border)',
+                color: 'var(--ghost-text)'
+              }}>
+              <Menu className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform" />
+            </button>
           </div>
 
           {/* Right Header Utility Controls */}
