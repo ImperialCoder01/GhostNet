@@ -60,7 +60,7 @@ export default function Home() {
           <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--ghost-text-dim)' }}>
             Security Scanners & Tools
           </h2>
-          <span className="text-[11px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Multi-Modal AI Engines</span>
+          <span className="text-[11px] font-mono font-bold text-cyan-600 dark:text-cyan-400">Multi-Modal Protection Engines</span>
         </div>
         <QuickActions />
       </div>

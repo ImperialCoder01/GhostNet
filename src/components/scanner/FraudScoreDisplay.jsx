@@ -72,7 +72,7 @@ export default function FraudScoreDisplay({
                   {c.label}
                 </span>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-full badge-neutral">
-                  AI Confidence: <strong className="capitalize" style={{ color: 'var(--ghost-text)' }}>{confidence}</strong>
+                  Engine Confidence: <strong className="capitalize" style={{ color: 'var(--ghost-text)' }}>{confidence}</strong>
                 </span>
                 <SourceBadge source={source} />
               </div>

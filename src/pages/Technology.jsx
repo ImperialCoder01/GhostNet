@@ -16,7 +16,7 @@ const ARCHITECTURE_STEPS = [
     color: "#a78bfa"
   },
   {
-    layer: "Multi-Modal AI Routing",
+    layer: "Multi-Modal Routing",
     title: "Groq LPU + Google Gemini Vision + OpenAI",
     description: "Sub-second LPU inference for NLP/links (`openai/gpt-oss-120b`, `qwen3.8-27b`) paired with Gemini Vision multi-model fallback chain for screenshots.",
     color: "#f472b6"
@@ -64,7 +64,7 @@ export default function Technology() {
       <ScannerHeader
         icon={Cpu}
         title="Technical Architecture & Defense Engine"
-        description="Deep dive into GhostNet's multi-modal AI pipeline, serverless routing, and enterprise security architecture"
+        description="Deep dive into GhostNet's multi-modal pipeline, serverless routing, and enterprise security architecture"
         color="#00e5ff"
       />
 
@@ -103,7 +103,7 @@ export default function Technology() {
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-cyan-500" />
           <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ghost-text)' }}>
-            Why GhostNet AI? Key Technical Differentiators
+            Why GhostNet? Key Technical Differentiators
           </h3>
         </div>
 

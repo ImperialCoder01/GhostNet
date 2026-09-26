@@ -109,7 +109,7 @@ export default function ScreenshotScanner() {
       <ScannerHeader
         icon={Image}
         title="Multi-Modal Vision & Screenshot Scanner"
-        description="Upload screenshots of suspicious chats, fake payment receipts, banking portals, or QR codes for deep visual AI inspection"
+        description="Upload screenshots of suspicious chats, fake payment receipts, banking portals, or QR codes for deep visual inspection"
         color="#f472b6"
       />
 
@@ -226,13 +226,13 @@ export default function ScreenshotScanner() {
               onClick={handleScan}
               disabled={scanning || !file}
               className="w-full h-12 rounded-xl font-bold text-white transition-all shadow-md bg-pink-600 hover:bg-pink-500">
-              {scanning ? "Processing Visual Evidence..." : "Analyze Screenshot with Vision AI"}
+              {scanning ? "Processing Visual Evidence..." : "Analyze Screenshot with Vision Engine"}
             </Button>
           </div>
 
           {scanning && (
             <div className="space-y-4">
-              <ScannerAnalysisProgress isAnalyzing={scanning} title="Vision AI & OCR Feature Extraction" />
+              <ScannerAnalysisProgress isAnalyzing={scanning} title="Vision & OCR Feature Extraction" />
               <SkeletonScannerResult />
             </div>
           )}

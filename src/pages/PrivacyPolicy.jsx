@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
           </p>
           <ul className="list-disc pl-5 space-y-1" style={{ color: 'var(--ghost-text-dim)' }}>
             <li><strong className="text-slate-900 dark:text-slate-100">Account Credentials:</strong> Email address and password hash for user authentication via Supabase Auth.</li>
-            <li><strong className="text-slate-900 dark:text-slate-100">Inspection Telemetry:</strong> User-submitted text messages, URLs, screenshots, and audio samples evaluated transiently by our serverless AI engines.</li>
+            <li><strong className="text-slate-900 dark:text-slate-100">Inspection Telemetry:</strong> User-submitted text messages, URLs, screenshots, and audio samples evaluated transiently by our serverless threat engines.</li>
             <li><strong className="text-slate-900 dark:text-slate-100">Functional Storage:</strong> Theme selection, active layout configurations, and cookie consent preferences stored locally in your browser’s `localStorage`.</li>
           </ul>
         </section>
@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
           <ul className="list-disc pl-5 space-y-1" style={{ color: 'var(--ghost-text-dim)' }}>
             <li><strong>Supabase Inc.</strong> — Managed PostgreSQL database with Row-Level Security (RLS) enforcement.</li>
             <li><strong>Vercel Inc.</strong> — Ephemeral serverless execution environment for scan requests.</li>
-            <li><strong>Google Cloud (Gemini Vision & LLM APIs)</strong> — Transient multimodal evaluation without persistent AI model training on user payloads.</li>
+            <li><strong>Google Cloud (Gemini Vision & LLM APIs)</strong> — Transient multimodal evaluation without persistent model training on user payloads.</li>
           </ul>
         </section>
 

@@ -61,7 +61,7 @@ export default function CookieConsentBanner() {
         </div>
 
         <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-          GhostNet.ai uses essential functional storage tokens (session auth, theme preferences) to operate securely. We do <strong>NOT</strong> use third-party advertising or cross-site tracking cookies.
+          GhostNet uses essential functional storage tokens (session auth, theme preferences) to operate securely. We do <strong>NOT</strong> use third-party advertising or cross-site tracking cookies.
         </p>
 
         <div className="flex items-center justify-between gap-2 pt-1">

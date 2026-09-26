@@ -155,7 +155,7 @@ export default function BusinessModel() {
               <div className="space-y-3">
                 <span className="badge-suspicious text-xs font-bold px-2.5 py-1 rounded-full inline-block">Individual Pro</span>
                 <h3 className="text-lg font-bold font-display" style={{ color: 'var(--ghost-text)' }}>GhostNet Pro</h3>
-                <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>Full AI multi-modal protection across all 5 vectors.</p>
+                <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>Full multi-modal protection across all 5 vectors.</p>
                 <div className="py-2">
                   <span className="text-3xl font-extrabold text-cyan-600 dark:text-cyan-400 font-mono">
                     {billingCycle === "annual" ? "$4.08" : "$4.99"}

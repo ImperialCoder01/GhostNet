@@ -8,7 +8,7 @@ export default function Terms() {
       <ScannerHeader
         icon={FileText}
         title="Terms & Conditions of Service"
-        description="Legal terms of use, probabilistic AI risk disclaimers, acceptable telemetry guidelines, and liability boundaries"
+        description="Legal terms of use, probabilistic threat risk disclaimers, acceptable telemetry guidelines, and liability boundaries"
         color="#06b6d4"
       />
 
@@ -36,22 +36,22 @@ export default function Terms() {
             1. Acceptance of Terms
           </h2>
           <p style={{ color: 'var(--ghost-text-dim)' }}>
-            By accessing, browsing, or utilizing the GhostNet.ai application, APIs, or browser extensions, you agree to be bound by these Terms & Conditions. If you do not agree to all terms, you must immediately cease accessing the platform.
+            By accessing, browsing, or utilizing the GhostNet application, APIs, or browser extensions, you agree to be bound by these Terms & Conditions. If you do not agree to all terms, you must immediately cease accessing the platform.
           </p>
         </section>
 
-        {/* Section 2: Probabilistic AI Disclaimer */}
+        {/* Section 2: Probabilistic Risk Disclaimer */}
         <section className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-2">
           <h2 className="text-sm font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" /> 2. Probabilistic AI Risk Scoring Disclaimer
+            <AlertTriangle className="w-4 h-4" /> 2. Probabilistic Risk Scoring Disclaimer
           </h2>
           <p style={{ color: 'var(--ghost-text-dim)' }}>
-            GhostNet.ai provides probabilistic threat assessments powered by deep neural heuristics, machine learning, and community threat intelligence. 
+            GhostNet provides probabilistic threat assessments powered by deep neural heuristics, pattern recognition, and community threat intelligence. 
           </p>
           <ul className="list-disc pl-5 space-y-1 font-medium" style={{ color: 'var(--ghost-text-dim)' }}>
             <li>Threat scores reflect statistical risk probabilities (0% to 100%) rather than deterministic legal or mathematical absolutes.</li>
-            <li>No AI scanner guarantees zero false positives or false negatives. Users must exercise independent judgment when inspecting URLs, audio calls, or financial requests.</li>
-            <li>GhostNet.ai shall not be held liable for security decisions, transactions, or actions taken based on automated threat ratings.</li>
+            <li>No threat scanner guarantees zero false positives or false negatives. Users must exercise independent judgment when inspecting URLs, audio calls, or financial requests.</li>
+            <li>GhostNet shall not be held liable for security decisions, transactions, or actions taken based on automated threat ratings.</li>
           </ul>
         </section>
 

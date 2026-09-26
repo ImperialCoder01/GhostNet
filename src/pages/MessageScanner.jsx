@@ -130,7 +130,7 @@ export default function MessageScanner() {
       {/* Multi-stage scanning radar + Progressive Skeletal Loader */}
       {scanning && (
         <div className="space-y-4">
-          <ScannerAnalysisProgress isAnalyzing={scanning} title="Multi-Signal Linguistic AI Inspection" />
+          <ScannerAnalysisProgress isAnalyzing={scanning} title="Multi-Signal Linguistic Inspection" />
           <SkeletonScannerResult />
         </div>
       )}

@@ -9,7 +9,7 @@ import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgre
 const DEMO_VOICE_SAMPLES = [
   {
     label: "Synthetic Bank KYC Scam Call",
-    description: "Robotic AI voice demanding immediate OTP & account details",
+    description: "Robotic voice demanding immediate OTP & account details",
     sampleTranscript: "URGENT NOTICE FROM STATE BANK: We have detected suspicious login activity on your net banking. Your account will be frozen today. Please press 1 now and share the verification code sent to your phone to prevent immediate suspension.",
     flatness: 0.08,
   },
@@ -241,7 +241,7 @@ export default function VoiceScanner() {
               Voice & Audio Threat Recorder
             </h3>
             <p className="text-xs" style={{ color: "var(--ghost-text-dim)" }}>
-              Record or upload suspicious phone calls, voice notes, or synthetic AI deepfakes.
+              Record or upload suspicious phone calls, voice notes, or synthetic deepfakes.
             </p>
           </div>
 

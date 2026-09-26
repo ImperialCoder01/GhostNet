@@ -45,7 +45,7 @@ export default function ScanningAnimation({ label = "Analyzing threat vectors...
           {stages[stage]?.title || label}
         </h3>
         <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>
-          Running deep heuristic and AI-assisted cyber threat verification
+          Running deep heuristic and automated cyber threat verification
         </p>
       </div>
 

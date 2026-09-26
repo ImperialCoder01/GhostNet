@@ -174,11 +174,11 @@ export default function AuthGate({ children }) {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] flex items-center justify-center bg-slate-950">
-              <img src="/logo.jpg" alt="GhostNet.ai Logo" className="w-full h-full object-cover" />
+              <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-lg font-black tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
-                GhostNet<span className="text-cyan-500">.ai</span>
+                GhostNet
               </span>
               <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
                 PRO DEFENSE
@@ -257,7 +257,7 @@ export default function AuthGate({ children }) {
               {/* Security Badges */}
               <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-mono font-bold">
                 <span className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
-                  <Zap className="w-3.5 h-3.5 text-cyan-500" /> &lt;120ms AI Speed
+                  <Zap className="w-3.5 h-3.5 text-cyan-500" /> &lt;120ms Detection Speed
                 </span>
                 <span className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Zero Data Retention
@@ -287,7 +287,7 @@ export default function AuthGate({ children }) {
                   <span className="text-xl sm:text-2xl font-black text-cyan-600 dark:text-cyan-400 font-display">$0.000125</span>
                 </div>
                 <div className="ghost-card p-3.5 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>AI Latency</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>Detection Latency</span>
                   <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 font-display">&lt; 120ms</span>
                 </div>
                 <div className="ghost-card p-3.5 text-center">
@@ -442,7 +442,7 @@ export default function AuthGate({ children }) {
               </h2>
             </div>
             <span className="text-xs font-mono px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 self-start sm:self-auto">
-              Live Heuristic & AI Telemetry
+              Live Heuristic Telemetry
             </span>
           </div>
 
@@ -502,7 +502,7 @@ export default function AuthGate({ children }) {
         {/* Multi-Modal Detection Engine Grid */}
         <section id="engines" className="space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Multi-Modal AI Suite</span>
+            <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Multi-Modal Protection Suite</span>
             <h2 className="text-2xl sm:text-3xl font-black font-display" style={{ color: 'var(--ghost-text)' }}>
               6 Autonomous Defense Engines
             </h2>
@@ -555,7 +555,7 @@ export default function AuthGate({ children }) {
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Voice & Deepfake Scam Radar</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Wiener entropy acoustic spectral analysis detecting synthesized vocoder artifacts and AI voice clones.
+                Wiener entropy acoustic spectral analysis detecting synthesized vocoder artifacts and synthetic voice clones.
               </p>
             </div>
 
@@ -576,7 +576,7 @@ export default function AuthGate({ children }) {
       {/* Footer */}
       <footer className="border-t py-8 text-center text-xs space-y-3 relative z-10" style={{ borderColor: 'var(--ghost-border)', color: 'var(--ghost-text-dim)' }}>
         <div className="flex items-center justify-center gap-2 font-bold font-display text-sm text-cyan-600 dark:text-cyan-400">
-          GhostNet.ai — Autonomous Cyber Defense Platform
+          GhostNet — Autonomous Cyber Defense Platform
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium">
           <Link to="/PrivacyPolicy" className="hover:text-cyan-500 transition-colors">Privacy Policy</Link>

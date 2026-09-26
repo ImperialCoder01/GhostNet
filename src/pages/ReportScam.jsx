@@ -92,7 +92,7 @@ export default function ReportScam() {
           <div className="space-y-1">
             <h3 className="text-lg font-bold" style={{ color: 'var(--ghost-text)' }}>Threat Reported Successfully</h3>
             <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--ghost-text-dim)' }}>
-              Your report has been analyzed by AI and syndicated to the GhostNet community threat intelligence database.
+              Your report has been analyzed and syndicated to the GhostNet community threat intelligence database.
             </p>
           </div>
           <div className="pt-2 flex justify-center gap-3">

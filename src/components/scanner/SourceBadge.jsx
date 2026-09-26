@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { CheckCircle, WifiOff } from "lucide-react";
 
 /**
@@ -46,9 +46,9 @@ export default function SourceBadge({ source }) {
 
   // AI engine online
   const label =
-    source === "gemini" ? "Gemini Vision AI" :
-    source === "openai" ? "OpenAI Vision AI" :
-    "Groq AI Engine";
+    source === "gemini" ? "Gemini Vision Engine" :
+    source === "openai" ? "OpenAI Vision Engine" :
+    "Groq Threat Engine";
 
   return (
     <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono border border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">

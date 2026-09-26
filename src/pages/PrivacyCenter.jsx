@@ -54,8 +54,8 @@ export default function PrivacyCenter() {
           </div>
 
           <div className="p-3.5 rounded-xl border space-y-1" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
-            <span className="font-bold block" style={{ color: 'var(--ghost-text)' }}>Transparent AI Disclosures</span>
-            <p style={{ color: 'var(--ghost-text-dim)' }}>Probabilistic AI ratings are clearly stated as probability risk scores, not absolute mathematical truth.</p>
+            <span className="font-bold block" style={{ color: 'var(--ghost-text)' }}>Transparent Threat Disclosures</span>
+            <p style={{ color: 'var(--ghost-text-dim)' }}>Probabilistic threat ratings are clearly stated as probability risk scores, not absolute mathematical truth.</p>
           </div>
         </div>
       </div>

@@ -28,7 +28,7 @@ const intelligenceNav = [
 ];
 
 const governanceNav = [
-  { name: "Architecture & AI", page: "Technology", icon: Cpu },
+  { name: "Architecture & Technology", page: "Technology", icon: Cpu },
   { name: "Privacy Sovereignty", page: "PrivacyCenter", icon: Lock },
   { name: "Privacy Policy", page: "PrivacyPolicy", icon: Shield },
   { name: "Terms of Service", page: "Terms", icon: FileText },
@@ -125,10 +125,10 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-full px-4 sm:px-6 max-w-7xl mx-auto w-full">
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] flex items-center justify-center bg-slate-950">
-                <img src="/logo.jpg" alt="GhostNet.ai Logo" className="w-full h-full object-cover" />
+                <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-base sm:text-lg font-black tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
-                GhostNet<span className="text-cyan-500">.ai</span>
+                GhostNet
               </span>
             </Link>
 
@@ -255,12 +255,12 @@ export default function Layout({ children, currentPageName }) {
             {/* Brand Logo with updated logo.jpg asset */}
             <Link to={createPageUrl("Home")} className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] group-hover:scale-105 transition-transform flex items-center justify-center bg-slate-950">
-                <img src="/logo.jpg" alt="GhostNet.ai Logo" className="w-full h-full object-cover" />
+                <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
               </div>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-base sm:text-lg font-black tracking-tight font-display"
                   style={{ color: 'var(--ghost-text)' }}>
-                  GhostNet<span className="text-cyan-500">.ai</span>
+                  GhostNet
                 </span>
                 <span className="hidden sm:inline-block text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-500 border border-cyan-500/30">
                   PRO DEFENSE

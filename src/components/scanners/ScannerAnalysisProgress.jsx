@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { CheckCircle2, Loader2, Circle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function ScannerAnalysisProgress({ isAnalyzing, title = "AI Multi-Modal Inspection Active" }) {
+export default function ScannerAnalysisProgress({ isAnalyzing, title = "Multi-Modal Inspection Active" }) {
   const [stage, setStage] = useState(0);
 
   const steps = [
     "Input payload & parameters validated",
     "Extracting heuristics & social engineering signals",
     "Cross-referencing global threat feed telemetry",
-    "Synthesizing Groq LPU & Gemini AI verdict"
+    "Synthesizing Groq LPU & Gemini verdict"
   ];
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function ScannerAnalysisProgress({ isAnalyzing, title = "AI Multi
     <div
       role="status"
       aria-busy="true"
-      aria-label="AI Threat Analysis in Progress"
+      aria-label="Threat Analysis in Progress"
       className="ghost-card p-6 space-y-4 border-cyan-500/40 bg-slate-950/80 shadow-[0_0_25px_rgba(0,229,255,0.15)] animate-pulse">
       <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--ghost-border)' }}>
         <div className="flex items-center gap-2.5">
