@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.2.0-prod] - 2026-09-26 (Brave Shield & Legal Compliance Lock)
 
 ### Added
+* **Unauthenticated Access to Public Policy Suite:** Updated `AuthGate.jsx` to allow visitors to view all legal and governance policy pages (`PrivacyPolicy`, `Terms`, `CookiePolicy`, `RefundPolicy`, `PrivacyCenter`, `BusinessModel`) directly before signing in.
 * **India DPDP Act 2023 & Legal Suite:** Added comprehensive, legally binding policy pages: `PrivacyPolicy.jsx` (Data Fiduciary notice), `Terms.jsx` (Probabilistic AI threat rating disclaimers), `CookiePolicy.jsx` (Zero third-party tracking guarantee), and `RefundPolicy.jsx` (14-day enterprise money-back guarantee).
 * **Accessible Cookie Consent Banner:** Added floating `CookieConsentBanner.jsx` with keyboard-accessible controls and explicit opt-in checkboxes on Sign Up (`AuthGate.jsx`) and Threat Reporting (`ReportScam.jsx`).
 * **Native HTML5 2D Canvas `ConstellationField`:** Replaced `@designcodeio/threeui` WebGL iframe renderer with a pure 2D Canvas engine (`src/shaders/constellation-field/ConstellationField.jsx`), resolving Brave Shields blank white screen crashes and script blocking.

@@ -138,11 +138,22 @@ export default function AuthGate({ children }) {
     }
   ]
 
-  if (loading) {
-    return <AppShellSkeleton />
-  }
+  const publicPaths = [
+    '/PrivacyPolicy',
+    '/Terms',
+    '/CookiePolicy',
+    '/RefundPolicy',
+    '/PrivacyCenter',
+    '/BusinessModel'
+  ]
 
-  if (user) {
+  const isPublicPage = typeof window !== 'undefined' && publicPaths.some(path => {
+    const currentPath = window.location.pathname.toLowerCase()
+    const targetPath = path.toLowerCase()
+    return currentPath === targetPath || currentPath.endsWith(targetPath) || currentPath === targetPath + '/'
+  })
+
+  if (user || isPublicPage) {
     return children
   }
 
