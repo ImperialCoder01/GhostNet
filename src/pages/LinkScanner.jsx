@@ -141,7 +141,7 @@ export default function LinkScanner() {
                 {result.domain_age_days ? `${result.domain_age_days} days` : "Unknown"}
               </p>
               <span className="text-[10px]" style={{ color: 'var(--ghost-text-muted)' }}>
-                {result.domain_age_days < 30 ? "⚠️ Newly Created" : "Established"}
+                {result.domain_age_days < 30 ? "Newly Created" : "Established"}
               </span>
             </div>
 

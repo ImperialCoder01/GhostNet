@@ -14,7 +14,7 @@ export function useNotify() {
     const isScam = riskLevel === "scam";
     const typeLabel = scanType.charAt(0).toUpperCase() + scanType.slice(1);
 
-    new Notification(isScam ? "⚠️ Scam Detected!" : "🔶 Suspicious Content Detected", {
+    new Notification(isScam ? "Scam Detected!" : "Suspicious Content Detected", {
       body: isScam
         ? `GhostNet flagged your ${typeLabel} scan as a SCAM. Do not interact with it.`
         : `GhostNet flagged your ${typeLabel} scan as suspicious. Review with caution.`,

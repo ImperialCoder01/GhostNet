@@ -330,7 +330,9 @@ export default function ScamHeatmap() {
                     <span className="flex items-center gap-1 text-cyan-600 dark:text-cyan-400 font-bold">
                       <Clock className="w-3 h-3" /> {item.timestamp}
                     </span>
-                    <span className="text-emerald-500 font-bold">✓ Verified Threat</span>
+                    <span className="text-emerald-500 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-500" /> Verified Threat
+                    </span>
                   </div>
 
                 </motion.div>

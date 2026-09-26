@@ -221,8 +221,8 @@ export default function AuthGate({ children }) {
 
             <Button
               onClick={continueAsGuest}
-              className="h-9 px-3.5 rounded-xl text-xs font-bold font-mono tracking-wide bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.35)] transition-all">
-              ⚡ Judge Demo Mode
+              className="h-9 px-3.5 rounded-xl text-xs font-bold font-mono tracking-wide bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.35)] transition-all flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-slate-950" /> Judge Demo Mode
             </Button>
           </div>
         </div>
@@ -271,8 +271,8 @@ export default function AuthGate({ children }) {
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <Button
                   onClick={continueAsGuest}
-                  className="h-12 px-6 rounded-xl text-sm font-bold font-mono uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02]">
-                  ⚡ Launch Instant Judge Demo
+                  className="h-12 px-6 rounded-xl text-sm font-bold font-mono uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-slate-950" /> Launch Instant Judge Demo
                 </Button>
               </div>
 
@@ -419,9 +419,9 @@ export default function AuthGate({ children }) {
                   type="button"
                   variant="outline"
                   onClick={continueAsGuest}
-                  className="w-full h-11 rounded-xl font-bold border transition-all hover:border-cyan-400 text-cyan-600 dark:text-cyan-400"
+                  className="w-full h-11 rounded-xl font-bold border transition-all hover:border-cyan-400 text-cyan-600 dark:text-cyan-400 flex items-center justify-center gap-1.5"
                   style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
-                  ⚡ Explore as Guest / Judge Demo Mode
+                  <Zap className="w-3.5 h-3.5 text-cyan-500" /> Explore as Guest / Judge Demo Mode
                 </Button>
 
               </div>
@@ -481,7 +481,9 @@ export default function AuthGate({ children }) {
                 "{simulatedSample.input}"
               </p>
               <div className="flex items-center justify-between text-xs pt-1">
-                <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">✓ 5-Stage Attack Chain Reconstructed</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 5-Stage Attack Chain Reconstructed
+                </span>
                 <Button
                   onClick={() => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
