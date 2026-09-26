@@ -187,15 +187,15 @@ export default function AuthGate({ children }) {
           </div>
 
           {/* Center Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-bold">
+          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold">
             <a href="#engines" className="hover:text-cyan-500 transition-colors" style={{ color: 'var(--ghost-text-dim)' }}>
-              Detection Engines
+              Features
             </a>
             <a href="#sandbox" className="hover:text-cyan-500 transition-colors" style={{ color: 'var(--ghost-text-dim)' }}>
               Live Sandbox
             </a>
             <a href="#metrics" className="hover:text-cyan-500 transition-colors" style={{ color: 'var(--ghost-text-dim)' }}>
-              Unit Economics
+              Performance
             </a>
           </nav>
 
@@ -220,9 +220,12 @@ export default function AuthGate({ children }) {
             </button>
 
             <Button
-              onClick={continueAsGuest}
-              className="h-9 px-3.5 rounded-xl text-xs font-bold font-mono tracking-wide bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_20px_rgba(0,229,255,0.35)] transition-all flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-slate-950" /> Judge Demo Mode
+              onClick={() => {
+                document.getElementById('auth-card')?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('auth-email')?.focus();
+              }}
+              className="h-9 px-4 rounded-xl text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all">
+              Access Workspace
             </Button>
           </div>
         </div>
@@ -238,95 +241,106 @@ export default function AuthGate({ children }) {
             {/* Left Column: Hero Content & Telemetry Metrics */}
             <div className="lg:col-span-7 space-y-6 text-left">
               
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400 text-xs font-mono font-bold shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-                Autonomous Multi-Modal Cyber Defense Layer
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border bg-cyan-500/10 border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-medium shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Autonomous Cyber Defense Platform
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight font-display leading-[1.1]" style={{ color: 'var(--ghost-text)' }}>
-                See the scam before <br className="hidden sm:block" />
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight font-display leading-[1.15]" style={{ color: 'var(--ghost-text)' }}>
+                Real-time defense against <br className="hidden sm:block" />
                 <span className="bg-gradient-to-r from-cyan-500 via-sky-500 to-emerald-500 dark:from-cyan-400 dark:via-sky-400 dark:to-emerald-400 bg-clip-text text-transparent">
-                  it sees you.
+                  digital fraud & cyber threats.
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg leading-relaxed font-medium" style={{ color: 'var(--ghost-text-dim)' }}>
-                Autonomous multi-modal defense inspecting messages, deceptive links, screenshots, QR codes, deepfake audio, and web traffic in real-time. Powered by Groq LPU speed & Gemini 1.5 Vision.
+              <p className="text-base sm:text-lg leading-relaxed font-normal" style={{ color: 'var(--ghost-text-dim)' }}>
+                GhostNet inspects messages, deceptive links, screenshots, QR codes, and voice calls in real-time to intercept attacks before harm occurs.
               </p>
 
-              {/* Security Badges */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-mono font-bold">
-                <span className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
-                  <Zap className="w-3.5 h-3.5 text-cyan-500" /> &lt;120ms Detection Speed
-                </span>
-                <span className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Zero Data Retention
-                </span>
-                <span className="px-3 py-1.5 rounded-lg border flex items-center gap-1.5" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
-                  <Lock className="w-3.5 h-3.5 text-purple-500" /> DPDP Act 2023 Compliant
-                </span>
+              {/* Refined Security Feature Row */}
+              <div className="flex flex-wrap items-center gap-4 text-xs font-medium pt-1" style={{ color: 'var(--ghost-text-dim)' }}>
+                <div className="flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-cyan-500" />
+                  <span>Sub-120ms Latency</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  <span>Zero Data Retention</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Lock className="w-4 h-4 text-sky-500" />
+                  <span>Enterprise Security</span>
+                </div>
               </div>
 
-              {/* Direct Judge Demo Launch CTA */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Direct Action CTA */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
                 <Button
-                  onClick={continueAsGuest}
-                  className="h-12 px-6 rounded-xl text-sm font-bold font-mono uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-slate-950" /> Launch Instant Judge Demo
+                  onClick={() => {
+                    document.getElementById('auth-card')?.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('auth-email')?.focus();
+                  }}
+                  className="h-11 px-6 rounded-xl text-sm font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all shadow-md">
+                  Get Started Free
                 </Button>
+                <button
+                  onClick={continueAsGuest}
+                  className="text-xs font-semibold text-slate-500 hover:text-cyan-500 transition-colors px-2 py-1">
+                  Continue as Guest →
+                </button>
               </div>
 
-              {/* Unit Economics Highlight Bar */}
+              {/* Product Performance Metrics */}
               <div id="metrics" className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
                 <div className="ghost-card p-3.5 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>Gross Margin</span>
-                  <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-display">90.7%</span>
+                  <span className="text-xs font-medium block" style={{ color: 'var(--ghost-text-muted)' }}>Response Time</span>
+                  <span className="text-xl sm:text-2xl font-bold text-cyan-600 dark:text-cyan-400 font-display">&lt; 120ms</span>
                 </div>
                 <div className="ghost-card p-3.5 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>Blended COGS</span>
-                  <span className="text-xl sm:text-2xl font-black text-cyan-600 dark:text-cyan-400 font-display">$0.000125</span>
+                  <span className="text-xs font-medium block" style={{ color: 'var(--ghost-text-muted)' }}>Threat Coverage</span>
+                  <span className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-display">6 Vectors</span>
                 </div>
                 <div className="ghost-card p-3.5 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>Detection Latency</span>
-                  <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 font-display">&lt; 120ms</span>
+                  <span className="text-xs font-medium block" style={{ color: 'var(--ghost-text-muted)' }}>Platform Uptime</span>
+                  <span className="text-xl sm:text-2xl font-bold text-sky-600 dark:text-sky-400 font-display">99.9%</span>
                 </div>
                 <div className="ghost-card p-3.5 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-muted)' }}>Privacy</span>
-                  <span className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 font-display">Zero Retention</span>
+                  <span className="text-xs font-medium block" style={{ color: 'var(--ghost-text-muted)' }}>Telemetry</span>
+                  <span className="text-xl sm:text-2xl font-bold text-purple-600 dark:text-purple-400 font-display">Zero Logs</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Right Column: Prominent Auth Box Right at the Top */}
-            <div className="lg:col-span-5 w-full">
-              <div className="ghost-card p-6 sm:p-8 space-y-5 border-cyan-500/40 shadow-[0_4px_25px_rgba(0,0,0,0.08)]">
+            {/* Right Column: Clean Auth Card */}
+            <div id="auth-card" className="lg:col-span-5 w-full">
+              <div className="ghost-card p-6 sm:p-8 space-y-5 border-cyan-500/30 shadow-[0_4px_25px_rgba(0,0,0,0.08)]">
                 
                 {/* Header */}
                 <div className="text-center space-y-1">
-                  <div className="w-12 h-12 rounded-2xl mx-auto overflow-hidden border border-cyan-500/40 flex items-center justify-center bg-slate-950 mb-3 shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+                  <div className="w-12 h-12 rounded-2xl mx-auto overflow-hidden border border-cyan-500/40 flex items-center justify-center bg-slate-950 mb-3 shadow-sm">
                     <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
                   </div>
-                  <h2 className="text-2xl font-extrabold font-display" style={{ color: 'var(--ghost-text)' }}>
+                  <h2 className="text-xl font-bold font-display" style={{ color: 'var(--ghost-text)' }}>
                     Access GhostNet Workspace
                   </h2>
-                  <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>
-                    {title} to unlock private scam intelligence telemetry
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Sign in to unlock live threat intelligence and security tools
                   </p>
                 </div>
 
                 {/* Mode Selector Tabs */}
-                <div className="grid grid-cols-2 p-1 rounded-xl text-xs font-bold border" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+                <div className="grid grid-cols-2 p-1 rounded-xl text-xs font-semibold border" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
                   <button
                     type="button"
                     onClick={() => setMode('signin')}
-                    className={`py-2 rounded-lg transition-all ${mode === 'signin' ? 'bg-cyan-500 text-slate-950 font-black shadow' : 'text-slate-500 dark:text-slate-400'}`}>
+                    className={`py-2 rounded-lg transition-all ${mode === 'signin' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-500 dark:text-slate-400'}`}>
                     Sign In
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode('signup')}
-                    className={`py-2 rounded-lg transition-all ${mode === 'signup' ? 'bg-cyan-500 text-slate-950 font-black shadow' : 'text-slate-500 dark:text-slate-400'}`}>
+                    className={`py-2 rounded-lg transition-all ${mode === 'signup' ? 'bg-cyan-500 text-slate-950 font-bold shadow' : 'text-slate-500 dark:text-slate-400'}`}>
                     Create Account
                   </button>
                 </div>
@@ -335,45 +349,45 @@ export default function AuthGate({ children }) {
                 <form onSubmit={onSubmit} className="space-y-3.5">
                   {mode === 'signup' && (
                     <div className="space-y-1">
-                      <label htmlFor="auth-name" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Full Name</label>
+                      <label htmlFor="auth-name" className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Full Name</label>
                       <Input
                         id="auth-name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter your full name"
-                        className="h-11 border text-xs font-medium"
+                        className="h-10 border text-xs font-medium rounded-lg"
                         style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
                       />
                     </div>
                   )}
 
                   <div className="space-y-1">
-                    <label htmlFor="auth-email" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Email Address</label>
+                    <label htmlFor="auth-email" className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Email Address</label>
                     <Input
                       id="auth-email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
                       type="email"
-                      className="h-11 border text-xs font-medium"
+                      className="h-10 border text-xs font-medium rounded-lg"
                       style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label htmlFor="auth-password" className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Password</label>
+                    <label htmlFor="auth-password" className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">Password</label>
                     <Input
                       id="auth-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       type="password"
-                      className="h-11 border text-xs font-medium"
+                      className="h-10 border text-xs font-medium rounded-lg"
                       style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}
                     />
                   </div>
 
-                  {/* Explicit Legal Consent Checkbox for Sign Up */}
+                  {/* Legal Consent Checkbox for Sign Up */}
                   {mode === 'signup' && (
                     <div className="flex items-start gap-2 pt-1">
                       <input
@@ -383,14 +397,14 @@ export default function AuthGate({ children }) {
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="mt-0.5 w-4 h-4 rounded border-slate-300 text-cyan-500 focus:ring-cyan-500 accent-cyan-500 cursor-pointer"
                       />
-                      <label htmlFor="legal-consent" className="text-[11px] leading-tight cursor-pointer" style={{ color: 'var(--ghost-text-dim)' }}>
-                        I agree to the <a href="/Terms" className="text-cyan-600 dark:text-cyan-400 underline font-semibold">Terms & Conditions</a> and <a href="/PrivacyPolicy" className="text-cyan-600 dark:text-cyan-400 underline font-semibold">Privacy Policy</a> under India’s DPDP Act 2023.
+                      <label htmlFor="legal-consent" className="text-[11px] leading-tight cursor-pointer text-slate-500 dark:text-slate-400">
+                        I agree to the <a href="/Terms" className="text-cyan-600 dark:text-cyan-400 underline font-semibold">Terms of Service</a> and <a href="/PrivacyPolicy" className="text-cyan-600 dark:text-cyan-400 underline font-semibold">Privacy Policy</a>.
                       </label>
                     </div>
                   )}
 
                   {error && (
-                    <p className="text-xs font-bold p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-500">
+                    <p className="text-xs font-medium p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-500">
                       {error}
                     </p>
                   )}
@@ -398,31 +412,10 @@ export default function AuthGate({ children }) {
                   <Button
                     type="submit"
                     disabled={busy}
-                    className="w-full h-11 rounded-xl font-bold text-slate-950 transition-all bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300">
-                    {busy ? 'Verifying Credentials...' : title}
+                    className="w-full h-10 rounded-lg font-semibold text-slate-950 transition-all bg-cyan-500 hover:bg-cyan-400">
+                    {busy ? 'Verifying Credentials...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
                   </Button>
                 </form>
-
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t" style={{ borderColor: 'var(--ghost-border)' }} />
-                  </div>
-                  <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider">
-                    <span className="px-3 rounded-full border" style={{ background: 'var(--ghost-surface)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text-muted)' }}>
-                      OR EVALUATE INSTANTLY
-                    </span>
-                  </div>
-                </div>
-
-                {/* Instant Guest CTA */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={continueAsGuest}
-                  className="w-full h-11 rounded-xl font-bold border transition-all hover:border-cyan-400 text-cyan-600 dark:text-cyan-400 flex items-center justify-center gap-1.5"
-                  style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
-                  <Zap className="w-3.5 h-3.5 text-cyan-500" /> Explore as Guest / Judge Demo Mode
-                </Button>
 
               </div>
             </div>
@@ -431,18 +424,18 @@ export default function AuthGate({ children }) {
         </section>
 
         {/* Interactive Live Threat Sandbox Section */}
-        <section id="sandbox" className="ghost-card p-6 sm:p-8 space-y-6 border-cyan-500/30">
+        <section id="sandbox" className="ghost-card p-6 sm:p-8 space-y-6 border-cyan-500/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4" /> Interactive Threat Sandbox
               </span>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-1 font-display" style={{ color: 'var(--ghost-text)' }}>
-                Test Real-World Benchmark Threat Scenarios
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight mt-1 font-display" style={{ color: 'var(--ghost-text)' }}>
+                Test Real-World Threat Vectors
               </h2>
             </div>
-            <span className="text-xs font-mono px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 self-start sm:self-auto">
-              Live Heuristic Telemetry
+            <span className="text-xs font-medium px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 self-start sm:self-auto">
+              Interactive Demo
             </span>
           </div>
 
@@ -454,13 +447,13 @@ export default function AuthGate({ children }) {
                 onClick={() => setSimulatedSample(item)}
                 className={`p-4 rounded-xl border text-left transition-all group ${
                   simulatedSample?.id === item.id 
-                    ? 'bg-cyan-500/15 border-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.2)]'
+                    ? 'bg-cyan-500/10 border-cyan-400 shadow-sm'
                     : 'hover:border-cyan-400/50'
                 }`}
                 style={{ background: simulatedSample?.id === item.id ? undefined : 'var(--ghost-surface-2)', borderColor: simulatedSample?.id === item.id ? undefined : 'var(--ghost-border)' }}>
-                <span className="text-[10px] font-mono font-bold text-cyan-600 dark:text-cyan-400 uppercase block">{item.category}</span>
+                <span className="text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 uppercase block">{item.category}</span>
                 <h3 className="text-sm font-bold mt-1" style={{ color: 'var(--ghost-text)' }}>{item.title}</h3>
-                <p className="text-[11px] mt-1 line-clamp-2" style={{ color: 'var(--ghost-text-dim)' }}>{item.input}</p>
+                <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--ghost-text-dim)' }}>{item.input}</p>
               </button>
             ))}
           </div>
@@ -473,26 +466,24 @@ export default function AuthGate({ children }) {
                   <AlertTriangle className="w-5 h-5 text-rose-500" />
                   <span className="text-sm font-bold text-rose-500 font-display">Threat Flagged: {simulatedSample.threat}</span>
                 </div>
-                <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full badge-scam">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full badge-scam">
                   Score: {simulatedSample.score}/100 High Risk
                 </span>
               </div>
-              <p className="text-xs font-mono p-3 rounded-lg border" style={{ background: 'var(--ghost-surface)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
+              <p className="text-xs p-3 rounded-lg border" style={{ background: 'var(--ghost-surface)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                 "{simulatedSample.input}"
               </p>
               <div className="flex items-center justify-between text-xs pt-1">
-                <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold flex items-center gap-1.5">
+                <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5" /> 5-Stage Attack Chain Reconstructed
                 </span>
                 <Button
                   onClick={() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    setTimeout(() => {
-                      document.getElementById('auth-email')?.focus();
-                    }, 400);
+                    document.getElementById('auth-card')?.scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('auth-email')?.focus();
                   }}
-                  className="h-8 text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950">
-                  Sign In to Open Full Inspector →
+                  className="h-8 text-xs font-semibold bg-cyan-500 hover:bg-cyan-400 text-slate-950">
+                  Access Workspace →
                 </Button>
               </div>
             </div>
@@ -502,70 +493,70 @@ export default function AuthGate({ children }) {
         {/* Multi-Modal Detection Engine Grid */}
         <section id="engines" className="space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest">Multi-Modal Protection Suite</span>
-            <h2 className="text-2xl sm:text-3xl font-black font-display" style={{ color: 'var(--ghost-text)' }}>
+            <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">Multi-Modal Protection Suite</span>
+            <h2 className="text-2xl sm:text-3xl font-bold font-display" style={{ color: 'var(--ghost-text)' }}>
               6 Autonomous Defense Engines
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
                 <MessageSquareWarning className="w-5 h-5 text-cyan-500" />
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Message & Smishing Scanner</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Detects SMS, WhatsApp, and Telegram urgency manipulation, account freeze traps, and payment coercion.
+                Detects SMS, WhatsApp, and Telegram urgency manipulation and payment coercion.
               </p>
             </div>
 
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
-                <Link2 className="w-5 h-5 text-purple-500" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Link2 className="w-5 h-5 text-cyan-500" />
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Link & Typosquatting Inspector</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Analyzes lookalike domains, SSL certificate age, brand mimicry, and deceptive redirect chains.
+                Analyzes lookalike domains, SSL certificate age, brand mimicry, and redirect chains.
               </p>
             </div>
 
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center">
-                <Image className="w-5 h-5 text-pink-500" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Image className="w-5 h-5 text-cyan-500" />
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Vision Screenshot Inspector</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Gemini 1.5 OCR text extraction and multi-modal logo spoofing detection on uploaded screenshots.
+                Extracts text and inspects fake banking portals or fraudulent payment receipts.
               </p>
             </div>
 
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
-                <QrCode className="w-5 h-5 text-violet-500" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <QrCode className="w-5 h-5 text-cyan-500" />
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>QR Code Inspector</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Decodes physical QR stickers and digital barcodes to inspect hidden URL destinations before click.
+                Decodes physical QR stickers and digital barcodes to inspect hidden destinations before click.
               </p>
             </div>
 
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center">
-                <Mic className="w-5 h-5 text-teal-500" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Mic className="w-5 h-5 text-cyan-500" />
               </div>
-              <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Voice & Deepfake Scam Radar</h3>
+              <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Voice & Audio Scam Radar</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Wiener entropy acoustic spectral analysis detecting synthesized vocoder artifacts and synthetic voice clones.
+                Analyzes acoustic features and vocoder artifacts to detect synthetic voice clones.
               </p>
             </div>
 
             <div className="ghost-card p-5 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-emerald-500" />
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-cyan-500" />
               </div>
               <h3 className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>Browser Shield Extension</h3>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--ghost-text-dim)' }}>
-                Manifest V3 background navigation monitoring and zero-lag pre-click domain blocklist synchronization.
+                Background navigation monitoring with zero-latency pre-click domain blocklist sync.
               </p>
             </div>
           </div>
@@ -576,17 +567,16 @@ export default function AuthGate({ children }) {
       {/* Footer */}
       <footer className="border-t py-8 text-center text-xs space-y-3 relative z-10" style={{ borderColor: 'var(--ghost-border)', color: 'var(--ghost-text-dim)' }}>
         <div className="flex items-center justify-center gap-2 font-bold font-display text-sm text-cyan-600 dark:text-cyan-400">
-          GhostNet — Autonomous Cyber Defense Platform
+          GhostNet Systems — Autonomous Cyber Defense Platform
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-medium">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium">
           <Link to="/PrivacyPolicy" className="hover:text-cyan-500 transition-colors">Privacy Policy</Link>
           <Link to="/Terms" className="hover:text-cyan-500 transition-colors">Terms of Service</Link>
           <Link to="/CookiePolicy" className="hover:text-cyan-500 transition-colors">Cookie Policy</Link>
           <Link to="/RefundPolicy" className="hover:text-cyan-500 transition-colors">Refund Policy</Link>
-          <Link to="/PrivacyCenter" className="hover:text-cyan-500 transition-colors">Data Sovereignty</Link>
         </div>
-        <p className="text-[10px] max-w-md mx-auto font-mono">
-          Engineered for Hackathon Evaluation & Local Production. DPDP Act 2023 Compliant.
+        <p className="text-xs font-normal" style={{ color: 'var(--ghost-text-muted)' }}>
+          © 2026 GhostNet Systems Inc. All rights reserved.
         </p>
       </footer>
 
