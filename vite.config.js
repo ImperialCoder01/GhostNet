@@ -37,6 +37,18 @@ function createMockResponse(res) {
       }
       return this
     },
+    send(payload) {
+      if (!res.writableEnded) {
+        if (typeof payload === 'object' && payload !== null) {
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(payload))
+        } else {
+          res.setHeader('Content-Type', 'text/plain')
+          res.end(String(payload))
+        }
+      }
+      return this
+    },
     end(payload) {
       if (!res.writableEnded) {
         res.end(payload)
