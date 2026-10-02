@@ -4,6 +4,19 @@ All notable changes to GhostNet AI are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0-prod] - 2026-10-03 (Firebase Auth Migration, Native Android Google Sign-In & Vercel Build Parity)
+
+### Added
+* **Firebase Authentication Integration**: Migrated identity provider to Firebase Auth (Email/Password, Email Verification, Password Reset, Google Sign-In, Session Management) across Web and Mobile.
+* **Supabase Third-Party Auth JWT Synergy**: Automated forwarding of Firebase JWT ID tokens to Supabase client (`updateSupabaseAuthToken`), enforcing PostgreSQL Row-Level Security (RLS) while validating Firebase project issuer (`ghostnetpro`).
+* **Native Android In-App Google Sign-In**: Integrated `@codetrix-studio/capacitor-google-auth` using Android native Google Play Services Credential Manager. Users sign in via native bottom-sheet account picker without leaving the GhostNet Android application.
+* **Vercel Legacy Peer Dependencies Configuration**: Created `.npmrc` (`legacy-peer-deps=true`) in repository root, eliminating `npm install` ERESOLVE peer dependency build errors on Vercel.
+
+### Changed
+* **Dual API Key Resolution**: Updated serverless endpoints (`api/analyze.js`, `api/analyze-voice.js`) and client API wrappers (`src/lib/api.js`) to support fallback resolution for both `GEMINI_API_KEY`/`VITE_GEMINI_API_KEY` and `GROQ_API_KEY`/`VITE_GROQ_API_KEY`.
+* **Dynamic Origin API Endpoint Resolution**: Updated `src/lib/api.js` to target dynamic `window.location.origin` endpoints, preventing relative URL mismatches on Vercel preview environments.
+* **Enhanced Heuristic Fallback Engine**: Upgraded screenshot OCR and offline heuristics in `src/lib/scanner.js` for multi-vector threat evidence extraction even without network connectivity.
+
 ---
 
 ## [1.2.0-prod] - 2026-09-26 (Brave Shield & Legal Compliance Lock)
