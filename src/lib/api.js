@@ -14,17 +14,17 @@ import { filterValidReasonCodes } from './reasonCodes.js'
 
 function getGroqKey() {
   try {
-    return localStorage.getItem('ghostnet_groq_api_key') || import.meta.env?.VITE_GROQ_API_KEY || ''
+    return localStorage.getItem('ghostnet_groq_api_key') || import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
   } catch {
-    return import.meta.env?.VITE_GROQ_API_KEY || ''
+    return import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
   }
 }
 
 function getGeminiKey() {
   try {
-    return localStorage.getItem('ghostnet_gemini_api_key') || import.meta.env?.VITE_GEMINI_API_KEY || ''
+    return localStorage.getItem('ghostnet_gemini_api_key') || import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
   } catch {
-    return import.meta.env?.VITE_GEMINI_API_KEY || ''
+    return import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
   }
 }
 
@@ -376,6 +376,9 @@ async function postAnalyze(type, payload) {
   if (typeof window !== 'undefined') {
     const customUrl = import.meta.env?.VITE_API_URL
     if (customUrl) endpoints.push(customUrl)
+    if (window.location?.origin) {
+      endpoints.push(`${window.location.origin}/api/analyze`)
+    }
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze')
   }
 
@@ -421,7 +424,7 @@ async function postAnalyze(type, payload) {
   if (type === 'message') return analyzeMessageContent(payload?.message || '')
   if (type === 'link') return analyzeUrlContent(payload?.url || '')
   if (type === 'report') return analyzeScamReportContent(payload || {})
-  if (type === 'screenshot') return analyzeScreenshotFallback()
+  if (type === 'screenshot') return analyzeScreenshotFallback(payload?.detected_text || '')
   throw new Error('Analysis request failed')
 }
 
@@ -447,6 +450,9 @@ export async function analyzeVoice(payload = {}) {
   if (typeof window !== 'undefined') {
     const customUrl = import.meta.env?.VITE_API_URL
     if (customUrl) endpoints.push(`${customUrl}/api/analyze-voice`)
+    if (window.location?.origin) {
+      endpoints.push(`${window.location.origin}/api/analyze-voice`)
+    }
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze-voice')
   }
 

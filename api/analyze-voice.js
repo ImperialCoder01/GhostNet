@@ -52,10 +52,13 @@ export default async function handler(req, res) {
     let transcript = transcript_text || ''
     let aiResult = null
 
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
+    const groqKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+
     // 1. Try Gemini 1.5 Flash Multimodal Audio AI if Gemini key is set
-    if (process.env.GEMINI_API_KEY) {
+    if (geminiKey) {
       try {
-        const apiKey = process.env.GEMINI_API_KEY
+        const apiKey = geminiKey
         const prompt = `You are GhostNet AI, an elite voice call scam, deepfake, voice cloning, and social engineering threat detector.
 Analyze this audio recording or transcript for synthesized voice indicators, emergency extortion traps, banking impersonation, OTP coercion, and financial fraud.
 Return strict JSON only with keys:
@@ -121,7 +124,7 @@ Return strict JSON only with keys:
     }
 
     // 2. Try Groq Whisper + Llama 3.3 if Gemini was not used or failed
-    if (!aiResult && process.env.GROQ_API_KEY) {
+    if (!aiResult && groqKey) {
       if (!transcript && audio_base64) {
         try {
           const audioBuffer = Buffer.from(audio_base64, 'base64')

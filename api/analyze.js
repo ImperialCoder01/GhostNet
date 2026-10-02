@@ -314,7 +314,7 @@ const REASON_CODES_INSTRUCTION = `
 - explanation (concise 1-2 sentence plain-English summary of the top threat factor)`
 
 async function analyzeWithGroq(type, payload) {
-  const apiKey = process.env.GROQ_API_KEY
+  const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
   if (!apiKey) return null
 
   let prompt = ''
@@ -444,7 +444,7 @@ const GEMINI_MODELS = [
 ]
 
 async function analyzeScreenshotWithGemini(screenshotUrl, imageBase64 = null, mimeType = 'image/png') {
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
   if (!apiKey || (!screenshotUrl && !imageBase64)) return null
 
   try {
