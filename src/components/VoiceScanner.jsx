@@ -5,6 +5,7 @@ import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
 import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectralFeatures";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
+import { analyzeVoice } from "@/lib/api";
 
 export default function VoiceScanner() {
   const [isRecording, setIsRecording] = useState(false);
@@ -86,11 +87,12 @@ export default function VoiceScanner() {
     setAnalyzing(true);
     setErrorMsg("");
 
+    let flatness = 0.5;
+
     try {
       const arrayBuffer = await audioBlob.arrayBuffer();
 
       // Client-side acoustic flatness check
-      let flatness = 0.5;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
@@ -113,26 +115,11 @@ export default function VoiceScanner() {
       }
       const base64 = btoa(binary);
 
-      const res = await fetch("/api/analyze-voice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          audio_base64: base64,
-          mime_type: audioBlob.type || "audio/webm",
-        }),
+      const data = await analyzeVoice({
+        audio_base64: base64,
+        mime_type: audioBlob.type || "audio/webm",
       });
 
-      const contentType = res.headers.get("content-type") || "";
-      if (!res.ok || !contentType.includes("application/json")) {
-        throw new Error("Non-JSON voice service response");
-      }
-
-      const text = await res.text();
-      if (text.trim().startsWith("<")) {
-        throw new Error("HTML response from voice endpoint");
-      }
-
-      const data = JSON.parse(text);
       const combinedScore = combineVoiceThreatScore(data.fraud_score || 0, flatness);
 
       setResult({
@@ -172,32 +159,17 @@ export default function VoiceScanner() {
     setSpectralScore(sample.flatness);
 
     try {
-      const res = await fetch("/api/analyze-voice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transcript_text: sample.sampleTranscript,
-        }),
+      const data = await analyzeVoice({
+        transcript_text: sample.sampleTranscript,
       });
 
-      const contentType = res.headers.get("content-type") || "";
-      if (!res.ok || !contentType.includes("application/json")) {
-        throw new Error("Non-JSON voice service response");
-      }
-
-      const text = await res.text();
-      if (text.trim().startsWith("<")) {
-        throw new Error("HTML response from voice endpoint");
-      }
-
-      const data = JSON.parse(text);
       const combinedScore = combineVoiceThreatScore(data.fraud_score || 0, sample.flatness);
 
       setResult({
         ...data,
         fraud_score: combinedScore,
         spectral_flatness: sample.flatness,
-        transcript: sample.sampleTranscript,
+        transcript: data.transcript || sample.sampleTranscript,
       });
     } catch (err) {
       console.warn("Benchmark analysis fallback:", err);

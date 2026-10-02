@@ -200,6 +200,176 @@ Return strict JSON only with keys:
   return null
 }
 
+async function analyzeVoiceWithClientGemini(payload) {
+  const apiKey = getGeminiKey()
+  if (!apiKey) return null
+
+  const prompt = `You are GhostNet AI, an elite voice call scam, deepfake, voice cloning, and social engineering threat detector.
+Analyze this audio recording or transcript for synthesized voice indicators, emergency extortion traps, banking impersonation, OTP coercion, and financial fraud.
+Return strict JSON only with keys:
+- transcript (string - verbatim transcription of all spoken words)
+- fraud_score (number 0-100)
+- risk_level ("safe" | "suspicious" | "scam")
+- confidence ("low" | "medium" | "high")
+- reasons (array of specific vocal and speech evidence strings)
+- analysis (professional summary of the voice call threat and acoustic/speech assessment)
+- attack_intent (plain-English summary of what the caller is trying to accomplish)
+- reasonCodes (array of string codes: URGENCY_LANGUAGE, IMPERSONATES_BRAND, REQUESTS_OTP, REQUESTS_PAYMENT)`
+
+  const parts = [{ text: prompt }]
+  if (payload.audio_base64) {
+    parts.push({
+      inline_data: {
+        mime_type: payload.mime_type || 'audio/webm',
+        data: payload.audio_base64,
+      },
+    })
+  } else if (payload.transcript_text) {
+    parts.push({ text: `Transcript: """${payload.transcript_text}"""` })
+  } else {
+    return null
+  }
+
+  const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp']
+  for (const model of models) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: 'application/json',
+            },
+          }),
+        }
+      )
+
+      if (!response.ok) continue
+      const data = await response.json()
+      const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
+      if (!text) continue
+      const parsed = JSON.parse(text)
+      if (parsed && typeof parsed.fraud_score !== 'undefined') {
+        const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+        const risk = ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score)
+
+        return {
+          transcript: String(parsed.transcript || payload.transcript_text || 'Audio recording analyzed'),
+          fraud_score: score,
+          risk_level: risk,
+          confidence: parsed.confidence || (score > 70 ? 'high' : 'medium'),
+          reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+          analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+          ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
+          attack_intent: String(parsed.attack_intent || inferAttackerIntent(parsed.transcript || '', '', risk)),
+          threat_reconstruction: reconstructAttackChain(parsed.transcript || 'Voice recording analysis', '', risk),
+          reasonCodes: filterValidReasonCodes(parsed.reasonCodes || []),
+          source: 'gemini',
+        }
+      }
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
+async function analyzeVoiceWithClientGroq(payload) {
+  const apiKey = getGroqKey()
+  if (!apiKey) return null
+
+  let transcript = payload.transcript_text || ''
+
+  if (!transcript && payload.audio_base64) {
+    try {
+      const binary = atob(payload.audio_base64)
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i)
+      }
+      const ext = payload.mime_type?.includes('mp3') ? 'mp3' : payload.mime_type?.includes('wav') ? 'wav' : 'webm'
+      const blob = new Blob([bytes.buffer], { type: payload.mime_type || 'audio/webm' })
+
+      const formData = new FormData()
+      formData.append('file', blob, `audio.${ext}`)
+      formData.append('model', 'whisper-large-v3')
+
+      const whisperResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: formData,
+      })
+
+      if (whisperResp.ok) {
+        const data = await whisperResp.json()
+        transcript = data.text || ''
+      }
+    } catch (err) {
+      console.warn('Client Groq Whisper transcription failed:', err)
+    }
+  }
+
+  if (!transcript) return null
+
+  const models = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768']
+  for (const model of models) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.1,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: 'You are GhostNet AI voice detector. Respond in strict JSON only.' },
+            {
+              role: 'user',
+              content: `Analyze this transcribed voice call for social engineering, deepfakes, extortion, urgency, and financial fraud.
+Transcript: """${transcript}"""
+Return strict JSON with keys: fraud_score (0-100), risk_level ("safe"|"suspicious"|"scam"), confidence, reasons, analysis, attack_intent, reasonCodes`,
+            },
+          ],
+        }),
+      })
+
+      if (!response.ok) continue
+      const data = await response.json()
+      const text = data?.choices?.[0]?.message?.content
+      if (!text) continue
+      const parsed = JSON.parse(text)
+      if (parsed && typeof parsed.fraud_score !== 'undefined') {
+        const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+        const risk = ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score)
+
+        return {
+          transcript,
+          fraud_score: score,
+          risk_level: risk,
+          confidence: parsed.confidence || (score > 70 ? 'high' : 'medium'),
+          reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+          analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+          ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
+          attack_intent: String(parsed.attack_intent || inferAttackerIntent(transcript, '', risk)),
+          threat_reconstruction: reconstructAttackChain(transcript, '', risk),
+          reasonCodes: filterValidReasonCodes(parsed.reasonCodes || []),
+          source: 'groq-whisper',
+        }
+      }
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
 async function postAnalyze(type, payload) {
   // 1. Try server endpoints first (for web deployments with serverless backend)
   const endpoints = ['/api/analyze']
@@ -269,4 +439,55 @@ export function analyzeReport(payload) {
 
 export function analyzeScreenshot(payload = {}) {
   return postAnalyze('screenshot', payload)
+}
+
+export async function analyzeVoice(payload = {}) {
+  // 1. Try server endpoints (/api/analyze-voice)
+  const endpoints = ['/api/analyze-voice']
+  if (typeof window !== 'undefined') {
+    const customUrl = import.meta.env?.VITE_API_URL
+    if (customUrl) endpoints.push(`${customUrl}/api/analyze-voice`)
+    endpoints.push('https://ghostnet-app.vercel.app/api/analyze-voice')
+  }
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const contentType = res.headers.get('content-type') || ''
+      if (!res.ok || !contentType.includes('application/json')) continue
+
+      const text = await res.text()
+      if (text.trim().startsWith('<')) continue
+
+      const parsed = JSON.parse(text)
+      if (parsed && typeof parsed === 'object' && parsed.source && parsed.source !== 'offline-heuristic') {
+        return parsed
+      }
+    } catch {
+      continue
+    }
+  }
+
+  // 2. Try direct client-side AI models (Gemini Audio / Groq Whisper + Llama)
+  try {
+    const geminiResult = await analyzeVoiceWithClientGemini(payload)
+    if (geminiResult) return geminiResult
+
+    const groqResult = await analyzeVoiceWithClientGroq(payload)
+    if (groqResult) return groqResult
+  } catch {}
+
+  // 3. Fallback to local heuristic
+  const textContent = payload.transcript_text || 'Voice recording stream'
+  const fallback = analyzeMessageContent(textContent)
+  return {
+    ...fallback,
+    transcript: textContent,
+    source: 'offline-heuristic',
+  }
 }

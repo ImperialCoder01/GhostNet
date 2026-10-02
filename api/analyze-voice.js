@@ -50,35 +50,156 @@ export default async function handler(req, res) {
     }
 
     let transcript = transcript_text || ''
+    let aiResult = null
 
-    // If audio_base64 is provided and Groq API key is set, transcribe using Whisper-large-v3
-    if (!transcript && audio_base64 && process.env.GROQ_API_KEY) {
+    // 1. Try Gemini 1.5 Flash Multimodal Audio AI if Gemini key is set
+    if (process.env.GEMINI_API_KEY) {
       try {
-        const audioBuffer = Buffer.from(audio_base64, 'base64')
-        const ext = mime_type?.includes('mp3') ? 'mp3' : mime_type?.includes('wav') ? 'wav' : 'webm'
-        const blob = new Blob([audioBuffer], { type: mime_type || 'audio/webm' })
+        const apiKey = process.env.GEMINI_API_KEY
+        const prompt = `You are GhostNet AI, an elite voice call scam, deepfake, voice cloning, and social engineering threat detector.
+Analyze this audio recording or transcript for synthesized voice indicators, emergency extortion traps, banking impersonation, OTP coercion, and financial fraud.
+Return strict JSON only with keys:
+- transcript (string - verbatim transcription of all spoken words)
+- fraud_score (number 0-100)
+- risk_level ("safe" | "suspicious" | "scam")
+- confidence ("low" | "medium" | "high")
+- reasons (array of specific vocal and speech evidence strings)
+- analysis (professional summary of the voice call threat and acoustic/speech assessment)
+- attack_intent (plain-English summary of what the caller is trying to accomplish)
+- reasonCodes (array of string codes: URGENCY_LANGUAGE, IMPERSONATES_BRAND, REQUESTS_OTP, REQUESTS_PAYMENT)`
 
-        const formData = new FormData()
-        formData.append('file', blob, `audio.${ext}`)
-        formData.append('model', 'whisper-large-v3')
+        const parts = [{ text: prompt }]
+        if (audio_base64) {
+          parts.push({
+            inline_data: {
+              mime_type: mime_type || 'audio/webm',
+              data: audio_base64,
+            },
+          })
+        } else if (transcript) {
+          parts.push({ text: `Transcript to analyze: """${transcript}"""` })
+        }
 
-        const whisperResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          },
-          body: formData,
-        })
+        const geminiResp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts }],
+              generationConfig: {
+                temperature: 0.2,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        )
 
-        if (whisperResp.ok) {
-          const whisperData = await whisperResp.json()
-          transcript = whisperData.text || ''
-        } else {
-          console.warn('[analyze-voice] Groq Whisper failed with status:', whisperResp.status)
+        if (geminiResp.ok) {
+          const data = await geminiResp.json()
+          const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
+          const parsed = JSON.parse(text)
+          if (parsed && typeof parsed.fraud_score !== 'undefined') {
+            const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+            aiResult = {
+              transcript: parsed.transcript || transcript,
+              fraud_score: score,
+              risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score),
+              confidence: parsed.confidence || 'high',
+              reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map(String) : [],
+              analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+              ai_analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+              attack_intent: String(parsed.attack_intent || ''),
+              reasonCodes: filterValidReasonCodes(parsed.reasonCodes || []),
+              source: 'gemini',
+            }
+          }
         }
       } catch (err) {
-        console.warn('[analyze-voice] Transcription error:', err.message)
+        console.warn('[analyze-voice] Gemini audio failed:', err.message)
       }
+    }
+
+    // 2. Try Groq Whisper + Llama 3.3 if Gemini was not used or failed
+    if (!aiResult && process.env.GROQ_API_KEY) {
+      if (!transcript && audio_base64) {
+        try {
+          const audioBuffer = Buffer.from(audio_base64, 'base64')
+          const ext = mime_type?.includes('mp3') ? 'mp3' : mime_type?.includes('wav') ? 'wav' : 'webm'
+          const blob = new Blob([audioBuffer], { type: mime_type || 'audio/webm' })
+
+          const formData = new FormData()
+          formData.append('file', blob, `audio.${ext}`)
+          formData.append('model', 'whisper-large-v3')
+
+          const whisperResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+            body: formData,
+          })
+
+          if (whisperResp.ok) {
+            const whisperData = await whisperResp.json()
+            transcript = whisperData.text || ''
+          }
+        } catch (err) {
+          console.warn('[analyze-voice] Groq Whisper failed:', err.message)
+        }
+      }
+
+      if (transcript) {
+        try {
+          const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              temperature: 0.1,
+              response_format: { type: 'json_object' },
+              messages: [
+                { role: 'system', content: 'You are GhostNet AI. Always respond in strict JSON.' },
+                {
+                  role: 'user',
+                  content: `Analyze this transcribed call for voice scams, deepfakes, impersonation, urgency pressure, and financial fraud.
+Transcript: """${transcript}"""
+Return strict JSON with keys: fraud_score (0-100), risk_level ("safe"|"suspicious"|"scam"), confidence, reasons (array), analysis, attack_intent, reasonCodes (array).`,
+                },
+              ],
+            }),
+          })
+
+          if (groqResp.ok) {
+            const data = await groqResp.json()
+            const text = data?.choices?.[0]?.message?.content
+            const parsed = JSON.parse(text)
+            if (parsed && typeof parsed.fraud_score !== 'undefined') {
+              const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+              aiResult = {
+                transcript,
+                fraud_score: score,
+                risk_level: ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score),
+                confidence: parsed.confidence || 'high',
+                reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map(String) : [],
+                analysis: String(parsed.analysis || ''),
+                ai_analysis: String(parsed.analysis || ''),
+                attack_intent: String(parsed.attack_intent || ''),
+                reasonCodes: filterValidReasonCodes(parsed.reasonCodes || []),
+                source: 'groq-whisper',
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[analyze-voice] Groq Llama failed:', err.message)
+        }
+      }
+    }
+
+    if (aiResult) {
+      res.status(200).json(aiResult)
+      return
     }
 
     if (!transcript) {
@@ -97,7 +218,7 @@ export default async function handler(req, res) {
       return
     }
 
-    // Run transcript through message analysis
+    // Run transcript through message analysis fallback
     const analysis = analyzeMessageContent(transcript)
     res.status(200).json({
       ...analysis,
