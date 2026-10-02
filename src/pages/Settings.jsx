@@ -24,6 +24,8 @@ export default function Settings() {
     return localStorage.getItem("ghostnet_gemini_api_key") || import.meta.env?.VITE_GEMINI_API_KEY || "";
   });
   const [savedKeysNotice, setSavedKeysNotice] = useState(false);
+  const [clearedNotice, setClearedNotice] = useState(false);
+  const [resetOnboardingNotice, setResetOnboardingNotice] = useState(false);
 
   const saveAiKeys = () => {
     if (groqKey.trim()) {
