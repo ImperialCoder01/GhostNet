@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { X, User, Mail, Calendar, Key, Lock, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function UserModal({ isOpen, onClose, user }) {
   const navigate = useNavigate();
