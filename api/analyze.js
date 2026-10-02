@@ -299,7 +299,13 @@ function recordThreatIndicator(indicatorHash, indicatorType, riskScore, reasonCo
 // Groq AI analysis
 // ---------------------------------------------------------------------------
 
-const GROQ_MODELS = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b']
+const GROQ_MODELS = [
+  'llama-3.3-70b-versatile',
+  'llama-3.1-8b-instant',
+  'llama3-70b-8192',
+  'llama3-8b-8192',
+  'mixtral-8x7b-32768',
+]
 
 const REASON_CODES_INSTRUCTION = `
 - reasonCodes (array of strings, choose ONLY from this exact list, pick all that apply):
@@ -432,10 +438,9 @@ ${REASON_CODES_INSTRUCTION}`
 // ---------------------------------------------------------------------------
 
 const GEMINI_MODELS = [
-  'gemini-flash-latest',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-2.0-flash-exp',
 ]
 
 async function analyzeScreenshotWithGemini(screenshotUrl) {
