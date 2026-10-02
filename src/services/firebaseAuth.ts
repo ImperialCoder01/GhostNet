@@ -77,7 +77,7 @@ export async function signInWithGoogle(): Promise<User> {
       if (errStr.includes('cancel') || errStr.includes('12501') || errStr.includes('closed_by_user')) {
         throw new Error('Google Sign-In was cancelled.')
       }
-      // If native plugin fails for another reason, fall through to web provider sign in
+      // If native plugin fails for SHA-1 / configuration reasons, fall through to in-app provider flow
     }
   }
 
