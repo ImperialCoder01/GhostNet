@@ -17,8 +17,28 @@ export default function Settings() {
   const [themeMode, setThemeMode] = useState(() => {
     return localStorage.getItem("ghostnet_theme") || "light";
   });
-  const [clearedNotice, setClearedNotice] = useState(false);
-  const [resetOnboardingNotice, setResetOnboardingNotice] = useState(false);
+  const [groqKey, setGroqKey] = useState(() => {
+    return localStorage.getItem("ghostnet_groq_api_key") || import.meta.env?.VITE_GROQ_API_KEY || "";
+  });
+  const [geminiKey, setGeminiKey] = useState(() => {
+    return localStorage.getItem("ghostnet_gemini_api_key") || import.meta.env?.VITE_GEMINI_API_KEY || "";
+  });
+  const [savedKeysNotice, setSavedKeysNotice] = useState(false);
+
+  const saveAiKeys = () => {
+    if (groqKey.trim()) {
+      localStorage.setItem("ghostnet_groq_api_key", groqKey.trim());
+    } else {
+      localStorage.removeItem("ghostnet_groq_api_key");
+    }
+    if (geminiKey.trim()) {
+      localStorage.setItem("ghostnet_gemini_api_key", geminiKey.trim());
+    } else {
+      localStorage.removeItem("ghostnet_gemini_api_key");
+    }
+    setSavedKeysNotice(true);
+    setTimeout(() => setSavedKeysNotice(false), 3000);
+  };
 
   React.useEffect(() => {
     const handleSync = () => {
@@ -109,6 +129,66 @@ export default function Settings() {
               Sign Out
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* AI ENGINE & CREDENTIALS SECTION */}
+      <div className="ghost-card p-5 space-y-4">
+        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--ghost-border)" }}>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--ghost-text)" }}>
+              AI Engine & API Credentials
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 border border-cyan-500/30">
+            GROQ LPU + GEMINI 2.5 FLASH
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Configure your personal Groq and Gemini API keys to force direct, live AI scans across mobile APK and web sessions.
+        </p>
+
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
+              Groq LPU API Key (gsk_...)
+            </label>
+            <input
+              type="password"
+              value={groqKey}
+              onChange={(e) => setGroqKey(e.target.value)}
+              placeholder="gsk_..."
+              className="w-full h-10 px-3 text-xs font-mono rounded-xl border bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 block">
+              Gemini 2.5 Flash Vision API Key (AIzaSy...)
+            </label>
+            <input
+              type="password"
+              value={geminiKey}
+              onChange={(e) => setGeminiKey(e.target.value)}
+              placeholder="AIzaSy..."
+              className="w-full h-10 px-3 text-xs font-mono rounded-xl border bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          <div className="pt-2 flex items-center justify-between">
+            <Button
+              onClick={saveAiKeys}
+              className="h-9 px-4 text-xs font-bold bg-cyan-500 hover:bg-cyan-600 text-slate-950 rounded-xl shadow-sm">
+              Save AI Credentials
+            </Button>
+            {savedKeysNotice && (
+              <span className="text-xs font-bold text-emerald-500 flex items-center gap-1 animate-fadeIn">
+                <CheckCircle2 className="w-3.5 h-3.5" /> AI Credentials Saved!
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
