@@ -58,25 +58,28 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 export async function signInWithGoogle(): Promise<User> {
+  const provider = new GoogleAuthProvider()
+  provider.setCustomParameters({ prompt: 'select_account' })
+
   if (Capacitor.isNativePlatform()) {
     ensureGoogleAuthInitialized()
     try {
       const googleUser = await GoogleAuth.signIn()
       const idToken = googleUser?.authentication?.idToken || (googleUser as Record<string, any>)?.idToken
-      if (!idToken) {
-        throw new Error('Google Sign-In failed: No ID token returned.')
+      if (idToken) {
+        const credential = GoogleAuthProvider.credential(idToken)
+        const result = await signInWithCredential(auth, credential)
+        return result.user
       }
-      const credential = GoogleAuthProvider.credential(idToken)
-      const result = await signInWithCredential(auth, credential)
-      return result.user
     } catch (nativeErr: unknown) {
-      console.error('[FirebaseAuth] Native Google Sign-In error:', nativeErr)
-      throw nativeErr
+      console.warn('[FirebaseAuth] Native Google Sign-In notice:', nativeErr)
+      const errStr = String((nativeErr as any)?.message || (nativeErr as any)?.code || nativeErr || '').toLowerCase()
+      if (errStr.includes('cancel') || errStr.includes('12501') || errStr.includes('closed_by_user')) {
+        throw new Error('Google Sign-In was cancelled.')
+      }
+      // If native plugin fails for another reason, fall through to web provider sign in
     }
   }
-
-  const provider = new GoogleAuthProvider()
-  provider.setCustomParameters({ prompt: 'select_account' })
 
   try {
     const result = await signInWithPopup(auth, provider)
@@ -88,10 +91,20 @@ export async function signInWithGoogle(): Promise<User> {
       authErr.code === 'auth/popup-closed-by-user' ||
       authErr.code === 'auth/operation-not-supported-in-this-environment'
     ) {
-      await signInWithRedirect(auth, provider)
-      throw new Error('Redirecting to Google Sign-In...')
+      try {
+        await signInWithRedirect(auth, provider)
+        throw new Error('Redirecting to Google Sign-In...')
+      } catch (redirectErr: unknown) {
+        if ((redirectErr as any)?.message === 'Redirecting to Google Sign-In...') {
+          throw redirectErr
+        }
+        throw new Error((redirectErr as any)?.message || 'Google Sign-In failed. Please try again.')
+      }
     }
-    throw authErr
+    if (authErr.code === 'auth/cancelled-popup-request') {
+      throw new Error('Google Sign-In was cancelled.')
+    }
+    throw new Error(authErr.message || 'Google Sign-In failed. Please try again.')
   }
 }
 

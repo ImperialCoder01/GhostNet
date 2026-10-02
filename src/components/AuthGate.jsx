@@ -182,8 +182,13 @@ export default function AuthGate({ children }) {
       await triggerHaptic('success');
     } catch (e) {
       await triggerHaptic('error');
-      if (e?.message !== 'Redirecting to Google Sign-In...') {
-        setFormError(e?.message || 'Google Sign-In failed. Please try again.');
+      const msg = e?.message || '';
+      if (msg === 'Redirecting to Google Sign-In...') {
+        // Redirecting, no error needed
+      } else if (msg.includes('cancelled') || msg.includes('canceled')) {
+        // User cancelled, don't display error banner
+      } else {
+        setFormError(msg || 'Google Sign-In failed. Please try again.');
       }
     } finally {
       setGoogleBusy(false);
