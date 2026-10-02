@@ -2,17 +2,16 @@ import React from "react";
 import { motion } from "framer-motion";
 import { X, User, Mail, Calendar, Key, Lock, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function UserModal({ isOpen, onClose, user }) {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   if (!isOpen) return null;
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     onClose();
     navigate(createPageUrl("Home"));
   };

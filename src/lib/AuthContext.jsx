@@ -1,12 +1,24 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import {
+  signUpWithEmail,
+  signInWithEmail,
+  signInWithGoogle as firebaseSignInWithGoogle,
+  sendPasswordReset as firebaseSendPasswordReset,
+  sendEmailVerificationLink,
+  signOutUser,
+  subscribeToAuthState,
+  handleGoogleRedirectResult,
+  getFirebaseIdToken,
+} from '@/services/firebaseAuth'
+import { auth } from '@/lib/firebase'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
+  const [firebaseUser, setFirebaseUser] = useState(null)
   const [loading, setLoading] = useState(true)
+
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
     try {
       return localStorage.getItem('ghostnet_has_seen_onboarding') === 'true'
@@ -14,11 +26,12 @@ export function AuthProvider({ children }) {
       return false
     }
   })
+
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
     try {
-      return typeof window !== 'undefined' && (
-        window.location.hash.includes('type=recovery') ||
-        window.location.search.includes('type=recovery')
+      return (
+        typeof window !== 'undefined' &&
+        (window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery'))
       )
     } catch {
       return false
@@ -26,57 +39,40 @@ export function AuthProvider({ children }) {
   })
 
   useEffect(() => {
-    let mounted = true
+    let unsubscribe = () => {}
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      if (data?.session?.user) {
-        setSession(data.session)
-        setUser(data.session.user)
+    // Process redirect result if returning from mobile/popup redirect flow
+    handleGoogleRedirectResult().catch(() => {})
+
+    unsubscribe = subscribeToAuthState((fbUser) => {
+      if (fbUser) {
+        setFirebaseUser(fbUser)
+        setUser({
+          uid: fbUser.uid,
+          id: fbUser.uid,
+          email: fbUser.email || '',
+          displayName: fbUser.displayName || '',
+          emailVerified: fbUser.emailVerified || false,
+          photoURL: fbUser.photoURL || '',
+          user_metadata: {
+            full_name: fbUser.displayName || fbUser.email?.split('@')[0] || 'GhostNet User',
+            avatar_url: fbUser.photoURL || '',
+          },
+        })
       } else {
+        setFirebaseUser(null)
         try {
-          const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
-          if (saved) setUser(JSON.parse(saved))
+          const guest = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
+          if (guest) setUser(JSON.parse(guest))
           else setUser(null)
         } catch {
           setUser(null)
         }
       }
       setLoading(false)
-    }).catch(() => {
-      if (!mounted) return
-      try {
-        const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
-        if (saved) setUser(JSON.parse(saved))
-        else setUser(null)
-      } catch {
-        setUser(null)
-      }
-      setLoading(false)
     })
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      setSession(nextSession || null)
-      if (event === 'PASSWORD_RECOVERY') {
-        setIsPasswordRecovery(true)
-      }
-      if (nextSession?.user) {
-        setUser(nextSession.user)
-      } else {
-        try {
-          const saved = sessionStorage.getItem('ghostnet_guest_session') || localStorage.getItem('ghostnet_guest_session_active')
-          setUser(saved ? JSON.parse(saved) : null)
-        } catch {
-          setUser(null)
-        }
-      }
-      setLoading(false)
-    })
-
-    return () => {
-      mounted = false
-      sub?.subscription?.unsubscribe?.()
-    }
+    return () => unsubscribe()
   }, [])
 
   const completeOnboarding = () => {
@@ -96,7 +92,10 @@ export function AuthProvider({ children }) {
   const continueAsGuest = () => {
     const demoUser = {
       id: 'ghostnet-operator-active',
+      uid: 'ghostnet-operator-active',
       email: 'operator@ghostnet.ai',
+      displayName: 'GhostNet Defense Operator',
+      emailVerified: true,
       user_metadata: { full_name: 'GhostNet Defense Operator' },
     }
     setUser(demoUser)
@@ -106,25 +105,47 @@ export function AuthProvider({ children }) {
     } catch {}
   }
 
-  const requestPasswordReset = async (email) => {
-    const origin = window.location.origin
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${origin}/#reset-password`,
-    })
-    if (error) throw error
-    return data
+  const signUp = async (email, password, name) => {
+    const fbUser = await signUpWithEmail(email, password, name)
+    return fbUser
   }
 
-  const updateUserPassword = async (newPassword) => {
-    const { data, error } = await supabase.auth.updateUser({
-      password: newPassword.trim(),
-    })
-    if (error) throw error
-    setIsPasswordRecovery(false)
-    try {
-      window.history.replaceState({}, document.title, window.location.pathname)
-    } catch {}
-    return data
+  const signIn = async (email, password) => {
+    const fbUser = await signInWithEmail(email, password)
+    return fbUser
+  }
+
+  const signInWithGoogle = async () => {
+    const fbUser = await firebaseSignInWithGoogle()
+    return fbUser
+  }
+
+  const requestPasswordReset = async (email) => {
+    await firebaseSendPasswordReset(email)
+  }
+
+  const sendEmailVerification = async () => {
+    await sendEmailVerificationLink()
+  }
+
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload()
+      const updated = auth.currentUser
+      setFirebaseUser(updated)
+      setUser({
+        uid: updated.uid,
+        id: updated.uid,
+        email: updated.email || '',
+        displayName: updated.displayName || '',
+        emailVerified: updated.emailVerified || false,
+        photoURL: updated.photoURL || '',
+        user_metadata: {
+          full_name: updated.displayName || updated.email?.split('@')[0] || 'GhostNet User',
+          avatar_url: updated.photoURL || '',
+        },
+      })
+    }
   }
 
   const signOut = async () => {
@@ -134,29 +155,34 @@ export function AuthProvider({ children }) {
       localStorage.removeItem('ghostnet_guest_session')
     } catch {}
     setUser(null)
-    setSession(null)
+    setFirebaseUser(null)
     setIsPasswordRecovery(false)
-    try {
-      await supabase.auth.signOut()
-    } catch {}
+    await signOutUser()
   }
 
   const value = useMemo(
     () => ({
-      session,
       user,
+      firebaseUser,
       loading,
+      isAuthenticated: Boolean(user),
+      isEmailVerified: Boolean(firebaseUser?.emailVerified),
       hasSeenOnboarding,
       completeOnboarding,
       resetOnboarding,
       continueAsGuest,
+      signUp,
+      signIn,
+      signInWithGoogle,
       signOut,
       isPasswordRecovery,
       setIsPasswordRecovery,
       requestPasswordReset,
-      updateUserPassword,
+      sendEmailVerification,
+      refreshUser,
+      getIdToken: getFirebaseIdToken,
     }),
-    [session, user, loading, hasSeenOnboarding, isPasswordRecovery]
+    [user, firebaseUser, loading, hasSeenOnboarding, isPasswordRecovery]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

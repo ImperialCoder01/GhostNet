@@ -7,19 +7,24 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase env vars missing: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY')
 }
 
-if (supabaseUrl && typeof window !== 'undefined') {
-  const currentOrigin = window.location.origin
-  if (!supabaseUrl.startsWith('https://') || supabaseUrl.includes('localhost')) {
-    console.warn('Supabase URL should point to a hosted project URL in production.')
-  }
-  if (import.meta.env.PROD && currentOrigin.startsWith('http://')) {
-    console.warn('Production app should be served over HTTPS.')
-  }
-}
+let activeToken = null
 
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+export const supabase = createClient(supabaseUrl || 'https://ghostnet-demo.supabase.co', supabaseAnonKey || 'anon_key', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
   },
+  global: {
+    fetch: async (url, options = {}) => {
+      const headers = new Headers(options.headers || {})
+      if (activeToken) {
+        headers.set('Authorization', `Bearer ${activeToken}`)
+      }
+      return fetch(url, { ...options, headers })
+    },
+  },
 })
+
+export async function updateSupabaseAuthToken(token) {
+  activeToken = token
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "974100426213",
+    "project_id": "ghostnetpro",
+    "storage_bucket": "ghostnetpro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:974100426213:android:26134d446110891f30d30c",
+        "android_client_info": {
+          "package_name": "com.ghostnet.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "974100426213-p47s4c59bjgthtutfv2s1gsniq1ottu2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7EMRTURf3tu3Mt_9d69YSiOaMobja6Io"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "974100426213-p47s4c59bjgthtutfv2s1gsniq1ottu2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

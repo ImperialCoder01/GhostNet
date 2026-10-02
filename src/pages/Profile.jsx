@@ -11,7 +11,7 @@ import { createPageUrl } from "@/utils";
 import { ProfileSkeleton } from "@/components/ui/skeleton";
 
 export default function Profile() {
-  const { user: authUser } = useAuth();
+  const { user: authUser, signOut } = useAuth();
   const user = authUser;
 
   const { data: scans = [], isLoading: loadingScans } = useQuery({
@@ -154,7 +154,7 @@ export default function Profile() {
 
       {/* Sign Out Button */}
       <Button
-        onClick={() => supabase.auth.signOut()}
+        onClick={signOut}
         variant="outline"
         className="w-full h-12 rounded-xl border border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 font-bold transition-all">
         <LogOut className="w-4 h-4 mr-2" />
