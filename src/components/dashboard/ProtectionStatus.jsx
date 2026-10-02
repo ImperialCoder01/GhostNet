@@ -33,51 +33,50 @@ export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100
         {/* Left Posture Pitch */}
         <div className="space-y-3 max-w-lg">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-pulse" />
-            <span className="text-xs font-mono font-bold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase">
-              GhostNet Guardian Active
+            <span className={`w-2.5 h-2.5 rounded-full ${isHealthy ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-amber-500'} animate-pulse`} />
+            <span className={`text-xs font-mono font-bold tracking-wider uppercase ${isHealthy ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+              {isHealthy ? "PROTECTED — No immediate threat detected" : "ATTENTION — Security Alerts Found"}
             </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display"
             style={{ color: 'var(--ghost-text)' }}>
-            See the scam before it sees you.
+            Your Digital Safety Layer
           </h1>
 
           <p className="text-xs sm:text-sm font-medium leading-relaxed"
             style={{ color: 'var(--ghost-text-dim)' }}>
-            Autonomous multi-modal defense layer analyzing messages, deceptive links, screenshots, QR codes, deepfake audio, and web traffic in real-time.
+            GhostNet protects users before they trust, click, scan, pay or respond.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-2.5">
             <Link
-              to={createPageUrl("MessageScanner")}
+              to={createPageUrl("ScanHub")}
               className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-xl text-xs font-bold font-mono tracking-wide uppercase bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 shadow-[0_0_25px_rgba(0,229,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98]">
               <Zap className="w-3.5 h-3.5 fill-current" />
-              Quick Threat Scan
+              Universal Scanner
+            </Link>
+            <Link
+              to={createPageUrl("MessageScanner")}
+              className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-cyan-500/10">
+              Message →
             </Link>
             <Link
               to={createPageUrl("LinkScanner")}
               className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-cyan-500/10">
-              Inspect Link →
+              Link →
             </Link>
             <Link
               to={createPageUrl("QRScanner")}
               className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-purple-500/10">
               <QrCode className="w-3.5 h-3.5" />
-              QR Scanner →
+              QR →
             </Link>
             <Link
               to={createPageUrl("VoiceScanner")}
               className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-teal-500/10">
               <Mic className="w-3.5 h-3.5" />
-              Voice Radar →
-            </Link>
-            <Link
-              to={createPageUrl("BrowserShield")}
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline transition-colors flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-emerald-500/10">
-              <Shield className="w-3.5 h-3.5" />
-              Browser Shield →
+              Voice →
             </Link>
           </div>
         </div>

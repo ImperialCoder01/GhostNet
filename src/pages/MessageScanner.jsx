@@ -21,7 +21,9 @@ export default function MessageScanner() {
   const notify = useNotify();
 
   useEffect(() => {
-    if (location.state?.demoInput) {
+    if (location.state?.sharedContent) {
+      setMessage(location.state.sharedContent);
+    } else if (location.state?.demoInput) {
       setMessage(location.state.demoInput);
     }
   }, [location.state]);

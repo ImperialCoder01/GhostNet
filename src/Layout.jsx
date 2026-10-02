@@ -1,47 +1,138 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAuth } from "@/lib/AuthContext";
 import UserModal from "@/components/auth/UserModal";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import { App as CapacitorApp } from "@capacitor/app";
+import { triggerHaptic } from "@/lib/haptics";
 import { 
   MessageSquareWarning, Link2, Image, Map, AlertTriangle, User, Home, 
   Menu, X, Cpu, Lock, HeartHandshake, Sun, Moon, Mic, QrCode, Shield, Building2,
-  FileText, Cookie, CreditCard, Scale
+  FileText, Cookie, CreditCard, Scale, Settings, ArrowLeft
 } from "lucide-react";
 import { ConstellationField } from "@/shaders/constellation-field/ConstellationField";
 
 const detectionNav = [
   { name: "Command Center", page: "Home", icon: Home },
+  { name: "Universal Scanner", page: "ScanHub", icon: QrCode },
   { name: "Message Scanner", page: "MessageScanner", icon: MessageSquareWarning },
   { name: "Link Inspector", page: "LinkScanner", icon: Link2 },
   { name: "Vision Screenshot", page: "ScreenshotScanner", icon: Image },
-  { name: "QR Code Inspector", page: "QRScanner", icon: QrCode },
   { name: "Voice & Audio Scam", page: "VoiceScanner", icon: Mic },
 ];
 
 const intelligenceNav = [
-  { name: "Global Threat Intelligence", page: "ScamHeatmap", icon: Map },
+  { name: "Threat Radar", page: "ScamHeatmap", icon: Map },
+  { name: "Scan History Logs", page: "Reports", icon: FileText },
   { name: "Browser Shield & Ext", page: "BrowserShield", icon: Shield },
-  { name: "Business & Pricing", page: "BusinessModel", icon: Building2 },
   { name: "Report Threat", page: "ReportScam", icon: AlertTriangle },
 ];
 
 const governanceNav = [
+  { name: "Security & Settings", page: "Settings", icon: Settings },
   { name: "Architecture & Technology", page: "Technology", icon: Cpu },
   { name: "Privacy Sovereignty", page: "PrivacyCenter", icon: Lock },
   { name: "Privacy Policy", page: "PrivacyPolicy", icon: Shield },
   { name: "Terms of Service", page: "Terms", icon: FileText },
-  { name: "Cookie Policy", page: "CookiePolicy", icon: Cookie },
-  { name: "Refund Policy", page: "RefundPolicy", icon: CreditCard },
   { name: "Security Profile", page: "Profile", icon: User },
 ];
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [familyMode, setFamilyMode] = useState(false);
+  const [familyMode, setFamilyMode] = useState(() => {
+    try {
+      return document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [showUserModal, setShowUserModal] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const syncSeniorMode = () => {
+      const active = document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true";
+      setFamilyMode(active);
+      if (active) {
+        document.body.classList.add("family-safety-mode");
+      } else {
+        document.body.classList.remove("family-safety-mode");
+      }
+    };
+    syncSeniorMode();
+
+    window.addEventListener("ghostnet_senior_mode_change", syncSeniorMode);
+    window.addEventListener("storage", syncSeniorMode);
+    return () => {
+      window.removeEventListener("ghostnet_senior_mode_change", syncSeniorMode);
+      window.removeEventListener("storage", syncSeniorMode);
+    };
+  }, []);
+
+  const toggleFamilyMode = () => {
+    const next = !familyMode;
+    setFamilyMode(next);
+    try {
+      localStorage.setItem("ghostnet_senior_mode", next ? "true" : "false");
+    } catch {}
+    if (next) {
+      document.body.classList.add("family-safety-mode");
+    } else {
+      document.body.classList.remove("family-safety-mode");
+    }
+    window.dispatchEvent(new Event("ghostnet_senior_mode_change"));
+  };
+
+  // Capacitor Android Hardware Back Button Handler & Android Share Sheet App Launch Listener
+  useEffect(() => {
+    let backListener;
+    let urlListener;
+    
+    const bindCapacitorEvents = async () => {
+      try {
+        backListener = await CapacitorApp.addListener("backButton", ({ canGoBack }) => {
+          if (location.pathname !== "/" && location.pathname !== "/Home") {
+            navigate(-1);
+          } else {
+            CapacitorApp.minimizeApp();
+          }
+        });
+
+        urlListener = await CapacitorApp.addListener("appUrlOpen", (data) => {
+          const urlStr = data?.url;
+          if (urlStr) {
+            try {
+              const urlObj = new URL(urlStr);
+              const sharedText = urlObj.searchParams.get("text") || urlObj.searchParams.get("url") || urlObj.searchParams.get("share_text");
+              if (sharedText) {
+                const isUrl = /^https?:\/\//i.test(sharedText.trim());
+                navigate(createPageUrl("ScanHub"), {
+                  state: { activeTab: isUrl ? "url" : "message", sharedContent: sharedText.trim() }
+                });
+              }
+            } catch (e) {
+              if (urlStr.startsWith("http://") || urlStr.startsWith("https://")) {
+                navigate(createPageUrl("ScanHub"), { state: { activeTab: "url", sharedContent: urlStr } });
+              } else if (urlStr.length > 5) {
+                navigate(createPageUrl("ScanHub"), { state: { activeTab: "message", sharedContent: urlStr } });
+              }
+            }
+          }
+        });
+      } catch (e) {
+        // Web fallback
+      }
+    };
+    bindCapacitorEvents();
+
+    return () => {
+      if (backListener && backListener.remove) backListener.remove();
+      if (urlListener && urlListener.remove) urlListener.remove();
+    };
+  }, [location.pathname, navigate]);
 
   // Desktop sidebar toggle state (stored in localStorage)
   const [sidebarOpen, setSidebarOpen] = useState(() => {
@@ -63,9 +154,40 @@ export default function Layout({ children, currentPageName }) {
   });
 
   useEffect(() => {
+    const syncTheme = () => {
+      const savedTheme = localStorage.getItem("ghostnet_theme") || "light";
+      setTheme(savedTheme);
+      const root = document.documentElement;
+      const body = document.body;
+      if (savedTheme === "dark") {
+        root.classList.add("dark");
+        body.classList.add("dark");
+        root.classList.remove("light");
+        body.classList.remove("light");
+      } else {
+        root.classList.remove("dark");
+        body.classList.remove("dark");
+        root.classList.add("light");
+        body.classList.add("light");
+      }
+    };
+    syncTheme();
+
+    window.addEventListener("ghostnet_theme_change", syncTheme);
+    window.addEventListener("storage", syncTheme);
+    return () => {
+      window.removeEventListener("ghostnet_theme_change", syncTheme);
+      window.removeEventListener("storage", syncTheme);
+    };
+  }, []);
+
+  const toggleTheme = async () => {
+    await triggerHaptic('light');
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
     const root = document.documentElement;
     const body = document.body;
-    if (theme === "dark") {
+    if (next === "dark") {
       root.classList.add("dark");
       body.classList.add("dark");
       root.classList.remove("light");
@@ -76,33 +198,20 @@ export default function Layout({ children, currentPageName }) {
       root.classList.add("light");
       body.classList.add("light");
     }
-    localStorage.setItem("ghostnet_theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === "dark" ? "light" : "dark"));
+    localStorage.setItem("ghostnet_theme", next);
+    window.dispatchEvent(new Event("ghostnet_theme_change"));
   };
 
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [currentPageName]);
 
-  const toggleFamilyMode = () => {
-    const next = !familyMode;
-    setFamilyMode(next);
-    if (next) {
-      document.body.classList.add("family-safety-mode");
-    } else {
-      document.body.classList.remove("family-safety-mode");
-    }
-  };
-
   const bottomNavItems = [
     { name: "Home", page: "Home", icon: Home },
-    { name: "Messages", page: "MessageScanner", icon: MessageSquareWarning },
-    { name: "Links", page: "LinkScanner", icon: Link2 },
-    { name: "Vision", page: "ScreenshotScanner", icon: Image },
-    { name: "Radar", page: "ScamHeatmap", icon: Map },
+    { name: "Scan", page: "ScanHub", icon: QrCode },
+    { name: "Threats", page: "Threats", icon: Map },
+    { name: "Reports", page: "Reports", icon: FileText },
+    { name: "Settings", page: "Settings", icon: Settings },
   ];
 
   if (!user) {
@@ -125,7 +234,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex items-center justify-between h-full px-4 sm:px-6 max-w-7xl mx-auto w-full">
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] flex items-center justify-center bg-slate-950">
-                <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+                <img src="/logo-icon.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-base sm:text-lg font-black tracking-tight font-display" style={{ color: 'var(--ghost-text)' }}>
                 GhostNet
@@ -190,7 +299,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 font-bold font-display text-sm text-cyan-600 dark:text-cyan-400">
                 <div className="w-5 h-5 rounded overflow-hidden bg-slate-950 border border-cyan-500/30">
-                  <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+                  <img src="/logo-icon.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
                 </div>
                 GhostNet Cyber Defense Systems
               </div>
@@ -238,11 +347,36 @@ export default function Layout({ children, currentPageName }) {
         }}>
         <div className="flex items-center justify-between h-full px-3 sm:px-6 max-w-7xl mx-auto w-full">
           
-          <div className="flex items-center gap-3">
-            {/* Brand Logo with updated logo.jpg asset */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* UI Back Button for Secondary Pages */}
+            {currentPageName !== "Home" && (
+              <button
+                type="button"
+                onClick={async () => {
+                  await triggerHaptic('light');
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate(createPageUrl("Home"));
+                  }
+                }}
+                aria-label="Go Back"
+                title="Go Back"
+                className="h-9 px-2.5 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:border-cyan-400 active:scale-95 shrink-0"
+                style={{
+                  background: 'var(--ghost-surface-2)',
+                  borderColor: 'var(--ghost-border)',
+                  color: 'var(--ghost-text)'
+                }}>
+                <ArrowLeft className="w-4 h-4 text-cyan-500 group-hover:-translate-x-0.5 transition-transform pointer-events-none" />
+                <span className="text-xs font-bold hidden sm:inline pointer-events-none">Back</span>
+              </button>
+            )}
+
+            {/* Brand Logo with updated logo-icon.jpg asset */}
             <Link to={createPageUrl("Home")} className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_15px_rgba(0,229,255,0.4)] group-hover:scale-105 transition-transform flex items-center justify-center bg-slate-950">
-                <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-[0_0_12px_rgba(0,229,255,0.3)] group-hover:scale-105 transition-transform flex items-center justify-center bg-slate-950">
+                <img src="/logo-icon.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
               </div>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-base sm:text-lg font-black tracking-tight font-display"
@@ -257,43 +391,53 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Desktop & Tablet Sidebar Open/Close Toggle Button */}
             <button
-              onClick={toggleSidebar}
+              type="button"
+              onClick={async () => {
+                await triggerHaptic('light');
+                toggleSidebar();
+              }}
+              aria-label={sidebarOpen ? "Close Sidebar Navigation" : "Open Sidebar Navigation"}
               title={sidebarOpen ? "Close Sidebar Navigation" : "Open Sidebar Navigation"}
-              className="hidden md:flex w-8 h-8 rounded-lg items-center justify-center border transition-all hover:border-cyan-400 group"
+              className="hidden md:flex w-9 h-9 rounded-xl items-center justify-center border transition-all cursor-pointer hover:border-cyan-400 active:scale-95 shrink-0"
               style={{
                 background: 'var(--ghost-surface-2)',
                 borderColor: 'var(--ghost-border)',
                 color: 'var(--ghost-text)'
               }}>
-              <Menu className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform" />
+              <Menu className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform pointer-events-none" />
             </button>
           </div>
 
           {/* Right Header Utility Controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             
             {/* Theme Toggle Button (Light / Dark) */}
             <button
+              type="button"
               onClick={toggleTheme}
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all"
+              className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all cursor-pointer hover:border-cyan-400 active:scale-95 shrink-0"
               style={{
                 background: 'var(--ghost-surface-2)',
                 borderColor: 'var(--ghost-border)',
                 color: 'var(--ghost-text)'
               }}>
               {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-amber-400" />
+                <Sun className="w-4 h-4 text-amber-400 pointer-events-none" />
               ) : (
-                <Moon className="w-4 h-4 text-cyan-600" />
+                <Moon className="w-4 h-4 text-cyan-600 pointer-events-none" />
               )}
             </button>
 
             {/* Senior Safety Mode Switch */}
             <button
-              onClick={toggleFamilyMode}
-              title="Toggle Senior & Family Safety Mode (Enlarged High-Contrast UI)"
-              className={`text-xs font-bold px-2.5 sm:px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all ${
+              type="button"
+              onClick={async () => {
+                await triggerHaptic('light');
+                toggleFamilyMode();
+              }}
+              title="Toggle Senior & Family Safety Mode"
+              className={`h-9 px-2.5 sm:px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer active:scale-95 shrink-0 ${
                 familyMode
                   ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                   : "hover:border-slate-400"
@@ -303,8 +447,8 @@ export default function Layout({ children, currentPageName }) {
                 borderColor: familyMode ? undefined : 'var(--ghost-border)',
                 color: familyMode ? undefined : 'var(--ghost-text-dim)'
               }}>
-              <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="hidden md:inline">
+              <HeartHandshake className="w-3.5 h-3.5 text-emerald-500 pointer-events-none" />
+              <span className="hidden md:inline pointer-events-none">
                 {familyMode ? "Senior Mode: ON" : "Senior Mode"}
               </span>
             </button>
@@ -323,41 +467,99 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Details Icon (Opens User Login Modal) */}
             <button
-              onClick={() => setShowUserModal(true)}
+              type="button"
+              onClick={async () => {
+                await triggerHaptic('light');
+                setShowUserModal(true);
+              }}
               title="Click to view User Login Details & Operator Session"
-              className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all hover:border-cyan-400 group relative"
+              className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all hover:border-cyan-400 group relative cursor-pointer active:scale-95 shrink-0"
               style={{
                 background: 'var(--ghost-surface-2)',
                 borderColor: 'var(--ghost-border)'
               }}>
-              <User className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform" />
+              <User className="w-4 h-4 text-cyan-500 group-hover:scale-110 transition-transform pointer-events-none" />
               {user && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-slate-900 animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full ring-2 ring-slate-900 animate-pulse pointer-events-none" />
               )}
             </button>
 
             {/* Mobile Menu Hamburger */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center border"
+              type="button"
+              onClick={async () => {
+                await triggerHaptic('light');
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
+              className="md:hidden w-9 h-9 rounded-xl flex items-center justify-center border cursor-pointer active:scale-95 shrink-0"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               style={{
                 background: 'var(--ghost-surface-2)',
                 borderColor: 'var(--ghost-border)',
                 color: 'var(--ghost-text)'
               }}>
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileMenuOpen ? (
+                <X className="w-4 h-4 pointer-events-none" />
+              ) : (
+                <Menu className="w-4 h-4 pointer-events-none" />
+              )}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile Navigation Drawer with Explicit Close & Senior Mode Controls */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden pt-14 pb-20 overflow-y-auto backdrop-blur-2xl transition-colors duration-300"
+        <div className="fixed inset-0 z-50 md:hidden flex flex-col backdrop-blur-2xl transition-all duration-300"
           style={{ background: theme === 'dark' ? 'rgba(6,11,20,0.98)' : 'rgba(248,250,252,0.98)' }}>
-          <nav className="flex flex-col p-6 gap-3">
+          
+          {/* Mobile Drawer Header */}
+          <div className="flex items-center justify-between p-4 border-b shrink-0" style={{ borderColor: 'var(--ghost-border)' }}>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg overflow-hidden border border-cyan-500/40 shadow-sm flex items-center justify-center bg-slate-950">
+                <img src="/logo-icon.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+              </div>
+              <span className="font-black text-base font-display" style={{ color: 'var(--ghost-text)' }}>
+                GhostNet Navigation
+              </span>
+            </div>
             
-            <span className="text-[10px] font-bold uppercase tracking-wider px-3" style={{ color: 'var(--ghost-text-muted)' }}>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+              className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all hover:bg-slate-500/20"
+              style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
+              <X className="w-5 h-5 text-cyan-400" />
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto p-4 space-y-4">
+            
+            {/* Senior Mode Toggle Inside Drawer */}
+            <div className="p-3 rounded-2xl border space-y-2" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <HeartHandshake className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold" style={{ color: 'var(--ghost-text)' }}>
+                    Senior & Family Safety Mode
+                  </span>
+                </div>
+                <button
+                  onClick={toggleFamilyMode}
+                  className={`text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full border transition-all ${
+                    familyMode
+                      ? "bg-emerald-500 text-slate-950 border-emerald-400"
+                      : "bg-slate-700/50 text-slate-300 border-slate-600"
+                  }`}>
+                  {familyMode ? "ENABLED" : "DISABLED"}
+                </button>
+              </div>
+              <p className="text-[11px]" style={{ color: 'var(--ghost-text-dim)' }}>
+                Enlarges touch targets and converts risk analysis into simplified plain English.
+              </p>
+            </div>
+
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 block" style={{ color: 'var(--ghost-text-muted)' }}>
               Detection Suites
             </span>
             {detectionNav.map(item => {
@@ -367,6 +569,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     active ? 'bg-cyan-500/15 text-cyan-500 border border-cyan-500/30' : 'hover:bg-slate-500/10'
                   }`}
@@ -377,7 +580,7 @@ export default function Layout({ children, currentPageName }) {
               );
             })}
 
-            <span className="text-[10px] font-bold uppercase tracking-wider px-3 pt-2" style={{ color: 'var(--ghost-text-muted)' }}>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 pt-2 block" style={{ color: 'var(--ghost-text-muted)' }}>
               Intelligence & Radar
             </span>
             {intelligenceNav.map(item => {
@@ -387,6 +590,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     active ? 'bg-cyan-500/15 text-cyan-500 border border-cyan-500/30' : 'hover:bg-slate-500/10'
                   }`}
@@ -397,7 +601,7 @@ export default function Layout({ children, currentPageName }) {
               );
             })}
 
-            <span className="text-[10px] font-bold uppercase tracking-wider px-3 pt-2" style={{ color: 'var(--ghost-text-muted)' }}>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 pt-2 block" style={{ color: 'var(--ghost-text-muted)' }}>
               Governance & Architecture
             </span>
             {governanceNav.map(item => {
@@ -407,6 +611,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     active ? 'bg-cyan-500/15 text-cyan-500 border border-cyan-500/30' : 'hover:bg-slate-500/10'
                   }`}
@@ -418,8 +623,11 @@ export default function Layout({ children, currentPageName }) {
             })}
 
             <button
-              onClick={() => setShowUserModal(true)}
-              className="mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-xs border border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setShowUserModal(true);
+              }}
+              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-xs border border-cyan-500/30 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
               <User className="w-4 h-4" /> View User Login Details
             </button>
           </nav>
@@ -564,7 +772,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 font-bold font-display text-sm text-cyan-600 dark:text-cyan-400">
                 <div className="w-5 h-5 rounded overflow-hidden bg-slate-950 border border-cyan-500/30">
-                  <img src="/logo.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
+                  <img src="/logo-icon.jpg" alt="GhostNet Logo" className="w-full h-full object-cover" />
                 </div>
                 GhostNet Cyber Defense Systems
               </div>

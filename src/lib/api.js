@@ -13,12 +13,17 @@ async function postAnalyze(type, payload) {
       body: JSON.stringify({ type, payload }),
     })
 
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(text || 'Analysis request failed')
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || !contentType.includes('application/json')) {
+      throw new Error('Non-JSON server response');
     }
 
-    return res.json()
+    const text = await res.text();
+    if (text.trim().startsWith('<')) {
+      throw new Error('HTML response from server');
+    }
+
+    return JSON.parse(text);
   } catch {
     if (type === 'message') return analyzeMessageContent(payload?.message || '')
     if (type === 'link') return analyzeUrlContent(payload?.url || '')

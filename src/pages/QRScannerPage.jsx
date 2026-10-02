@@ -1,29 +1,11 @@
-﻿import React, { useState } from "react";
-import { QrCode, Sparkles, AlertCircle } from "lucide-react";
+import React, { useState } from "react";
+import { QrCode, AlertCircle } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import QRScanner from "../components/QRScanner";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import { useNotify } from "../components/useNotify";
 import { analyzeLink, analyzeMessage } from "@/lib/api";
 import { createScanHistory } from "@/lib/data";
-
-const DEMO_QRS = [
-  {
-    label: "Phishing Banking Portal QR",
-    type: "link",
-    payload: "https://sbi-kyc-verification-portal.online/login?token=urgent-freeze",
-  },
-  {
-    label: "Fake UPI Payment QR",
-    type: "message",
-    payload: "upi://pay?pa=scam-merchant@upi&pn=Electricity%20Department&am=4999&cu=INR",
-  },
-  {
-    label: "Legitimate Corporate QR",
-    type: "link",
-    payload: "https://www.sbi.co.in/portal/web/home",
-  },
-];
 
 export default function QRScannerPage() {
   const [result, setResult] = useState(null);
@@ -69,30 +51,6 @@ export default function QRScannerPage() {
         description="Decode and inspect physical or digital QR codes for concealed phishing URLs, reverse-charge UPI traps, and deceptive redirection chains"
         color="#8b5cf6"
       />
-
-      {/* Demo QR Presets */}
-      <div className="ghost-card p-4 space-y-2 border-violet-500/20">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-violet-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" /> 1-Click QR Benchmarks
-          </span>
-          <span className="text-[11px]" style={{ color: "var(--ghost-text-dim)" }}>
-            Instant test vectors without needing an image file
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {DEMO_QRS.map((demo, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleDecoded(demo.payload)}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all hover:border-violet-400/60"
-              style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)", color: "var(--ghost-text)" }}
-            >
-              {demo.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Main Upload / Decoder */}
       <div className="ghost-card p-5">

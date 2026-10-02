@@ -4,16 +4,13 @@ import ProtectionStatus from "../components/dashboard/ProtectionStatus";
 import QuickActions from "../components/dashboard/QuickActions";
 import RecentScans from "../components/dashboard/RecentScans";
 import ThreatStats from "../components/dashboard/ThreatStats";
-import DemoBar from "../components/demo/DemoBar";
 import { ArrowRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { listScanHistory, listScamReports } from "@/lib/data";
 import { SkeletonCard, ThreatListSkeleton, MetricCardSkeleton } from "../components/ui/skeleton";
 
 export default function Home() {
-  const navigate = useNavigate();
-
   const { data: scans = [], isLoading: loadingScans } = useQuery({
     queryKey: ['scanHistory'],
     queryFn: () => listScanHistory(20),
@@ -27,23 +24,11 @@ export default function Home() {
   const isLoading = loadingScans || loadingReports;
   const threatsBlocked = scans.filter(s => s.risk_level === 'scam' || s.risk_level === 'suspicious').length;
   const scamRatio = scans.length > 0 ? (scans.filter(s => s.risk_level === 'scam').length / scans.length) : 0;
-  const safetyScore = scans.length === 0 ? 98 : Math.max(15, Math.round(100 - (scamRatio * 60) + (reports.length * 2)));
-
-  const handleDemoSelect = (threat) => {
-    if (threat.type === "link") {
-      navigate(createPageUrl("LinkScanner"), { state: { demoInput: threat.sampleInput } });
-    } else {
-      navigate(createPageUrl("MessageScanner"), { state: { demoInput: threat.sampleInput } });
-    }
-  };
+  const safetyScore = scans.length === 0 ? 100 : Math.max(10, Math.round(100 - (scamRatio * 80)));
 
   return (
     <div className="space-y-6 pb-6">
-      
-      {/* 1-Click Judge & Presentation Demo Bar */}
-      <DemoBar onSelectThreat={handleDemoSelect} />
-
-      {/* Main Security Posture Header (Skeletal Loading State) */}
+      {/* Main Security Posture Header */}
       {isLoading ? (
         <SkeletonCard className="h-40" />
       ) : (
@@ -71,7 +56,7 @@ export default function Home() {
           <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--ghost-text-dim)' }}>
             Global & Local Intelligence
           </h2>
-          <Link to={createPageUrl("ScamHeatmap")} className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+          <Link to={createPageUrl("Threats")} className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
             Open Threat Intelligence <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -88,7 +73,7 @@ export default function Home() {
           <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--ghost-text-dim)' }}>
             Recent Inspections
           </h2>
-          <Link to={createPageUrl("Profile")} className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline">
+          <Link to={createPageUrl("Reports")} className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400 hover:underline">
             View All History
           </Link>
         </div>
@@ -98,7 +83,6 @@ export default function Home() {
           <RecentScans scans={scans} />
         )}
       </div>
-
     </div>
   );
 }

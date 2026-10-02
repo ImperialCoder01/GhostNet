@@ -23,7 +23,9 @@ export default function LinkScanner() {
   const notify = useNotify();
 
   useEffect(() => {
-    if (location.state?.demoInput) {
+    if (location.state?.sharedContent) {
+      setUrl(location.state.sharedContent);
+    } else if (location.state?.demoInput) {
       setUrl(location.state.demoInput);
     }
   }, [location.state]);

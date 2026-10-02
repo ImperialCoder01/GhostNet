@@ -7,6 +7,23 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
+    try {
+      return localStorage.getItem('ghostnet_has_seen_onboarding') === 'true'
+    } catch {
+      return false
+    }
+  })
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
+    try {
+      return typeof window !== 'undefined' && (
+        window.location.hash.includes('type=recovery') ||
+        window.location.search.includes('type=recovery')
+      )
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
     let mounted = true
@@ -38,8 +55,11 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
       setSession(nextSession || null)
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true)
+      }
       if (nextSession?.user) {
         setUser(nextSession.user)
       } else {
@@ -59,17 +79,52 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const completeOnboarding = () => {
+    setHasSeenOnboarding(true)
+    try {
+      localStorage.setItem('ghostnet_has_seen_onboarding', 'true')
+    } catch {}
+  }
+
+  const resetOnboarding = () => {
+    setHasSeenOnboarding(false)
+    try {
+      localStorage.removeItem('ghostnet_has_seen_onboarding')
+    } catch {}
+  }
+
   const continueAsGuest = () => {
     const demoUser = {
-      id: 'demo-analyst-guest',
-      email: 'analyst@ghostnet.ai',
-      user_metadata: { full_name: 'GhostNet Security Analyst (Demo)' },
+      id: 'ghostnet-operator-active',
+      email: 'operator@ghostnet.ai',
+      user_metadata: { full_name: 'GhostNet Defense Operator' },
     }
     setUser(demoUser)
     try {
       sessionStorage.setItem('ghostnet_guest_session', JSON.stringify(demoUser))
       localStorage.setItem('ghostnet_guest_session_active', JSON.stringify(demoUser))
     } catch {}
+  }
+
+  const requestPasswordReset = async (email) => {
+    const origin = window.location.origin
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${origin}/#reset-password`,
+    })
+    if (error) throw error
+    return data
+  }
+
+  const updateUserPassword = async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword.trim(),
+    })
+    if (error) throw error
+    setIsPasswordRecovery(false)
+    try {
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } catch {}
+    return data
   }
 
   const signOut = async () => {
@@ -80,14 +135,28 @@ export function AuthProvider({ children }) {
     } catch {}
     setUser(null)
     setSession(null)
+    setIsPasswordRecovery(false)
     try {
       await supabase.auth.signOut()
     } catch {}
   }
 
   const value = useMemo(
-    () => ({ session, user, loading, continueAsGuest, signOut }),
-    [session, user, loading]
+    () => ({
+      session,
+      user,
+      loading,
+      hasSeenOnboarding,
+      completeOnboarding,
+      resetOnboarding,
+      continueAsGuest,
+      signOut,
+      isPasswordRecovery,
+      setIsPasswordRecovery,
+      requestPasswordReset,
+      updateUserPassword,
+    }),
+    [session, user, loading, hasSeenOnboarding, isPasswordRecovery]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
