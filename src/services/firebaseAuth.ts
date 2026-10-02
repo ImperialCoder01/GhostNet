@@ -77,7 +77,7 @@ export async function signInWithGoogle(): Promise<User> {
       if (errStr.includes('cancel') || errStr.includes('12501') || errStr.includes('closed_by_user')) {
         throw new Error('Google Sign-In was cancelled.')
       }
-      // If native plugin fails for SHA-1 / configuration reasons, fall through to in-app provider flow
+      // If native plugin fails for SHA-1 / configuration reasons, fall through to web provider popup
     }
   }
 
@@ -86,11 +86,20 @@ export async function signInWithGoogle(): Promise<User> {
     return result.user
   } catch (err: unknown) {
     const authErr = err as AuthError
+    console.warn('[FirebaseAuth] Popup auth status:', authErr)
+
+    if (authErr.code === 'auth/cancelled-popup-request' || authErr.code === 'auth/popup-closed-by-user') {
+      throw new Error('Google Sign-In was cancelled.')
+    }
+
     if (
       authErr.code === 'auth/popup-blocked' ||
-      authErr.code === 'auth/popup-closed-by-user' ||
       authErr.code === 'auth/operation-not-supported-in-this-environment'
     ) {
+      if (Capacitor.isNativePlatform()) {
+        throw new Error('Google Sign-In failed on Android. Please ensure the SHA-1 fingerprint is added to Firebase Console.')
+      }
+
       try {
         await signInWithRedirect(auth, provider)
         throw new Error('Redirecting to Google Sign-In...')
@@ -101,9 +110,7 @@ export async function signInWithGoogle(): Promise<User> {
         throw new Error((redirectErr as any)?.message || 'Google Sign-In failed. Please try again.')
       }
     }
-    if (authErr.code === 'auth/cancelled-popup-request') {
-      throw new Error('Google Sign-In was cancelled.')
-    }
+
     throw new Error(authErr.message || 'Google Sign-In failed. Please try again.')
   }
 }
