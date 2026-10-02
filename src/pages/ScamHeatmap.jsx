@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Map, AlertTriangle, Globe, Radio, Compass, ShieldAlert, MessageSquareWarning, Link2, Mic, Image, QrCode, Clock, ShieldCheck } from "lucide-react";
+import { Map, AlertTriangle, Radio, MessageSquareWarning, Link2, Mic, Image, QrCode, Clock, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import { listScamReports, listThreatIndicatorStats } from "@/lib/data";

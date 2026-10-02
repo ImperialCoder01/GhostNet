@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import SplashScreen from '@/components/auth/SplashScreen';
 import OnboardingLanding from '@/components/auth/OnboardingLanding';
-import { Shield, Eye, EyeOff, ArrowRight, CheckCircle2, Lock, Sparkles, User, Mail, Key, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, User, Mail, Key, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { triggerHaptic } from '@/lib/haptics';

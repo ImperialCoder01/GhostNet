@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
-  Building2, Zap, Shield, Users, Cpu, ArrowUpRight, CheckCircle2, 
-  DollarSign, Activity, Lock, Globe, Server, Layers, BarChart3, TrendingUp
+  Building2, Zap, Cpu, CheckCircle2, 
+  DollarSign, Layers, BarChart3, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

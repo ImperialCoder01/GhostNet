@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Mic, Upload, Square, Activity, AlertCircle, FileAudio, Sparkles } from "lucide-react";
+import { Mic, Upload, Square, Activity, AlertCircle, FileAudio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
 import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectralFeatures";

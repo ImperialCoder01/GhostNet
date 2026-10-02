@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { 
-  Settings as SettingsIcon, User, Shield, Bell, Lock, Trash2, Camera, Mic, 
-  CheckCircle2, HeartHandshake, Info, ShieldCheck, ChevronRight, Sun, Moon
+  Settings as SettingsIcon, User, Shield, Lock, Trash2, Camera, Mic, 
+  CheckCircle2, HeartHandshake, Info, ShieldCheck, Sun, Moon
 } from "lucide-react";
 import ScannerHeader from "@/components/scanner/ScannerHeader";
 import { Button } from "@/components/ui/button";

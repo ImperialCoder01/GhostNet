@@ -3,7 +3,6 @@ import { MessageSquareWarning, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import ScanningAnimation from "../components/scanner/ScanningAnimation";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import { useNotify } from "../components/useNotify";
 import { createScanHistory } from "@/lib/data";

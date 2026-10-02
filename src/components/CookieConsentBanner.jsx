@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Cookie, ShieldCheck, X } from "lucide-react";
+import { Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";

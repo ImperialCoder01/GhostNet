@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listScanHistory } from "@/lib/data";
 import { 
-  FileText, Search, Filter, ShieldAlert, CheckCircle2, AlertTriangle, 
+  FileText, Search, Filter, ShieldAlert, AlertTriangle, 
   X, MessageSquareWarning, Link2, QrCode, Image as ImageIcon, Mic, Clock, ChevronRight
 } from "lucide-react";
 import ScannerHeader from "@/components/scanner/ScannerHeader";

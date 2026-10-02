@@ -3,7 +3,6 @@ import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import ScanningAnimation from "../components/scanner/ScanningAnimation";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import ClickSimulationModal from "../components/scanner/ClickSimulationModal";
 import { useNotify } from "../components/useNotify";

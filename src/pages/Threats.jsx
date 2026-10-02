@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Map, AlertTriangle, Globe, Radio, Compass, ShieldAlert, Sparkles, MessageSquareWarning, Link2, Mic, Image, QrCode, RefreshCw, Zap, Clock, ShieldCheck, Users, Activity } from "lucide-react";
+import { Map, AlertTriangle, Globe, Radio, ShieldAlert, MessageSquareWarning, Link2, Mic, Image, QrCode, Clock, ShieldCheck, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import { listScamReports, listThreatIndicatorStats } from "@/lib/data";
 import { supabase } from "@/lib/supabase";
-import { SkeletonCard, SkeletonRows, MetricCardSkeleton } from "@/components/ui/skeleton";
+import { MetricCardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 

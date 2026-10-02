@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { Image, Upload, X, FileSearch, Info, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import ScanningAnimation from "../components/scanner/ScanningAnimation";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import QRScanner from "../components/QRScanner";
 import { useNotify } from "../components/useNotify";

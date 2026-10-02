@@ -4,7 +4,6 @@ import { User, Shield, Eye, AlertTriangle, ShieldCheck, LogOut, ChevronRight, Lo
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { listScanHistory, listScamReports } from "@/lib/data";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";

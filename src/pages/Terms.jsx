@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, ShieldAlert, Scale, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { FileText, Scale, AlertTriangle } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 
 export default function Terms() {

@@ -8,8 +8,8 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { triggerHaptic } from "@/lib/haptics";
 import { 
   MessageSquareWarning, Link2, Image, Map, AlertTriangle, User, Home, 
-  Menu, X, Cpu, Lock, HeartHandshake, Sun, Moon, Mic, QrCode, Shield, Building2,
-  FileText, Cookie, CreditCard, Scale, Settings, ArrowLeft
+  Menu, X, Cpu, Lock, HeartHandshake, Sun, Moon, Mic, QrCode, Shield,
+  FileText, Settings, ArrowLeft
 } from "lucide-react";
 import { ConstellationField } from "@/shaders/constellation-field/ConstellationField";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { CreditCard, RefreshCw, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
+import { CreditCard, RefreshCw, ShieldCheck, Mail } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 
 export default function RefundPolicy() {

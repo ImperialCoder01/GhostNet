@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 
 export default function OnboardingLanding({ onNext }) {

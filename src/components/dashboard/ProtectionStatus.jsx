@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ShieldAlert, Zap, Activity, QrCode, Mic, Shield } from "lucide-react";
+import { ShieldAlert, Zap, Activity, QrCode, Mic } from "lucide-react";
 import { ConstellationField } from "@/shaders/constellation-field/ConstellationField";
 
 export default function ProtectionStatus({ threatsBlocked = 0, safetyScore = 100, totalScans = 0 }) {
