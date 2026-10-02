@@ -42,11 +42,31 @@ const SCAM_KEYWORDS = [
   'pending payment',
   'immediate payment',
   'late fee',
+  // Extended fraud lures & app update phishing triggers
+  'credit limit',
+  'access your credit',
+  'update your app',
+  'update app now',
+  'supermoney',
+  'splitstore',
+  '1/3rd prices',
+  'prices live',
+  'claim now',
+  'rewards live',
+  'limited offer',
+  'install app',
+  'download app',
+  'apk download',
+  'activate now',
+  'unauthorized login',
+  'bonus points',
 ]
 
-// Feature 2 addition — extra URL shorteners
-const SHORTENER_DOMAINS = ['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly', 'rb.gy', 'is.gd', 'rebrand.ly', 'ow.ly', 'short.link', 'buff.ly', 'tiny.cc']
-
+// Feature 2 addition — extra URL shorteners & deceptive redirect TLDs
+const SHORTENER_DOMAINS = [
+  'bit.ly', 'tinyurl.com', 't.co', 'cutt.ly', 'rb.gy', 'is.gd', 'rebrand.ly',
+  'ow.ly', 'short.link', 'buff.ly', 'tiny.cc', 'mnge.co', 'mnge', 'short.gy'
+]
 
 const KNOWN_BRANDS = [
   { name: 'State Bank of India (SBI)', match: /(sbi|statebank)/i, legitimate: 'sbi.co.in' },
@@ -55,6 +75,7 @@ const KNOWN_BRANDS = [
   { name: 'PayPal', match: /(paypal|paypa1)/i, legitimate: 'paypal.com' },
   { name: 'PhonePe', match: /(phonepe|phonpe)/i, legitimate: 'phonepe.com' },
   { name: 'Google Pay', match: /(gpay|googlepay|g00gle)/i, legitimate: 'pay.google.com' },
+  { name: 'SuperMoney / Credit Portal', match: /(supermoney|splitstore|mnge)/i, legitimate: 'supermoney.in' },
   { name: 'India Post / Courier', match: /(indiapost|dhl|fedex|bluedart)/i, legitimate: 'indiapost.gov.in' },
   { name: 'Amazon', match: /(amazon|amaz0n)/i, legitimate: 'amazon.com' },
   { name: 'Netflix', match: /(netflix|netflx|netf1ix)/i, legitimate: 'netflix.com' },
@@ -84,16 +105,16 @@ export function extractAttackSignals(text) {
     coercion: null,
   }
 
-  if (/\b(urgent|immediately|today|in \d+ hours?|within \d+ (hours?|minutes?)|tonight|final warning|expires)\b/i.test(norm)) {
-    signals.urgency = 'Uses extreme time pressure or impending penalty to bypass rational verification.'
+  if (/\b(urgent|immediately|today|now|in \d+ hours?|within \d+ (hours?|minutes?)|tonight|final warning|expires|update your app|update app now|claim now)\b/i.test(norm)) {
+    signals.urgency = 'Uses extreme time pressure or urgent app update prompts to force impulsive clicks.'
   }
 
-  if (/\b(otp|pin|password|cvv|credentials|pan|aadhaar|cif|login details|verify account|kyc)\b/i.test(norm)) {
+  if (/\b(otp|pin|password|cvv|credentials|pan|aadhaar|cif|login details|verify account|kyc|verification code)\b/i.test(norm)) {
     signals.credential = 'Explicitly requests secret credentials, verification codes, or personal identifiers.'
   }
 
-  if (/\b(pay|debit|transfer|cashback|refund|rs \d+|inr|\$|\d+ kyc|collect request|bank account|deposit|gift card)\b/i.test(norm)) {
-    signals.financial = 'Involves monetary transactions, reverse collect requests, or unauthorized debit avenues.'
+  if (/\b(pay|debit|transfer|cashback|refund|rs \d+|inr|\$|\d+ kyc|collect request|bank account|deposit|gift card|credit limit|credit|supermoney|splitstore|1\/3rd prices)\b/i.test(norm)) {
+    signals.financial = 'Involves credit limit manipulation, unverified monetary lures, or unauthorized debit avenues.'
   }
 
   const brand = KNOWN_BRANDS.find(b => b.match.test(norm))
@@ -289,23 +310,23 @@ export function analyzeMessageContent(message) {
 
   const matched = SCAM_KEYWORDS.filter((k) => text.includes(k))
   if (matched.length > 0) {
-    score += matched.length * 12
-    reasons.push(`Contains high-risk scam triggers: ${matched.slice(0, 4).join(', ')}`)
+    score += matched.length * 15
+    reasons.push(`Contains high-risk scam triggers: ${matched.slice(0, 5).join(', ')}`)
   }
 
-  if (/https?:\/\//.test(text)) {
-    score += 20
-    reasons.push('Includes unverified external hyperlink designed to redirect user off-platform')
-  }
-
-  if (/\b(immediately|urgent|act now|final warning|tonight|2 hours?|today|blocked)\b/.test(text)) {
+  if (/https?:\/\//.test(text) || SHORTENER_DOMAINS.some((d) => text.includes(d))) {
     score += 25
-    reasons.push('Employs aggressive time urgency or threat of penalty to bypass logical verification')
+    reasons.push('Includes unverified external hyperlink or shortened URL designed to redirect off-platform')
   }
 
-  if (/\b(otp|pin|password|cvv|bank account|pan card|cif)\b/.test(text)) {
+  if (/\b(immediately|urgent|act now|final warning|tonight|2 hours?|today|blocked|update your app|update app now|claim now|access your credit|prices live)\b/.test(text)) {
     score += 25
-    reasons.push('Requests confidential banking authentication data or identity credentials')
+    reasons.push('Employs aggressive time urgency, app update bait, or threat of penalty to bypass verification')
+  }
+
+  if (/\b(otp|pin|password|cvv|bank account|pan card|cif|credit limit|credit|supermoney|splitstore)\b/.test(text)) {
+    score += 25
+    reasons.push('Targets confidential banking credentials, credit limit access, or payment authorizations')
   }
 
   const finalScore = Math.min(100, Math.max(5, score))
@@ -324,7 +345,7 @@ export function analyzeMessageContent(message) {
     analysis:
       riskLevel === 'safe'
         ? 'No active scam markers or manipulation patterns detected in this message.'
-        : 'This message exhibits known characteristics of social engineering, including psychological pressure, credential harvesting, or deceptive links.',
+        : 'This message exhibits known characteristics of social engineering, including psychological pressure, credit harvesting, or deceptive links.',
     ai_analysis:
       riskLevel === 'safe'
         ? 'No active scam markers detected.'
