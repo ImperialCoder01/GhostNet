@@ -9,12 +9,31 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
+  signInWithCredential,
   getRedirectResult,
   User,
   AuthError,
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { updateSupabaseAuthToken } from '@/lib/supabase'
+import { Capacitor } from '@capacitor/core'
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth'
+
+let googleAuthInitialized = false
+function ensureGoogleAuthInitialized() {
+  if (Capacitor.isNativePlatform() && !googleAuthInitialized) {
+    try {
+      GoogleAuth.initialize({
+        clientId: '974100426213-p47s4c59bjgthtutfv2s1gsniq1ottu2.apps.googleusercontent.com',
+        scopes: ['profile', 'email'],
+        grantOfflineAccess: true,
+      })
+      googleAuthInitialized = true
+    } catch (err) {
+      console.warn('[FirebaseAuth] Native GoogleAuth initialize notice:', err)
+    }
+  }
+}
 
 export async function signUpWithEmail(email: string, password: string, fullName?: string): Promise<User> {
   const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password.trim())
@@ -39,6 +58,23 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 export async function signInWithGoogle(): Promise<User> {
+  if (Capacitor.isNativePlatform()) {
+    ensureGoogleAuthInitialized()
+    try {
+      const googleUser = await GoogleAuth.signIn()
+      const idToken = googleUser?.authentication?.idToken || (googleUser as Record<string, any>)?.idToken
+      if (!idToken) {
+        throw new Error('Google Sign-In failed: No ID token returned.')
+      }
+      const credential = GoogleAuthProvider.credential(idToken)
+      const result = await signInWithCredential(auth, credential)
+      return result.user
+    } catch (nativeErr: unknown) {
+      console.error('[FirebaseAuth] Native Google Sign-In error:', nativeErr)
+      throw nativeErr
+    }
+  }
+
   const provider = new GoogleAuthProvider()
   provider.setCustomParameters({ prompt: 'select_account' })
 
