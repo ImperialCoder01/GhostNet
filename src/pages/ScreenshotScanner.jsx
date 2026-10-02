@@ -75,6 +75,19 @@ export default function ScreenshotScanner() {
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  const fileToBase64 = (fileObj) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const res = reader.result || '';
+        const base64Str = typeof res === 'string' && res.includes(',') ? res.split(',')[1] : res;
+        resolve(base64Str);
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(fileObj);
+    });
+  };
+
   const handleScan = async () => {
     if (!file) return;
     setScanning(true);
@@ -82,8 +95,13 @@ export default function ScreenshotScanner() {
     setScanError("");
 
     try {
+      const base64Data = await fileToBase64(file);
       const screenshotUrl = await uploadEvidenceFile(file);
-      const res = await analyzeScreenshot({ screenshot_url: screenshotUrl });
+      const res = await analyzeScreenshot({
+        screenshot_url: screenshotUrl,
+        image_base64: base64Data,
+        mime_type: file.type || 'image/png'
+      });
       setResult(res);
       notify(res.risk_level, "screenshot");
 

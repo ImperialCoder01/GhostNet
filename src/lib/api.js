@@ -125,6 +125,81 @@ Return STRICT JSON only with keys:
   return null
 }
 
+async function analyzeWithClientGemini(payload) {
+  const apiKey = getGeminiKey()
+  if (!apiKey || !payload?.image_base64) return null
+
+  const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp']
+  const prompt = `Analyze this screenshot for cyber scam, phishing, brand impersonation, urgency manipulation, payment fraud, QR code traps, or social engineering.
+Return strict JSON only with keys:
+- fraud_score (number 0-100)
+- risk_level (safe|suspicious|scam)
+- confidence (low|medium|high)
+- reasons (array of specific visual and textual evidence strings)
+- analysis (professional summary of the visual threat)
+- detected_text (all OCR extracted text from the image)
+- attack_intent (what the fraudster is attempting to achieve)
+- reasonCodes (array of string codes)`
+
+  for (const model of models) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  {
+                    inline_data: {
+                      mime_type: payload.mime_type || 'image/png',
+                      data: payload.image_base64,
+                    },
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: 'application/json',
+            },
+          }),
+        }
+      )
+
+      if (!response.ok) continue
+      const data = await response.json()
+      const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join(' ') || ''
+      if (!text) continue
+      const parsed = JSON.parse(text)
+      if (parsed && typeof parsed.fraud_score !== 'undefined') {
+        const score = Math.max(0, Math.min(100, Number(parsed.fraud_score || 0)))
+        const risk = ['safe', 'suspicious', 'scam'].includes(parsed.risk_level) ? parsed.risk_level : scoreToRisk(score)
+
+        return {
+          fraud_score: score,
+          risk_level: risk,
+          confidence: parsed.confidence || (score > 70 ? 'high' : 'medium'),
+          reasons: Array.isArray(parsed.reasons) ? parsed.reasons.map((r) => String(r)) : [],
+          analysis: String(parsed.analysis || parsed.ai_analysis || ''),
+          ai_analysis: String(parsed.ai_analysis || parsed.analysis || ''),
+          detected_text: String(parsed.detected_text || ''),
+          attack_intent: String(parsed.attack_intent || inferAttackerIntent(parsed.detected_text || '', '', risk)),
+          threat_reconstruction: reconstructAttackChain(parsed.detected_text || 'Screenshot image analysis', '', risk),
+          reasonCodes: filterValidReasonCodes(parsed.reasonCodes || []),
+          source: 'gemini',
+        }
+      }
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
 async function postAnalyze(type, payload) {
   // 1. Try server endpoints first (for web deployments with serverless backend)
   const endpoints = ['/api/analyze']
@@ -161,10 +236,15 @@ async function postAnalyze(type, payload) {
     }
   }
 
-  // 2. Try direct client-side Groq LPU AI model request if API key is present
+  // 2. Try direct client-side AI model request if API key is present
   try {
-    const groqResult = await analyzeWithClientGroq(type, payload)
-    if (groqResult) return groqResult
+    if (type === 'screenshot') {
+      const geminiResult = await analyzeWithClientGemini(payload)
+      if (geminiResult) return geminiResult
+    } else {
+      const groqResult = await analyzeWithClientGroq(type, payload)
+      if (groqResult) return groqResult
+    }
   } catch {}
 
   // 3. Fallback to instant local deterministic heuristic engine

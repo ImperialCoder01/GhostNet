@@ -443,17 +443,23 @@ const GEMINI_MODELS = [
   'gemini-2.0-flash-exp',
 ]
 
-async function analyzeScreenshotWithGemini(screenshotUrl) {
+async function analyzeScreenshotWithGemini(screenshotUrl, imageBase64 = null, mimeType = 'image/png') {
   const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey || !screenshotUrl) return null
+  if (!apiKey || (!screenshotUrl && !imageBase64)) return null
 
   try {
-    const imageResp = await fetch(screenshotUrl)
-    if (!imageResp.ok) return null
+    let base64 = imageBase64
+    let contentType = mimeType || 'image/png'
 
-    const contentType = imageResp.headers.get('content-type') || 'image/png'
-    const ab = await imageResp.arrayBuffer()
-    const base64 = Buffer.from(ab).toString('base64')
+    if (!base64 && screenshotUrl) {
+      const imageResp = await fetch(screenshotUrl)
+      if (!imageResp.ok) return null
+      contentType = imageResp.headers.get('content-type') || 'image/png'
+      const ab = await imageResp.arrayBuffer()
+      base64 = Buffer.from(ab).toString('base64')
+    }
+
+    if (!base64) return null
 
     const prompt = `Analyze this screenshot for cyber scam, phishing, brand impersonation, urgency manipulation, payment fraud, QR code traps, or social engineering.
 Return strict JSON only with keys:
@@ -687,7 +693,7 @@ export default async function handler(req, res) {
       try {
         ai = await withTimeout(
           (async () => {
-            const gemini = await analyzeScreenshotWithGemini(payload?.screenshot_url)
+            const gemini = await analyzeScreenshotWithGemini(payload?.screenshot_url, payload?.image_base64, payload?.mime_type)
             if (gemini) return gemini
             return analyzeScreenshotWithOpenAI(payload?.screenshot_url)
           })(),
