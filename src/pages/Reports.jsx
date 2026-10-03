@@ -27,29 +27,8 @@ export default function Reports() {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const { data: scans = [], isLoading } = useQuery({
-    queryKey: ["scanHistoryReports"],
-    queryFn: async () => {
-      const history = await listScanHistory(100);
-      // Combine with local storage cache if available
-      try {
-        const localStr = localStorage.getItem("ghostnet_recent_scans");
-        if (localStr) {
-          const localItems = JSON.parse(localStr);
-          const combined = [...localItems, ...history];
-          // Deduplicate by id or timestamp
-          const seen = new Set();
-          return combined.filter((item) => {
-            const idKey = item.id || `${item.timestamp}-${item.input_content}`;
-            if (seen.has(idKey)) return false;
-            seen.add(idKey);
-            return true;
-          });
-        }
-      } catch (e) {
-        console.warn("Failed to read local scan cache:", e);
-      }
-      return history;
-    },
+    queryKey: ["scanHistory"],
+    queryFn: () => listScanHistory(100),
   });
 
   const filteredScans = scans.filter((s) => {

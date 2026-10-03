@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { MessageSquareWarning, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +14,7 @@ import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function MessageScanner() {
+  const queryClient = useQueryClient();
   const location = useLocation();
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
@@ -47,6 +49,7 @@ export default function MessageScanner() {
         ai_analysis: res.analysis || res.ai_analysis,
         reasons: res.reasons,
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       console.error("Scan error:", err);
     } finally {

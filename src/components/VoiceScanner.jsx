@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Mic, Upload, Square, Activity, AlertCircle, FileAudio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
@@ -6,8 +7,10 @@ import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectral
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 import { analyzeVoice } from "@/lib/api";
+import { createScanHistory } from "@/lib/data";
 
 export default function VoiceScanner() {
+  const queryClient = useQueryClient();
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
@@ -122,16 +125,26 @@ export default function VoiceScanner() {
 
       const combinedScore = combineVoiceThreatScore(data.fraud_score || 0, flatness);
 
-      setResult({
+      const finalResult = {
         ...data,
         fraud_score: combinedScore,
         spectral_flatness: flatness,
+      };
+      setResult(finalResult);
+      await createScanHistory({
+        scan_type: "voice",
+        input_content: (finalResult.transcript || finalResult.explanation || "Recorded Voice Audio").substring(0, 240),
+        fraud_score: finalResult.fraud_score,
+        risk_level: finalResult.risk_level || (finalResult.fraud_score > 70 ? "scam" : finalResult.fraud_score > 40 ? "suspicious" : "safe"),
+        ai_analysis: finalResult.explanation || finalResult.analysis || "Voice threat analysis",
+        reasons: finalResult.reasons || [],
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       console.warn("API voice analysis fallback:", err);
       // Fallback local spectral acoustic verdict
       const fallbackScore = combineVoiceThreatScore(45, flatness || 0.5);
-      setResult({
+      const fallbackResult = {
         risk_level: fallbackScore > 70 ? "scam" : fallbackScore > 40 ? "suspicious" : "safe",
         fraud_score: fallbackScore,
         explanation: "Voice recording analyzed via local DSP acoustic engine. High spectral flatness and vocal pressure signals processed.",
@@ -144,7 +157,17 @@ export default function VoiceScanner() {
         attacker_intent: "Acoustic coercion / synthetic vocoder synthesis inspection.",
         spectral_flatness: flatness,
         transcript: "Recorded Audio Waveform",
+      };
+      setResult(fallbackResult);
+      await createScanHistory({
+        scan_type: "voice",
+        input_content: fallbackResult.transcript,
+        fraud_score: fallbackResult.fraud_score,
+        risk_level: fallbackResult.risk_level,
+        ai_analysis: fallbackResult.explanation,
+        reasons: [],
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } finally {
       setAnalyzing(false);
     }
@@ -165,16 +188,26 @@ export default function VoiceScanner() {
 
       const combinedScore = combineVoiceThreatScore(data.fraud_score || 0, sample.flatness);
 
-      setResult({
+      const finalResult = {
         ...data,
         fraud_score: combinedScore,
         spectral_flatness: sample.flatness,
         transcript: data.transcript || sample.sampleTranscript,
+      };
+      setResult(finalResult);
+      await createScanHistory({
+        scan_type: "voice",
+        input_content: (finalResult.transcript || sample.sampleTranscript).substring(0, 240),
+        fraud_score: finalResult.fraud_score,
+        risk_level: finalResult.risk_level || (finalResult.fraud_score > 70 ? "scam" : finalResult.fraud_score > 40 ? "suspicious" : "safe"),
+        ai_analysis: finalResult.explanation || finalResult.analysis || "Voice sample benchmark threat analysis",
+        reasons: finalResult.reasons || [],
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       console.warn("Benchmark analysis fallback:", err);
       const fallbackScore = combineVoiceThreatScore(sample.risk === "HIGH" ? 85 : sample.risk === "MEDIUM" ? 55 : 15, sample.flatness);
-      setResult({
+      const fallbackResult = {
         risk_level: sample.risk === "HIGH" ? "scam" : sample.risk === "MEDIUM" ? "suspicious" : "safe",
         fraud_score: fallbackScore,
         explanation: `Sample audio analyzed: "${sample.sampleTranscript}". Acoustic spectral score combined with threat pattern benchmarks.`,
@@ -187,7 +220,17 @@ export default function VoiceScanner() {
         attacker_intent: sample.intent || "Voice coercion / banking fraud attempt.",
         spectral_flatness: sample.flatness,
         transcript: sample.sampleTranscript,
+      };
+      setResult(fallbackResult);
+      await createScanHistory({
+        scan_type: "voice",
+        input_content: sample.sampleTranscript.substring(0, 240),
+        fraud_score: fallbackResult.fraud_score,
+        risk_level: fallbackResult.risk_level,
+        ai_analysis: fallbackResult.explanation,
+        reasons: [],
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } finally {
       setAnalyzing(false);
     }

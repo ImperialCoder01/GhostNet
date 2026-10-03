@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { QrCode, AlertCircle } from "lucide-react";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import QRScanner from "../components/QRScanner";
@@ -8,6 +9,7 @@ import { analyzeLink, analyzeMessage } from "@/lib/api";
 import { createScanHistory } from "@/lib/data";
 
 export default function QRScannerPage() {
+  const queryClient = useQueryClient();
   const [result, setResult] = useState(null);
   const [qrPayload, setQrPayload] = useState("");
   const [scanning, setScanning] = useState(false);
@@ -27,14 +29,15 @@ export default function QRScannerPage() {
       setResult(res);
       notify(res.risk_level, "qr");
 
-      createScanHistory({
+      await createScanHistory({
         scan_type: "qr",
         input_content: payload.substring(0, 200),
         fraud_score: res.fraud_score,
         risk_level: res.risk_level,
         ai_analysis: res.analysis || res.ai_analysis,
         reasons: res.reasons,
-      }).catch(() => {});
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       console.error("QR analysis failed:", err);
       setScanError(err.message || "Failed to analyze decoded QR payload.");

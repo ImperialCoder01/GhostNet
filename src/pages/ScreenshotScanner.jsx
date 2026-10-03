@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Image, Upload, X, FileSearch, Info, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScannerHeader from "../components/scanner/ScannerHeader";
@@ -11,6 +12,7 @@ import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function ScreenshotScanner() {
+  const queryClient = useQueryClient();
   // Tab state — "screenshot" | "qr"
   const [activeTab, setActiveTab] = useState("screenshot");
 
@@ -40,6 +42,16 @@ export default function ScreenshotScanner() {
       }
       setQrResult({ ...res, _qrPayload: payload });
       notify(res.risk_level, "qr");
+
+      await createScanHistory({
+        scan_type: "qr",
+        input_content: payload.substring(0, 200),
+        fraud_score: res.fraud_score,
+        risk_level: res.risk_level,
+        ai_analysis: res.analysis || res.ai_analysis,
+        reasons: res.reasons,
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       setQrError(err?.message || "QR analysis failed. Please try again.");
     } finally {
@@ -113,6 +125,7 @@ export default function ScreenshotScanner() {
         reasons: res.reasons,
         screenshot_url: screenshotUrl,
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (e) {
       console.error("Screenshot scan failed:", e);
       setScanError(e?.message || "Screenshot analysis encountered an error. Running local heuristics...");

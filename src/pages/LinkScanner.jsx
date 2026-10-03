@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
 export default function LinkScanner() {
+  const queryClient = useQueryClient();
   const location = useLocation();
   const [url, setUrl] = useState("");
   const [scanning, setScanning] = useState(false);
@@ -49,6 +51,7 @@ export default function LinkScanner() {
         ai_analysis: res.analysis || res.ai_analysis,
         reasons: res.reasons,
       });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
     } catch (err) {
       console.error("Link scan error:", err);
     } finally {
