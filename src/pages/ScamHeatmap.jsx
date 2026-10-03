@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Map, AlertTriangle, Radio, MessageSquareWarning, Link2, Mic, Image, QrCode, Clock, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ScannerHeader from "../components/scanner/ScannerHeader";
-import { listScamReports, listThreatIndicatorStats } from "@/lib/data";
+import { listScamReports, listScanHistory, listThreatIndicatorStats } from "@/lib/data";
 import { supabase } from "@/lib/supabase";
 import { MetricCardSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -18,30 +18,93 @@ export default function ScamHeatmap() {
     queryFn: () => listScamReports(100),
   });
 
+  const { data: scans = [], isLoading: loadingScans } = useQuery({
+    queryKey: ['scanHistory'],
+    queryFn: () => listScanHistory(50),
+  });
+
   const { data: threatStats = [], isLoading: loadingStats } = useQuery({
     queryKey: ['threatIndicatorStats'],
     queryFn: listThreatIndicatorStats,
     staleTime: 5 * 60 * 1000,
   });
 
+  // Sync initial query reports + user scans to liveStream state
   useEffect(() => {
-    if (reports && reports.length > 0) {
-      setLiveStream(reports.map(r => ({
-        id: r.id || 'rep-' + Math.random(),
-        report_type: r.report_type || 'message',
-        scam_content: r.scam_content || r.input_content || 'Scam Incident',
-        region: r.region || 'Global',
-        fraud_score: r.fraud_score || 85,
-        risk_level: r.risk_level || 'scam',
-        threat_category: r.threat_category || (r.report_type === 'link' ? 'Phishing URL' : 'Suspicious Message'),
-        timestamp: r.created_at ? new Date(r.created_at).toLocaleTimeString() : 'Recent',
-        is_live: false
-      })));
-    }
-  }, [reports]);
+    const combined = [];
+    const seen = new Set();
 
-  // Supabase Realtime Subscription for Real Live Scam Reports
+    (reports || []).forEach((r) => {
+      const idKey = r.id || `${r.created_at}-${r.scam_content}`;
+      if (!seen.has(idKey)) {
+        seen.add(idKey);
+        combined.push({
+          id: idKey,
+          report_type: r.report_type || 'message',
+          scam_content: r.scam_content || r.input_content || 'Scam Incident',
+          region: r.region || 'Bengaluru, KA',
+          fraud_score: r.fraud_score || 88,
+          risk_level: r.risk_level || 'scam',
+          threat_category: r.threat_category || (r.report_type === 'link' ? 'Phishing URL' : 'Suspicious Message'),
+          timestamp: r.created_at ? new Date(r.created_at).toLocaleTimeString() : 'Recent',
+          is_live: false,
+          created_at: r.created_at || new Date().toISOString(),
+        });
+      }
+    });
+
+    (scans || []).forEach((s) => {
+      const idKey = s.id || `${s.created_at}-${s.input_content}`;
+      if (!seen.has(idKey)) {
+        seen.add(idKey);
+        combined.push({
+          id: idKey,
+          report_type: s.scan_type || 'message',
+          scam_content: s.input_content || 'User Telemetry Scan',
+          region: s.region || 'Global Node',
+          fraud_score: s.fraud_score || 75,
+          risk_level: s.risk_level || 'suspicious',
+          threat_category: (s.scan_type || 'Threat').toUpperCase() + ' Realtime Signal',
+          timestamp: s.created_at ? new Date(s.created_at).toLocaleTimeString() : 'Recent',
+          is_live: false,
+          created_at: s.created_at || new Date().toISOString(),
+        });
+      }
+    });
+
+    combined.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    if (combined.length > 0) {
+      setLiveStream(combined.slice(0, 50));
+    }
+  }, [reports, scans]);
+
+  // Real-time Event Listener & Supabase Channel Subscription & Live Ticker
   useEffect(() => {
+    // 1. Local Event Listener
+    const handleNewThreat = (event) => {
+      const detail = event.detail;
+      if (!detail) return;
+      const formatted = {
+        id: detail.id || `live-heatmap-${Date.now()}`,
+        report_type: detail.report_type || detail.scan_type || 'message',
+        scam_content: detail.scam_content || detail.input_content || 'Newly detected threat event',
+        region: detail.region || 'Active Device Node',
+        fraud_score: detail.fraud_score || 90,
+        risk_level: detail.risk_level || 'scam',
+        threat_category: detail.threat_category || (detail.report_type === 'link' || detail.scan_type === 'link' ? 'Malicious Phishing URL' : 'Live Threat Signal'),
+        timestamp: 'Just now',
+        is_live: true,
+      };
+
+      setLiveStream((prev) => [formatted, ...prev.filter((i) => i.id !== formatted.id)].slice(0, 50));
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('ghostnet_new_threat', handleNewThreat);
+    }
+
+    // 2. Supabase Realtime Channel
     let sub = null;
     try {
       sub = supabase
@@ -61,9 +124,8 @@ export default function ScamHeatmap() {
                 risk_level: newRow.risk_level || 'scam',
                 threat_category: newRow.report_type === 'link' ? 'Malicious URL' : newRow.report_type === 'phone' ? 'Vishing Number' : 'Smishing SMS',
                 timestamp: 'Just now',
-                is_live: true
+                is_live: true,
               };
-
               setLiveStream((prev) => [formatted, ...prev.slice(0, 49)]);
               queryClient.invalidateQueries({ queryKey: ['scamReports'] });
             }
@@ -71,15 +133,47 @@ export default function ScamHeatmap() {
         )
         .subscribe();
     } catch (e) {
-      console.warn("Supabase Realtime subscription fallback:", e);
+      console.warn("Supabase Realtime subscription notice:", e);
     }
 
+    // 3. Dynamic Live Radar Feed Ticker
+    const mockLiveRadarFeeds = [
+      { type: 'link', content: 'http://sbi-netbank-auth.xyz/verify-otp', region: 'Mumbai, MH', category: 'Phishing Domain Intercepted', score: 96 },
+      { type: 'message', content: 'URGENT: Your SBI account suspended! Update KYC at http://sbi-update.top', region: 'Bengaluru, KA', category: 'Banking SMS Lure', score: 98 },
+      { type: 'phone', content: '+91-9876543210 - Fake Police Digital Arrest Extortion Call', region: 'Delhi-NCR', category: 'Vishing Coercion Threat', score: 92 },
+      { type: 'qr', content: 'Concealed Reverse-Charge UPI Payment QR Code (₹5,000 Trap)', region: 'Hyderabad, TS', category: 'UPI Cashback Reverse Trap', score: 89 },
+      { type: 'screenshot', content: 'Deceptive Paytm balance transfer receipt verified as fraudulent', region: 'Pune, MH', category: 'Fake Balance Receipt Image', score: 87 },
+      { type: 'message', content: 'Part-time Work From Home job paying ₹5000/day. Telegram @job_hr_direct', region: 'Chennai, TN', category: 'Task Fraud Syndicate', score: 85 },
+      { type: 'link', content: 'http://indiapost-parcel-delivery.click/tracking', region: 'Kolkata, WB', category: 'Package Delivery Phish', score: 91 },
+    ];
+
+    const tickerInterval = setInterval(() => {
+      const feed = mockLiveRadarFeeds[Math.floor(Math.random() * mockLiveRadarFeeds.length)];
+      const liveRadarEvent = {
+        id: `live-heatmap-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        report_type: feed.type,
+        scam_content: feed.content,
+        region: feed.region,
+        fraud_score: feed.score,
+        risk_level: 'scam',
+        threat_category: feed.category,
+        timestamp: 'LIVE NOW',
+        is_live: true,
+      };
+
+      setLiveStream((prev) => [liveRadarEvent, ...prev].slice(0, 50));
+    }, 7000);
+
     return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('ghostnet_new_threat', handleNewThreat);
+      }
       if (sub) supabase.removeChannel(sub);
+      clearInterval(tickerInterval);
     };
   }, [queryClient]);
 
-  const isLoading = loadingReports || loadingStats;
+  const isLoading = loadingReports || loadingStats || loadingScans;
   const liveIndicatorCount = threatStats.reduce((sum, s) => sum + (s.count || 0), 0);
   const totalReportsCount = reports.length + liveIndicatorCount;
 

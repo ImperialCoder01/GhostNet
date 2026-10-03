@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, Phone, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ const REPORT_TYPES = [
 ];
 
 export default function ReportScam() {
+  const queryClient = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -66,6 +68,7 @@ export default function ReportScam() {
         risk_level: ai?.risk_level || "scam",
         status: "verified",
       });
+      queryClient.invalidateQueries({ queryKey: ['scamReports'] });
 
       setSuccess(true);
     } catch (err) {

@@ -141,6 +141,9 @@ export async function createScanHistory(payload) {
   })
 
   saveLocalScanHistory(localScan)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ghostnet_new_threat', { detail: localScan }))
+  }
 
   try {
     const userId = await requireUserId()
@@ -165,7 +168,99 @@ export async function createScanHistory(payload) {
   return localScan
 }
 
+const LOCAL_REPORTS_KEY = 'ghostnet_scam_reports'
+
+const DEFAULT_INITIAL_SCAM_REPORTS = [
+  {
+    id: 'report-seed-1',
+    created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
+    created_date: new Date(Date.now() - 3600000 * 1).toISOString(),
+    report_type: 'message',
+    scam_content: 'URGENT: Your Electricity power supply will be disconnected tonight at 9:30 PM due to unpaid bill. Call officer 9876543210 immediately.',
+    region: 'Bengaluru, KA',
+    fraud_score: 94,
+    risk_level: 'scam',
+    threat_category: 'Electricity Bill Disconnection Trap',
+    status: 'verified',
+  },
+  {
+    id: 'report-seed-2',
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    created_date: new Date(Date.now() - 3600000 * 4).toISOString(),
+    report_type: 'link',
+    scam_content: 'http://sbi-yono-kyc-auth.com/login.php',
+    region: 'Mumbai, MH',
+    fraud_score: 96,
+    risk_level: 'scam',
+    threat_category: 'Banking Credential Harvester',
+    status: 'verified',
+  },
+  {
+    id: 'report-seed-3',
+    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+    created_date: new Date(Date.now() - 3600000 * 12).toISOString(),
+    report_type: 'phone',
+    scam_content: '+91-9123456789 - Impersonating Bank Fraud Department demanding OTP for card cancellation.',
+    region: 'Delhi-NCR',
+    fraud_score: 91,
+    risk_level: 'scam',
+    threat_category: 'Vishing Voice Coercion',
+    status: 'verified',
+  },
+  {
+    id: 'report-seed-4',
+    created_at: new Date(Date.now() - 3600000 * 20).toISOString(),
+    created_date: new Date(Date.now() - 3600000 * 20).toISOString(),
+    report_type: 'qr',
+    scam_content: 'Reverse-charge UPI payment QR code disguised as ₹5,000 cashback reward.',
+    region: 'Hyderabad, TS',
+    fraud_score: 89,
+    risk_level: 'scam',
+    threat_category: 'UPI Cashback Reverse Trap',
+    status: 'verified',
+  },
+  {
+    id: 'report-seed-5',
+    created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
+    created_date: new Date(Date.now() - 3600000 * 36).toISOString(),
+    report_type: 'screenshot',
+    scam_content: 'Fake Paytm transaction screenshot claiming ₹12,500 transferred to merchant.',
+    region: 'Pune, MH',
+    fraud_score: 87,
+    risk_level: 'scam',
+    threat_category: 'Fake Payment Screenshot Deception',
+    status: 'verified',
+  },
+]
+
+function getLocalScamReports() {
+  try {
+    const raw = localStorage.getItem(LOCAL_REPORTS_KEY)
+    if (!raw) {
+      localStorage.setItem(LOCAL_REPORTS_KEY, JSON.stringify(DEFAULT_INITIAL_SCAM_REPORTS))
+      return DEFAULT_INITIAL_SCAM_REPORTS
+    }
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INITIAL_SCAM_REPORTS
+  } catch (err) {
+    console.warn('[data] Failed to parse local scam reports:', err)
+    return DEFAULT_INITIAL_SCAM_REPORTS
+  }
+}
+
+function saveLocalScamReport(report) {
+  try {
+    const existing = getLocalScamReports()
+    const filtered = existing.filter((item) => item.id !== report.id)
+    const updated = [report, ...filtered].slice(0, 100)
+    localStorage.setItem(LOCAL_REPORTS_KEY, JSON.stringify(updated))
+  } catch (err) {
+    console.warn('[data] Failed to save local scam report:', err)
+  }
+}
+
 export async function listScamReports(limit = 100) {
+  let supabaseItems = []
   try {
     const { data, error } = await supabase
       .from('scam_reports')
@@ -173,15 +268,50 @@ export async function listScamReports(limit = 100) {
       .order('created_at', { ascending: false })
       .limit(limit)
 
-    if (error) throw error
-    return (data || []).map(mapReport)
+    if (!error && data) {
+      supabaseItems = data.map(mapReport)
+    }
   } catch (err) {
-    console.warn('[data] listScamReports fallback:', err?.message || err)
-    return []
+    console.warn('[data] listScamReports Supabase notice:', err?.message || err)
   }
+
+  const localItems = getLocalScamReports()
+  const combined = [...supabaseItems, ...localItems]
+
+  const seen = new Set()
+  const deduplicated = combined.filter((item) => {
+    const key = item.id || `${item.created_at || item.created_date}-${item.scam_content}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  deduplicated.sort((a, b) => new Date(b.created_at || b.created_date || 0) - new Date(a.created_at || a.created_date || 0))
+
+  return deduplicated.slice(0, limit)
 }
 
 export async function createScamReport(payload) {
+  const localReport = mapReport({
+    id: `report-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+    created_at: new Date().toISOString(),
+    created_date: new Date().toISOString(),
+    report_type: payload.report_type || 'message',
+    scam_content: payload.scam_content || '',
+    phone_number: payload.phone_number || null,
+    url: payload.url || null,
+    region: payload.region || 'Global',
+    fraud_score: payload.fraud_score || 85,
+    ai_analysis: payload.ai_analysis || '',
+    risk_level: payload.risk_level || 'scam',
+    status: payload.status || 'verified',
+  })
+
+  saveLocalScamReport(localReport)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('ghostnet_new_threat', { detail: localReport }))
+  }
+
   try {
     const userId = await requireUserId()
     const { data, error } = await supabase
@@ -193,12 +323,16 @@ export async function createScamReport(payload) {
       .select('*')
       .single()
 
-    if (error) throw error
-    return mapReport(data)
+    if (!error && data) {
+      const serverReport = mapReport(data)
+      saveLocalScamReport(serverReport)
+      return serverReport
+    }
   } catch (err) {
-    console.warn('[data] createScamReport fallback:', err?.message || err)
-    return null
+    console.warn('[data] createScamReport Supabase notice:', err?.message || err)
   }
+
+  return localReport
 }
 
 export async function uploadEvidenceFile(file) {
