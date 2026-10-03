@@ -4,6 +4,16 @@ All notable changes to GhostNet AI are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0-release] - 2026-10-03 (Bundled Android Release APK, Real-Time Live Threat Radar Stream & Dual Persistence Layer)
+
+### Added
+* **Bundled Android Release APK (`GhostNet.apk`)**: Built and bundled `GhostNet.apk` (13.3 MB) directly in the repository root for 1-click mobile download and native Android installation.
+* **Real-Time Live Threat Radar Stream**: Re-engineered Threat Radar stream in `Threats.jsx` and `ScamHeatmap.jsx` featuring local broadcast event listeners (`ghostnet_new_threat`), PostgreSQL realtime subscriptions, and an active 7-second live threat ticker with animated pulsing "LIVE NOW" badges.
+* **Dual Local + Supabase Persistence Layer**: Implemented local-first fallback storage (`ghostnet_recent_scans` and `ghostnet_scam_reports`) pre-seeded with initial benchmark threat indicators. Guarantees 100% offline and guest mode availability for scan history, threat metrics, and scam reports across Home, Profile, Reports, and Threats pages.
+* **Real-Time React Query Invalidation**: Standardized query keys (`['scanHistory']`, `['scamReports']`) across all scanner modules (`MessageScanner`, `LinkScanner`, `ScreenshotScanner`, `VoiceScanner`, `QRScannerPage`), causing scan counts and threat history to update immediately upon scan completion.
+
+---
+
 ## [1.3.0-prod] - 2026-10-03 (Firebase Auth Migration, Native Android Google Sign-In & Vercel Build Parity)
 
 ### Added

@@ -76,14 +76,24 @@ Located at `android/app/src/main/AndroidManifest.xml`:
 
 ---
 
-## 4. Compilation & Build Runbook
+## 4. Pre-Built APK Release & Download
+
+The official pre-built Android application bundle is available directly at the root of the repository:
+
+* **Bundled APK Path:** [`GhostNet.apk`](../GhostNet.apk)
+* **Direct Download Link:** [`https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk`](https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk)
+* **APK Size:** ~13.3 MB
+* **In-App Google Auth:** Native Credential Manager modal bottom-sheet via `@codetrix-studio/capacitor-google-auth`.
+
+---
+
+## 5. Compilation & Build Runbook
 
 ### Prerequisites
-* **Android Studio:** Hedgehog (2023.1.1) or newer.
-* **JDK:** OpenJDK 17 or OpenJDK 21.
+* **Android Studio:** Ladybug / Hedgehog (2024.1+) or JDK 21 (`C:\Program Files\Android\Android Studio\jbr`).
 * **Android SDK:** Platform 34 and SDK Build-Tools 34.0.0.
 
-### Step-by-Step Compilation
+### Step-by-Step Compilation via Terminal
 ```bash
 # 1. Build the production React web bundle
 npm run build
@@ -91,15 +101,17 @@ npm run build
 # 2. Sync web assets and Capacitor plugins into the Android native folder
 npx cap sync android
 
-# 3. Launch Android Studio
-npx cap open android
+# 3. Build APK using terminal with JDK 21
+cd android
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+.\gradlew assembleDebug
 
-# 4. Build Debug or Release APK
-# Within Android Studio: Build ➔ Build Bundle(s) / APK(s) ➔ Build APK(s)
-# Output path: android/app/build/outputs/apk/debug/app-debug.apk
+# Output location: android/app/build/outputs/apk/debug/app-debug.apk
+# Copy to root:
+Copy-Item -Path "app/build/outputs/apk/debug/app-debug.apk" -Destination "../../GhostNet.apk"
 ```
 
-To run directly on a connected physical Android device:
+To run directly on a connected physical Android device or emulator:
 ```bash
 npx cap run android
 ```

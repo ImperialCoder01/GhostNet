@@ -16,11 +16,14 @@ GhostNet AI is an enterprise-grade, multi-modal cybersecurity and digital fraud 
 
 ---
 
-## 🌐 Live Production Deployment
+## 🌐 Live Production Deployment & Mobile APK
 
-* **Production URL:** [https://ghost-net-zeta.vercel.app](https://ghost-net-zeta.vercel.app)
+* **Web Production URL:** [https://ghost-net-zeta.vercel.app](https://ghost-net-zeta.vercel.app)
+* **Android Native APK Release:** [**Download `GhostNet.apk`**](GhostNet.apk) *(Pre-built release bundle ~13.3 MB)*
+* **Direct Repository Raw APK:** [https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk](https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk)
+* **In-App Native Google Sign-In:** Complete native Android account picker bottom-sheet without leaving the app.
 * **Judge / Guest Access:** Instant 1-click **⚡ Explore as Guest / Judge Demo Mode** on the login screen.
-* **Hardware Permissions:** Configured with `Permissions-Policy: camera=(self), microphone=(self), geolocation=()` for seamless browser camera and microphone access.
+* **Hardware Permissions:** Configured with camera & microphone permissions for WebRTC live QR scanner and voice deepfake analysis.
 
 ---
 
@@ -253,17 +256,26 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 📱 Android Native Build (Capacitor)
+## 📱 Android Native App & Build (`GhostNet.apk`)
 
+### Download Pre-Built Release APK
+* Download directly from repository root: [`GhostNet.apk`](GhostNet.apk) (~13.3 MB)
+* Direct download URL: [`https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk`](https://github.com/ImperialCoder01/GhostNet/raw/main/GhostNet.apk)
+
+### Terminal Compilation Runbook (JDK 21)
 ```bash
-# Generate production web bundle
+# 1. Generate production web bundle
 npm run build
 
-# Synchronize assets to native Android project
+# 2. Synchronize assets to native Android project
 npx cap sync android
 
-# Open Android Studio to build and run the APK
-npx cap open android
+# 3. Compile APK using Android Studio JDK 21
+cd android
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+.\gradlew assembleDebug
+
+# Output APK path: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ---
