@@ -24,7 +24,6 @@ function ensureGoogleAuthInitialized() {
   if (Capacitor.isNativePlatform() && !googleAuthInitialized) {
     try {
       GoogleAuth.initialize({
-        clientId: '974100426213-p47s4c59bjgthtutfv2s1gsniq1ottu2.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
         grantOfflineAccess: true,
       })

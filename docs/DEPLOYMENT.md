@@ -22,8 +22,8 @@ Configure these environment variables in your Vercel Project Dashboard (**Projec
 | Variable Name | Required? | Exposure Scope | Purpose |
 |:---|:---:|:---|:---|
 | `VITE_FIREBASE_API_KEY` | **Yes** | Client Public | Firebase Auth Web SDK API Key. |
-| `VITE_FIREBASE_AUTH_DOMAIN` | **Yes** | Client Public | Firebase Auth Domain (`ghostnetpro.firebaseapp.com`). |
-| `VITE_FIREBASE_PROJECT_ID` | **Yes** | Client Public | Firebase Project ID (`ghostnetpro`). |
+| `VITE_FIREBASE_AUTH_DOMAIN` | **Yes** | Client Public | Firebase Auth Domain (`your-firebase-project.firebaseapp.com`). |
+| `VITE_FIREBASE_PROJECT_ID` | **Yes** | Client Public | Firebase Project ID (`your-firebase-project-id`). |
 | `VITE_FIREBASE_STORAGE_BUCKET` | **Yes** | Client Public | Firebase Storage Bucket endpoint. |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | **Yes** | Client Public | Firebase Messaging Sender ID. |
 | `VITE_FIREBASE_APP_ID` | **Yes** | Client Public | Firebase App ID. |

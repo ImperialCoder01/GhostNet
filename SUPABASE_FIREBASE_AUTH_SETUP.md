@@ -19,7 +19,7 @@ Supabase Client (updateSupabaseAuthToken)
 Supabase REST API (Authorization: Bearer <firebase_jwt>)
        │
        ▼
-Supabase JWT Issuer Verification (Firebase Project ID: ghostnetpro)
+Supabase JWT Issuer Verification (Firebase Project ID: your-firebase-project-id)
        │
        ▼
 Authenticated Role + RLS Enforcement
@@ -34,7 +34,7 @@ To enable Supabase to accept Firebase JWT tokens:
 1. Log into **Supabase Dashboard** → Select your GhostNet project.
 2. Go to **Authentication** → **Providers** → **Third-Party Auth** (or **External Auth**).
 3. Enable **Firebase Auth** integration.
-4. Input your **Firebase Project ID**: `ghostnetpro`.
+4. Input your **Firebase Project ID**: `your-firebase-project-id`.
 5. Save changes.
 
 ---

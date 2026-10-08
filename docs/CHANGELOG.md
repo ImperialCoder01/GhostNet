@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 * **Firebase Authentication Integration**: Migrated identity provider to Firebase Auth (Email/Password, Email Verification, Password Reset, Google Sign-In, Session Management) across Web and Mobile.
-* **Supabase Third-Party Auth JWT Synergy**: Automated forwarding of Firebase JWT ID tokens to Supabase client (`updateSupabaseAuthToken`), enforcing PostgreSQL Row-Level Security (RLS) while validating Firebase project issuer (`ghostnetpro`).
+* **Supabase Third-Party Auth JWT Synergy**: Automated forwarding of Firebase JWT ID tokens to Supabase client (`updateSupabaseAuthToken`), enforcing PostgreSQL Row-Level Security (RLS) while validating Firebase project issuer (`your-firebase-project-id`).
 * **Native Android In-App Google Sign-In**: Integrated `@codetrix-studio/capacitor-google-auth` using Android native Google Play Services Credential Manager. Users sign in via native bottom-sheet account picker without leaving the GhostNet Android application.
 * **Vercel Legacy Peer Dependencies Configuration**: Created `.npmrc` (`legacy-peer-deps=true`) in repository root, eliminating `npm install` ERESOLVE peer dependency build errors on Vercel.
 

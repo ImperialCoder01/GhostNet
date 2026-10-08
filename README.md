@@ -201,13 +201,13 @@ cp .env.example .env.local
 ### 3. Environment Variables Configuration (`.env.local`)
 ```env
 # Client-Accessible Firebase Web SDK Keys (Public)
-VITE_FIREBASE_API_KEY=AIzaSyASrAwnNM-tMzJeOwggZWgr8kUBwZJZI70
-VITE_FIREBASE_AUTH_DOMAIN=ghostnetpro.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=ghostnetpro
-VITE_FIREBASE_STORAGE_BUCKET=ghostnetpro.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=974100426213
-VITE_FIREBASE_APP_ID=1:974100426213:web:8435cc709bea87e030d30c
-VITE_FIREBASE_MEASUREMENT_ID=G-NLK931W60S
+VITE_FIREBASE_API_KEY=your_firebase_api_key_placeholder
+VITE_FIREBASE_AUTH_DOMAIN=your-firebase-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-firebase-project
+VITE_FIREBASE_STORAGE_BUCKET=your-firebase-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789012
+VITE_FIREBASE_APP_ID=1:123456789012:web:abcdef1234567890
+VITE_FIREBASE_MEASUREMENT_ID=G-YOURMEASUREMENTID
 
 # Client-Accessible Supabase Keys (Public)
 VITE_SUPABASE_URL=https://your-project.supabase.co
