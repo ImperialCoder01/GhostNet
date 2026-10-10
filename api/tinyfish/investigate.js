@@ -184,26 +184,61 @@ export default async function handler(req, res) {
     // 2. Run GhostNet deterministic domain heuristic analysis
     const ghostnetHeuristic = analyzeUrlContent(targetUrl)
 
+    // Ensure tfResult ALWAYS has step-by-step evidence populated even if TinyFish timed out or failed
+    try {
+      const parsedHostname = new URL(targetUrl).hostname
+      if (!tfResult.websiteTitle) {
+        tfResult.websiteTitle = ghostnetHeuristic.impersonated_brand
+          ? `${ghostnetHeuristic.impersonated_brand} (Impersonation Target)`
+          : parsedHostname
+      }
+      if (!tfResult.websitePurpose) {
+        tfResult.websitePurpose = ghostnetHeuristic.attack_intent || 'Unverified Domain Destination'
+      }
+
+      if (!tfResult.observations || tfResult.observations.length === 0) {
+        tfResult.observations = [
+          `Target Host: ${parsedHostname}`,
+          `Inspection Note: ${tfResult.status === 'timed_out' ? 'Live browser session timed out — automated domain heuristics attached.' : tfResult.message || 'Domain analysis complete.'}`,
+          ...ghostnetHeuristic.reasons
+        ]
+      }
+
+      if (!tfResult.riskIndicators || tfResult.riskIndicators.length === 0) {
+        if (ghostnetHeuristic.risk_level !== 'safe') {
+          tfResult.riskIndicators = ghostnetHeuristic.reasons
+        }
+      }
+
+      if (!tfResult.summary || tfResult.summary === tfResult.message) {
+        tfResult.summary = `${tfResult.message || 'Investigation complete.'}\n\nGhostNet Domain Analysis:\n${ghostnetHeuristic.analysis}`
+      }
+    } catch (e) {
+      console.warn('TinyFish fallback enrichment error:', e)
+    }
+
     // 3. Combine evidence into a unified assessment
     let combinedScore = ghostnetHeuristic.fraud_score
     const combinedReasons = [...ghostnetHeuristic.reasons]
     const reasonCodesSet = new Set(ghostnetHeuristic.reasonCodes || [])
 
-    if (tfResult.status === 'completed') {
-      if (tfResult.riskIndicators.length > 0) {
+    if (tfResult.status === 'completed' || tfResult.riskIndicators?.length > 0) {
+      if (tfResult.riskIndicators && tfResult.riskIndicators.length > 0) {
         combinedScore = Math.min(100, combinedScore + tfResult.riskIndicators.length * 15)
         for (const risk of tfResult.riskIndicators) {
-          combinedReasons.push(`[TinyFish Observation] ${risk}`)
+          if (!combinedReasons.includes(risk) && !combinedReasons.includes(`[TinyFish Observation] ${risk}`)) {
+            combinedReasons.push(`[TinyFish Observation] ${risk}`)
+          }
         }
       }
 
-      if (tfResult.riskIndicators.some((r) => /otp|password|credential/i.test(r))) {
+      if (tfResult.riskIndicators?.some((r) => /otp|password|credential/i.test(r))) {
         reasonCodesSet.add('REQUEST_OTP_PASSWORD')
       }
-      if (tfResult.riskIndicators.some((r) => /urgency|threat/i.test(r))) {
+      if (tfResult.riskIndicators?.some((r) => /urgency|threat/i.test(r))) {
         reasonCodesSet.add('URGENCY_SCARE_TACTICS')
       }
-      if (tfResult.riskIndicators.some((r) => /payment|card|fee/i.test(r))) {
+      if (tfResult.riskIndicators?.some((r) => /payment|card|fee/i.test(r))) {
         reasonCodesSet.add('PAYMENT_REDIRECT')
       }
     }

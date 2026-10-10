@@ -263,7 +263,7 @@ export default function TinyFishInvestigationCard({
       )}
 
       {/* COMPLETED STEP-BY-STEP AGENT INSPECTION LOG */}
-      {investigation && (investigation.status === 'completed' || investigation.status === 'incomplete') && !isInvestigating && (
+      {investigation && !isInvestigating && (
         <div className="space-y-3 pt-1">
           {/* Step 1: Identity & Stated Purpose */}
           <div className="ghost-card p-3.5 space-y-2 border-cyan-500/20">
