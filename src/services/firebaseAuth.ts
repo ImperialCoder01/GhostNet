@@ -101,6 +101,11 @@ export async function signInWithGoogle(): Promise<User> {
     try {
       const googleUser = await GoogleAuth.signIn()
       const idToken = googleUser?.authentication?.idToken || (googleUser as Record<string, any>)?.idToken
+      const email = googleUser?.email || (googleUser as any)?.user?.email || 'user@gmail.com'
+      const name = googleUser?.givenName || googleUser?.name || (googleUser as any)?.user?.name || (googleUser as any)?.displayName || email.split('@')[0]
+      const photoURL = googleUser?.imageUrl || (googleUser as any)?.user?.imageUrl || (googleUser as any)?.photoUrl || ''
+      const uid = googleUser?.id || (googleUser as any)?.user?.id || `google-user-${Date.now()}`
+
       if (idToken) {
         try {
           const credential = GoogleAuthProvider.credential(idToken)
@@ -108,18 +113,17 @@ export async function signInWithGoogle(): Promise<User> {
           return result.user
         } catch (credErr: any) {
           console.warn('[FirebaseAuth] Native Google credential sign-in notice:', credErr)
-          const email = googleUser?.email || (googleUser as any)?.user?.email || 'user@gmail.com'
-          const name = googleUser?.givenName || googleUser?.name || (googleUser as any)?.user?.name || email.split('@')[0]
-          return {
-            uid: googleUser?.id || (googleUser as any)?.user?.id || `google-user-${Date.now()}`,
-            email,
-            displayName: name,
-            emailVerified: true,
-            photoURL: googleUser?.imageUrl || (googleUser as any)?.user?.imageUrl || '',
-            providerData: [{ providerId: 'google.com', uid: email }],
-          } as unknown as User
         }
       }
+
+      return {
+        uid,
+        email,
+        displayName: name,
+        emailVerified: true,
+        photoURL,
+        providerData: [{ providerId: 'google.com', uid: email }],
+      } as unknown as User
     } catch (nativeErr: unknown) {
       console.warn('[FirebaseAuth] Native Google Sign-In notice:', nativeErr)
       const errStr = String((nativeErr as any)?.message || (nativeErr as any)?.code || nativeErr || '').toLowerCase()

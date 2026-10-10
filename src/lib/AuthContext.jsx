@@ -116,16 +116,61 @@ export function AuthProvider({ children }) {
 
   const signUp = async (email, password, name) => {
     const fbUser = await signUpWithEmail(email, password, name)
+    if (fbUser) {
+      const userObj = {
+        uid: fbUser.uid,
+        id: fbUser.uid,
+        email: fbUser.email || email.trim(),
+        displayName: fbUser.displayName || name || email.split('@')[0],
+        emailVerified: fbUser.emailVerified || false,
+        photoURL: fbUser.photoURL || '',
+        user_metadata: {
+          full_name: fbUser.displayName || name || email.split('@')[0],
+          avatar_url: fbUser.photoURL || '',
+        },
+      }
+      setUser(userObj)
+    }
     return fbUser
   }
 
   const signIn = async (email, password) => {
     const fbUser = await signInWithEmail(email, password)
+    if (fbUser) {
+      const userObj = {
+        uid: fbUser.uid,
+        id: fbUser.uid,
+        email: fbUser.email || email.trim(),
+        displayName: fbUser.displayName || email.split('@')[0],
+        emailVerified: fbUser.emailVerified || false,
+        photoURL: fbUser.photoURL || '',
+        user_metadata: {
+          full_name: fbUser.displayName || email.split('@')[0],
+          avatar_url: fbUser.photoURL || '',
+        },
+      }
+      setUser(userObj)
+    }
     return fbUser
   }
 
   const signInWithGoogle = async () => {
     const fbUser = await firebaseSignInWithGoogle()
+    if (fbUser) {
+      const userObj = {
+        uid: fbUser.uid,
+        id: fbUser.uid,
+        email: fbUser.email || 'analyst@ghostnet.ai',
+        displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'GhostNet User',
+        emailVerified: true,
+        photoURL: fbUser.photoURL || '',
+        user_metadata: {
+          full_name: fbUser.displayName || fbUser.email?.split('@')[0] || 'GhostNet User',
+          avatar_url: fbUser.photoURL || '',
+        },
+      }
+      setUser(userObj)
+    }
     return fbUser
   }
 
