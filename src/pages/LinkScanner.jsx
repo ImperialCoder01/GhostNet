@@ -165,7 +165,7 @@ export default function LinkScanner() {
       </div>
 
       {/* TinyFish Agent Standalone Investigation Display */}
-      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+      {(url.trim() || investigating || tfResult || result?.tinyfishInvestigation) && (
         <TinyFishInvestigationCard
           investigation={tfResult || result?.tinyfishInvestigation}
           isInvestigating={investigating}
