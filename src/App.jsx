@@ -9,7 +9,7 @@ import { AuthProvider } from '@/lib/AuthContext'
 import AuthGate from '@/components/AuthGate'
 import AppErrorBoundary from '@/components/AppErrorBoundary'
 
-const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+const Router = HashRouter;
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];

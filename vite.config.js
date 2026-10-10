@@ -162,7 +162,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [react(), localApiPlugin()],
+    esbuild: {
+      target: 'es2018',
+    },
     build: {
+      target: ['chrome75', 'es2018'],
+      cssTarget: ['chrome75'],
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {
