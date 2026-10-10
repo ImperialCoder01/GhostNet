@@ -5,6 +5,7 @@ import analyzeHandler from './api/analyze.js'
 import healthHandler from './api/health.js'
 import analyzeVoiceHandler from './api/analyze-voice.js'
 import blocklistLiteHandler from './api/blocklist-lite.js'
+import tinyfishHandler from './api/tinyfish/investigate.js'
 
 
 function createMockRequest(req, body) {
@@ -122,6 +123,20 @@ function localApiPlugin() {
         const mockRes = createMockResponse(res)
 
         await blocklistLiteHandler(mockReq, mockRes)
+      })
+
+      server.middlewares.use('/api/tinyfish/investigate', async (req, res) => {
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        const body = req.method === 'POST' ? await readJsonBody(req) : {}
+        const mockReq = createMockRequest(req, body)
+        const mockRes = createMockResponse(res)
+
+        await tinyfishHandler(mockReq, mockRes)
       })
     },
   }

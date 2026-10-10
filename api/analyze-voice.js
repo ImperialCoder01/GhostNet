@@ -52,8 +52,10 @@ export default async function handler(req, res) {
     let transcript = transcript_text || ''
     let aiResult = null
 
-    const rawGemini = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
-    const rawGroq = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+    const headerGemini = req?.headers?.['x-gemini-api-key']
+    const headerGroq = req?.headers?.['x-groq-api-key']
+    const rawGemini = (headerGemini && typeof headerGemini === 'string' && !headerGemini.includes('placeholder')) ? headerGemini : process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
+    const rawGroq = (headerGroq && typeof headerGroq === 'string' && !headerGroq.includes('placeholder')) ? headerGroq : process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
     const geminiKey = rawGemini && !rawGemini.includes('placeholder') && !rawGemini.includes('your_gemini') ? rawGemini.trim() : null
     const groqKey = rawGroq && !rawGroq.includes('placeholder') && !rawGroq.includes('your_groq') ? rawGroq.trim() : null
 

@@ -313,20 +313,28 @@ const REASON_CODES_INSTRUCTION = `
   NEWLY_REGISTERED_DOMAIN, REQUESTS_PAYMENT, KNOWN_MALICIOUS_DOMAIN, SUSPICIOUS_ATTACHMENT_QR, GENERIC_GREETING
 - explanation (concise 1-2 sentence plain-English summary of the top threat factor)`
 
-function getValidGroqKey() {
+function getValidGroqKey(req = null) {
+  const headerKey = req?.headers?.['x-groq-api-key']
+  if (headerKey && typeof headerKey === 'string' && !headerKey.includes('placeholder') && !headerKey.includes('your_groq')) {
+    return headerKey.trim()
+  }
   const key = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
   if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_groq')) return null
   return key.trim()
 }
 
-function getValidGeminiKey() {
+function getValidGeminiKey(req = null) {
+  const headerKey = req?.headers?.['x-gemini-api-key']
+  if (headerKey && typeof headerKey === 'string' && !headerKey.includes('placeholder') && !headerKey.includes('your_gemini')) {
+    return headerKey.trim()
+  }
   const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
   if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_gemini')) return null
   return key.trim()
 }
 
-async function analyzeWithGroq(type, payload) {
-  const apiKey = getValidGroqKey()
+async function analyzeWithGroq(type, payload, req = null) {
+  const apiKey = getValidGroqKey(req)
   if (!apiKey) return null
 
   let prompt = ''
@@ -456,8 +464,8 @@ const GEMINI_MODELS = [
   'gemini-1.5-pro',
 ]
 
-async function analyzeScreenshotWithGemini(screenshotUrl, imageBase64 = null, mimeType = 'image/png') {
-  const apiKey = getValidGeminiKey()
+async function analyzeScreenshotWithGemini(screenshotUrl, imageBase64 = null, mimeType = 'image/png', req = null) {
+  const apiKey = getValidGeminiKey(req)
   if (!apiKey || (!screenshotUrl && !imageBase64)) return null
 
   try {
@@ -616,7 +624,7 @@ export default async function handler(req, res) {
 
       let groq = null
       try {
-        groq = await withTimeout(analyzeWithGroq(type, payload), AI_TIMEOUT_MS)
+        groq = await withTimeout(analyzeWithGroq(type, payload, req), AI_TIMEOUT_MS)
       } catch (err) {
         console.warn('[GhostNet] Groq timed out or failed for message:', err.message)
       }
@@ -658,7 +666,7 @@ export default async function handler(req, res) {
 
       let groq = null
       try {
-        groq = await withTimeout(analyzeWithGroq(type, payload), AI_TIMEOUT_MS)
+        groq = await withTimeout(analyzeWithGroq(type, payload, req), AI_TIMEOUT_MS)
       } catch (err) {
         console.warn('[GhostNet] Groq timed out or failed for link:', err.message)
       }
@@ -688,7 +696,7 @@ export default async function handler(req, res) {
     if (type === 'report') {
       let groq = null
       try {
-        groq = await withTimeout(analyzeWithGroq(type, payload), AI_TIMEOUT_MS)
+        groq = await withTimeout(analyzeWithGroq(type, payload, req), AI_TIMEOUT_MS)
       } catch (err) {
         console.warn('[GhostNet] Groq timed out or failed for report:', err.message)
       }
@@ -706,7 +714,7 @@ export default async function handler(req, res) {
       try {
         ai = await withTimeout(
           (async () => {
-            const gemini = await analyzeScreenshotWithGemini(payload?.screenshot_url, payload?.image_base64, payload?.mime_type)
+            const gemini = await analyzeScreenshotWithGemini(payload?.screenshot_url, payload?.image_base64, payload?.mime_type, req)
             if (gemini) return gemini
             return analyzeScreenshotWithOpenAI(payload?.screenshot_url)
           })(),

@@ -388,11 +388,17 @@ async function postAnalyze(type, payload) {
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze')
   }
 
+  const reqHeaders = { 'Content-Type': 'application/json' }
+  const groqKey = getGroqKey()
+  const geminiKey = getGeminiKey()
+  if (groqKey) reqHeaders['x-groq-api-key'] = groqKey
+  if (geminiKey) reqHeaders['x-gemini-api-key'] = geminiKey
+
   for (const endpoint of endpoints) {
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: reqHeaders,
         body: JSON.stringify({ type, payload }),
       })
 
@@ -510,11 +516,17 @@ export async function analyzeVoice(payload = {}) {
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze-voice')
   }
 
+  const reqHeaders = { 'Content-Type': 'application/json' }
+  const groqKey = getGroqKey()
+  const geminiKey = getGeminiKey()
+  if (groqKey) reqHeaders['x-groq-api-key'] = groqKey
+  if (geminiKey) reqHeaders['x-gemini-api-key'] = geminiKey
+
   for (const endpoint of endpoints) {
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: reqHeaders,
         body: JSON.stringify(payload),
       })
 
