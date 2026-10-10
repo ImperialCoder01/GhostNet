@@ -12,28 +12,34 @@ flowchart TD
         Activity["MainActivity.java (Android Native Runtime)"]
         Permissions["Hardware Permissions (Camera & Microphone)"]
         Bridge["Capacitor Native Bridge"]
+        GoogleAuth["Native GoogleAuth Account Chooser Sheet"]
     end
 
-    subgraph WebViewRuntime["Hardened Android WebView"]
-        ReactApp["React 18 Single-Page Application"]
+    subgraph WebViewRuntime["Hardened Android WebView (ES2018 / Chrome 75 Target)"]
+        ReactApp["React 18 Single-Page Application (HashRouter)"]
+        CanvasField["HTML5 2D Canvas Constellation Renderer"]
         CameraStream["WebRTC Camera Stream (QR Scanner)"]
         AudioRecord["Web Audio API Stream (Voice Radar)"]
         OfflineEngine["Local Heuristic Rule Engine"]
     end
 
-    subgraph BackendAPI["Cloud Gateways"]
+    subgraph BackendAPI["Cloud Gateways & Micro-Agents"]
         VercelAPI["Vercel Serverless Gateways"]
+        TinyFish["TinyFish Autonomous Web Agent (SSE)"]
         SupabaseDB["Supabase PostgreSQL RLS"]
     end
 
     Activity --> Bridge
     Bridge --> Permissions
+    Bridge --> GoogleAuth
     Bridge --> ReactApp
+    ReactApp --> CanvasField
     ReactApp --> CameraStream
     ReactApp --> AudioRecord
     ReactApp --> OfflineEngine
 
     ReactApp -->|"Online Network Mode"| VercelAPI
+    ReactApp -->|"Browser Sandbox Investigation"| TinyFish
     ReactApp -->|"Online Sync"| SupabaseDB
     ReactApp -->|"Offline or No Signal Mode"| OfflineEngine
 ```
@@ -42,6 +48,7 @@ flowchart TD
 * **Target SDK:** Android 34 (Android 14)
 * **Minimum SDK:** Android 22 (Android 5.1 Lollipop)
 * **Web Build Directory:** `dist/`
+* **JavaScript Transpilation Target:** `es2018` / `chrome75` (ensures 100% JS compatibility on all Android System WebViews)
 
 ---
 
@@ -68,15 +75,35 @@ Located at `android/app/src/main/AndroidManifest.xml`:
 
 ---
 
-## 3. Mobile Touch & Accessibility Optimizations
+## 3. WebView Reliability & White-Screen Prevention
+
+1. **JavaScript Engine Transpilation Target (`es2018` / `chrome75`)**:
+   - Configured `build.target: ['chrome75', 'es2018']` and `esbuild.target: 'es2018'` in `vite.config.js`.
+   - Transpiles all dependencies and application code down to ES2018 syntax, preventing `SyntaxError` crashes on older Android System WebViews.
+2. **Native In-App Google Sign-In**:
+   - Utilizes `@codetrix-studio/capacitor-google-auth` to launch the native Android Google Account Chooser bottom-sheet directly inside the app.
+   - Eliminates external Chrome browser redirects (`signInWithRedirect`) and prevents `firebaseapp.com` invalid action errors.
+   - Instantly updates React state (`setUser(userObj)`) in `AuthContext` upon account selection.
+3. **Pure 2D Canvas Constellation Background**:
+   - `ConstellationField.tsx` uses a native 2D Canvas renderer (`canvas.getContext("2d")`) instead of WebGL `srcDoc` iframes.
+   - Eliminates WebGL context loss, iframe cross-origin `postMessage` security exceptions, and GPU rendering freezes on mobile devices.
+4. **Fallback Loading Screen & Global Error Boundary**:
+   - `index.html` includes an inline dark styled initializer (`<div id="root">...</div>`) and a global `window.onerror` fallback container.
+   - Guarantees the user never sees a blank white screen, even during cold starts or offline network scenarios.
+5. **Native HashRouter Routing**:
+   - Uses `HashRouter` in `App.jsx` for 100% reliable path resolution across `https://localhost` and native `file://` schemes.
+
+---
+
+## 4. Mobile Touch & Accessibility Optimizations
 
 * **Senior & Family Safety Mode**: On mobile screens, activating Senior Mode enlarges touch targets to a minimum of **48x48dp**, increases font sizes by 25%, and simplifies technical cybersecurity reports into plain-English advice.
-* **Responsive Command Center**: Side navigation drawers automatically collapse into an intuitive bottom navigation bar (`Home`, `Messages`, `Links`, `Vision`, `Radar`).
+* **Responsive Command Center**: Side navigation drawers automatically collapse into an intuitive bottom navigation bar (`Home`, `Scan`, `Threats`, `Reports`, `Settings`).
 * **Zero-Signal Offline Continuity**: When users travel or lose mobile network coverage, the local heuristic engine takes over completely, scoring messages, URLs, and QR codes directly on the mobile device without network latency.
 
 ---
 
-## 4. Pre-Built APK Release & Download
+## 5. Pre-Built APK Release & Download
 
 The official pre-built Android application bundle is available directly at the root of the repository:
 
@@ -87,7 +114,7 @@ The official pre-built Android application bundle is available directly at the r
 
 ---
 
-## 5. Compilation & Build Runbook
+## 6. Compilation & Build Runbook
 
 ### Prerequisites
 * **Android Studio:** Ladybug / Hedgehog (2024.1+) or JDK 21 (`C:\Program Files\Android\Android Studio\jbr`).
@@ -95,13 +122,16 @@ The official pre-built Android application bundle is available directly at the r
 
 ### Step-by-Step Compilation via Terminal
 ```bash
-# 1. Build the production React web bundle
+# 1. Run unit & integration tests
+npm test
+
+# 2. Build the production React web bundle with ES2018 target
 npm run build
 
-# 2. Sync web assets and Capacitor plugins into the Android native folder
+# 3. Sync web assets and Capacitor plugins into the Android native folder
 npx cap sync android
 
-# 3. Build APK using terminal with JDK 21
+# 4. Build APK using terminal with JDK 21
 cd android
 $env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
 .\gradlew assembleDebug

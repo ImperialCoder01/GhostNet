@@ -10,6 +10,7 @@ GhostNet AI exposes four serverless edge microservices designed for low latency,
 |:---|:---|:---|:---|
 | `POST` | `/api/analyze` | Multi-modal threat scanner for messages, links, screenshots, and threat indicators. | Optional (Public with rate-limits) |
 | `POST` | `/api/analyze-voice` | Synthetic voice and deepfake call detector (Wiener flatness + Whisper STT). | Optional (`ENABLE_VOICE_SCANNER=true`) |
+| `POST` | `/api/tinyfish/investigate` | Autonomous web investigation agent executing headless browser analysis. | Optional (Client API / Serverless) |
 | `GET` | `/api/blocklist-lite` | Low-latency plaintext SHA-256 domain hash stream for browser pre-click defense. | None (`ENABLE_PRE_CLICK_INTERCEPTOR=true`) |
 | `GET` / `POST` | `/api/cron/sync-feeds` | Scheduled public threat feed sync (OpenPhish + URLhaus). | `Bearer <CRON_SECRET>` |
 

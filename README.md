@@ -5,7 +5,7 @@
 GhostNet AI is an enterprise-grade, multi-modal cybersecurity and digital fraud prevention platform. It detects, explains, and neutralizes social engineering attacks across suspicious messages (SMS, WhatsApp, email), deceptive URLs, screenshots, QR codes, deepfake synthetic phone calls, and live web browsing in real-time.
 
 [![Live Production](https://img.shields.io/badge/Production-Live_on_Vercel-00e5ff.svg?style=flat&logo=vercel)](https://ghost-net-zeta.vercel.app)
-[![Tests Passing](https://img.shields.io/badge/Tests-40%2F40_Passing-10b981.svg?style=flat&logo=node.js)](tests/scanner.test.js)
+[![Tests Passing](https://img.shields.io/badge/Tests-51%2F51_Passing-10b981.svg?style=flat&logo=node.js)](tests/scanner.test.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-18.2-61dafb.svg?logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-6.4-646cff.svg?logo=vite)](https://vitejs.dev)

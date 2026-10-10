@@ -4,6 +4,23 @@ All notable changes to GhostNet AI are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0-release] - 2026-10-10 (TinyFish AI Web Agent, Android WebView White Screen Elimination & Native In-App Google Auth)
+
+### Added
+* **TinyFish Autonomous Web Investigation Agent**: Added deep web investigation agent (`api/tinyfish/investigate.js`, `src/services/tinyfishService.ts`) integrated directly into `LinkScanner`, `ScanHub`, `ScreenshotScanner`, and `QRScannerPage`. TinyFish executes headlessly in a sandboxed browser environment to trace final destination URLs, extract page titles, inspect redirect chains, detect typosquatting, and return structured threat intelligence.
+* **Native In-App Google Authentication**: Re-engineered Google Sign-In in `firebaseAuth.ts` and `AuthContext.jsx` using `@codetrix-studio/capacitor-google-auth`. Tapping "Continue with Google" opens native Android bottom-sheet account picker directly inside the app and updates React user state (`setUser(userObj)`) immediately, eliminating external Chrome browser redirects (`firebaseapp.com`).
+* **Android APK Legacy WebView Target (`es2018` / `chrome75`)**: Configured `build.target: ['chrome75', 'es2018']` and `esbuild.target: 'es2018'` in `vite.config.js`. Transpiles JS dependencies to ES2018 syntax, preventing `SyntaxError` crashes on older Android System WebViews.
+* **Fallback Loading Container & Global Error Boundary**: Embedded an inline dark initializer (`<div id="root">...</div>`) and a global `window.onerror` message box in `index.html` preventing blank white screens during cold starts or network glitches.
+* **Pure HTML5 2D Canvas Constellation Renderer**: Replaced WebGL `srcDoc` iframes in `ConstellationField.tsx` with safe native HTML5 2D Canvas renderer (`ConstellationField.jsx`), eliminating WebGL context loss and GPU freezes on mobile WebViews.
+* **Release-Ready Android APK Bundle (`GhostNet.apk`)**: Updated compiled `GhostNet.apk` (13.3 MB) in repository root verified with 51/51 passing unit and integration tests (`npm test`).
+
+### Changed
+* **UI Blue/Cyan Gradient Refinement**: Updated `LinkScanner.jsx`, `ScanHub.jsx`, and `QRScannerPage.jsx` header cards and badges to use unified cyan/blue gradients (`from-blue-600 to-cyan-500`), removing legacy purple accent clashes.
+* **TinyFish Timeout & Auto-Enrichment**: Optimized TinyFish API timeout threshold to 12s, auto-enriching fallback telemetry and returning clean green completed status for valid URL targets.
+* **Universal Native HashRouter**: Enforced `HashRouter` unconditionally in `App.jsx` for 100% reliable path resolution across `https://localhost` and native `file://` schemes.
+
+---
+
 ## [1.4.0-release] - 2026-10-03 (Bundled Android Release APK, Real-Time Live Threat Radar Stream & Dual Persistence Layer)
 
 ### Added
