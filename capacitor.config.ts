@@ -5,8 +5,13 @@ const config: CapacitorConfig = {
   appName: 'GhostNet',
   webDir: 'dist',
   bundledWebRuntime: false,
+  server: {
+    androidScheme: 'https',
+    hostname: 'localhost',
+    cleartext: true,
+  },
   android: {
-    allowMixedContent: false,
+    allowMixedContent: true,
     captureInput: true,
     webContentsDebuggingEnabled: true,
   },

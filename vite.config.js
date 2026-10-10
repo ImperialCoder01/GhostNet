@@ -152,6 +152,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    base: './',
     logLevel: 'info',
     resolve: {
       alias: {
