@@ -49,6 +49,7 @@ flowchart TD
 * **Minimum SDK:** Android 22 (Android 5.1 Lollipop)
 * **Web Build Directory:** `dist/`
 * **JavaScript Transpilation Target:** `es2018` / `chrome75` (ensures 100% JS compatibility on all Android System WebViews)
+* **Senior Mode Integration:** Supported on Android native WebViews with 48dp+ touch targets, native Web Speech API audio playback, offline Emergency Scam Help (Helpline 1930), and native Capacitor Share Sheet integration for trusted contacts.
 
 ---
 

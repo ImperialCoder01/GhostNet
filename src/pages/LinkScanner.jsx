@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import ClickSimulationModal from "../components/scanner/ClickSimulationModal";
+import SeniorScanExplanation from "../components/SeniorScanExplanation";
+import TrustedContactModal from "../components/TrustedContactModal";
 import { useNotify } from "../components/useNotify";
 import { motion } from "framer-motion";
 import { createScanHistory } from "@/lib/data";
@@ -14,6 +16,7 @@ import { useLocation } from "react-router-dom";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
+import { triggerHaptic } from "@/lib/haptics";
 
 export default function LinkScanner() {
   const queryClient = useQueryClient();
@@ -22,6 +25,7 @@ export default function LinkScanner() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
   const [showSimModal, setShowSimModal] = useState(false);
+  const [showTrustedContact, setShowTrustedContact] = useState(false);
   const [investigating, setInvestigating] = useState(false);
   const [tfResult, setTfResult] = useState(null);
   const notify = useNotify();
@@ -100,72 +104,68 @@ export default function LinkScanner() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-6">
       <ScannerHeader
         icon={Link2}
-        title="Link & Domain Trust Inspector"
-        description="Analyze suspicious URLs, typosquatting domains, brand mimicry, and deceptive redirect chains"
+        title="URL & Deep Link Inspector"
+        description="Verify domain reputation, check for typosquatting, homograph attacks, and shortener redirection traps"
         color="#00e5ff"
       />
 
-      {/* Input Card */}
+      {/* Main Input Card */}
       <div className="ghost-card p-5 space-y-4">
-        
-        {/* Sample Pills */}
+        {/* Sample Links Quick Select */}
         <div className="space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
             style={{ color: 'var(--ghost-text-dim)' }}>
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Benchmark Phishing URLs
+            <Sparkles className="w-3.5 h-3.5 text-cyan-500" /> Benchmark Test Targets
           </span>
           <div className="flex flex-wrap gap-2">
-            {sampleLinks.map((s, idx) => (
+            {sampleLinks.map((sample, idx) => (
               <button
                 key={idx}
-                onClick={() => { setUrl(s.url); handleScan(s.url); }}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-cyan-400/50 transition-all text-left"
+                onClick={() => { setUrl(sample.url); handleScan(sample.url); }}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-cyan-400/50 transition-all text-left cursor-pointer"
                 style={{
                   background: 'var(--ghost-surface-2)',
                   borderColor: 'var(--ghost-border)',
                   color: 'var(--ghost-text)'
                 }}>
-                {s.name}
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono mr-1">Target:</span>
+                {sample.name}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Input */}
-        <div className="rounded-xl border focus-within:border-cyan-500/50 transition-colors p-1"
-          style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
+        {/* Input Field */}
+        <div className="flex flex-col sm:flex-row gap-3">
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://suspicious-domain.com/login"
-            className="h-12 bg-transparent border-0 text-sm font-medium focus-visible:ring-0 placeholder:text-slate-400"
-            style={{ color: 'var(--ghost-text)' }}
+            placeholder="Enter web address or URL... e.g. https://sbi-kyc-update-portal.online"
+            className="h-12 bg-transparent text-sm font-mono font-medium focus-visible:ring-1 focus-visible:ring-cyan-500/50"
+            style={{ color: 'var(--ghost-text)', borderColor: 'var(--ghost-border)' }}
           />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Button
             onClick={() => handleScan()}
             disabled={scanning || investigating || !url.trim()}
-            className="h-12 rounded-xl font-bold text-slate-950 transition-all shadow-md bg-cyan-500 hover:bg-cyan-400">
-            {scanning ? "Inspecting Domain..." : "Inspect Link Safety"}
+            className="h-12 px-6 rounded-xl font-bold transition-all shadow-md bg-cyan-500 hover:bg-cyan-400 text-slate-950 shrink-0 cursor-pointer">
+            {scanning ? "Analyzing..." : "Inspect Link"}
           </Button>
 
           <Button
             onClick={() => handleTinyFishInvestigation()}
             disabled={scanning || investigating || !url.trim()}
             variant="outline"
-            className="h-12 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all">
-            {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
+            className="h-12 px-4 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all shrink-0 cursor-pointer">
+            {investigating ? "Investigating..." : "🤖 TinyFish AI"}
           </Button>
         </div>
       </div>
 
-      {/* TinyFish Agent Standalone Investigation Display */}
-      {(url.trim() || investigating || tfResult || result?.tinyfishInvestigation) && (
+      {/* TinyFish Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
         <TinyFishInvestigationCard
           investigation={tfResult || result?.tinyfishInvestigation}
           isInvestigating={investigating}
@@ -174,79 +174,38 @@ export default function LinkScanner() {
         />
       )}
 
+      {/* Scanning Loader */}
       {scanning && (
         <div className="space-y-4">
-          <ScannerAnalysisProgress isAnalyzing={scanning} title="Domain Infrastructure & Typosquatting Analysis" />
+          <ScannerAnalysisProgress isAnalyzing={scanning} title="Deep Domain Reputation & SSL Analysis" />
           <SkeletonScannerResult />
         </div>
       )}
 
+      {/* Results */}
       {result && !scanning && (
-        <div className="space-y-4">
-          
-          {/* Domain Trust Profile & Telemetry Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            
-            <div className="ghost-card p-3.5 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Domain Age</span>
-                <Clock className="w-4 h-4 text-cyan-500" />
-              </div>
-              <p className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>
-                {result.domain_age_days ? `${result.domain_age_days} days` : "Unknown"}
-              </p>
-              <span className="text-[10px]" style={{ color: 'var(--ghost-text-muted)' }}>
-                {result.domain_age_days < 30 ? "Newly Created" : "Established"}
-              </span>
-            </div>
+        <div className="space-y-6">
+          {/* Senior Plain-Language Explanation */}
+          <SeniorScanExplanation result={result} rawInput={url} scanType="url" />
 
-            <div className="ghost-card p-3.5 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>SSL Certificate</span>
-                <Lock className="w-4 h-4" style={{ color: result.ssl_status?.includes('Valid') ? 'var(--ghost-green)' : 'var(--ghost-red)' }} />
-              </div>
-              <p className="text-base font-bold truncate" style={{ color: 'var(--ghost-text)' }}>
-                {result.ssl_status || "Standard"}
-              </p>
-              <span className="text-[10px]" style={{ color: 'var(--ghost-text-muted)' }}>
-                Transport Layer
-              </span>
-            </div>
+          {/* Ask Trusted Contact Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={async () => {
+                await triggerHaptic("light");
+                setShowTrustedContact(true);
+              }}
+              className="h-11 px-4 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
+              <Users className="w-4 h-4" />
+              <span>Ask Trusted Contact / Family Member</span>
+            </button>
+          </div>
 
-            <div className="ghost-card p-3.5 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Brand Mimicry</span>
-                <Globe className="w-4 h-4" style={{ color: result.is_known_brand_impersonation ? 'var(--ghost-red)' : 'var(--ghost-green)' }} />
-              </div>
-              <p className="text-base font-bold truncate" style={{ color: 'var(--ghost-text)' }}>
-                {result.is_known_brand_impersonation ? "Detected" : "Clean"}
-              </p>
-              <span className="text-[10px] truncate" style={{ color: 'var(--ghost-text-muted)' }}>
-                {result.impersonated_brand || "No impersonation"}
-              </span>
-            </div>
-
-            <div className="ghost-card p-3.5 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold" style={{ color: 'var(--ghost-text-dim)' }}>Threat Reports</span>
-                <Users className="w-4 h-4 text-amber-500" />
-              </div>
-              <p className="text-base font-bold" style={{ color: 'var(--ghost-text)' }}>
-                {result.community_reports || 0}
-              </p>
-              <span className="text-[10px]" style={{ color: 'var(--ghost-text-muted)' }}>
-                Community Flags
-              </span>
-            </div>
-
-          </motion.div>
-
-          {/* Safe Educational Sandbox Prompt */}
-          <div className={`ghost-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-            result.risk_level === 'safe' ? 'border-emerald-500/30' : 'border-amber-500/30'
+          {/* Interactive Simulation Banner */}
+          <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 transition-all ${
+            result.risk_level === 'safe'
+              ? 'bg-emerald-500/10 border-emerald-500/30'
+              : 'bg-amber-500/10 border-amber-500/30'
           }`}>
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
@@ -271,14 +230,14 @@ export default function LinkScanner() {
             </div>
             <Button
               onClick={() => setShowSimModal(true)}
-              className={`text-xs font-bold text-slate-950 shrink-0 h-9 px-4 rounded-lg ${
+              className={`text-xs font-bold text-slate-950 shrink-0 h-9 px-4 rounded-lg cursor-pointer ${
                 result.risk_level === 'safe' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-amber-500 hover:bg-amber-400'
               }`}>
               {result.risk_level === 'safe' ? "Launch Walkthrough" : "Launch Simulation"}
             </Button>
           </div>
 
-          {/* Score & Threat Reconstruction */}
+          {/* Technical Fraud Score Display */}
           <FraudScoreDisplay
             score={result.fraud_score}
             riskLevel={result.risk_level}
@@ -301,7 +260,6 @@ export default function LinkScanner() {
             }}
           />
 
-          {/* Simulation Modal */}
           <ClickSimulationModal
             isOpen={showSimModal}
             onClose={() => setShowSimModal(false)}
@@ -309,9 +267,14 @@ export default function LinkScanner() {
             steps={result.simulation_steps}
             riskLevel={result.risk_level}
           />
-
         </div>
       )}
+
+      <TrustedContactModal
+        isOpen={showTrustedContact}
+        onClose={() => setShowTrustedContact(false)}
+        scanSummary={result}
+      />
     </div>
   );
 }

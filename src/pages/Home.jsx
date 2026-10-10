@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ProtectionStatus from "../components/dashboard/ProtectionStatus";
 import QuickActions from "../components/dashboard/QuickActions";
 import RecentScans from "../components/dashboard/RecentScans";
 import ThreatStats from "../components/dashboard/ThreatStats";
+import SeniorHomeView from "../components/SeniorHomeView";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -11,6 +12,38 @@ import { listScanHistory, listScamReports } from "@/lib/data";
 import { SkeletonCard, ThreatListSkeleton, MetricCardSkeleton } from "../components/ui/skeleton";
 
 export default function Home() {
+  const [seniorModeActive, setSeniorModeActive] = useState(() => {
+    try {
+      return document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const syncMode = () => {
+      const active = document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true";
+      setSeniorModeActive(active);
+    };
+    syncMode();
+
+    window.addEventListener("ghostnet_senior_mode_change", syncMode);
+    window.addEventListener("storage", syncMode);
+    return () => {
+      window.removeEventListener("ghostnet_senior_mode_change", syncMode);
+      window.removeEventListener("storage", syncMode);
+    };
+  }, []);
+
+  const handleSwitchToNormalMode = () => {
+    setSeniorModeActive(false);
+    try {
+      localStorage.setItem("ghostnet_senior_mode", "false");
+    } catch {}
+    document.body.classList.remove("family-safety-mode");
+    window.dispatchEvent(new Event("ghostnet_senior_mode_change"));
+  };
+
   const { data: scans = [], isLoading: loadingScans } = useQuery({
     queryKey: ['scanHistory'],
     queryFn: () => listScanHistory(20),
@@ -25,6 +58,11 @@ export default function Home() {
   const threatsBlocked = scans.filter(s => s.risk_level === 'scam' || s.risk_level === 'suspicious').length;
   const scamRatio = scans.length > 0 ? (scans.filter(s => s.risk_level === 'scam').length / scans.length) : 0;
   const safetyScore = scans.length === 0 ? 100 : Math.max(10, Math.round(100 - (scamRatio * 80)));
+
+  // Render Senior Mode View when Senior Mode is active
+  if (seniorModeActive) {
+    return <SeniorHomeView onSwitchToNormalMode={handleSwitchToNormalMode} />;
+  }
 
   return (
     <div className="space-y-6 pb-6">

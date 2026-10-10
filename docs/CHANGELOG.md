@@ -4,6 +4,19 @@ All notable changes to GhostNet AI are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0-release] - 2026-10-10 (Senior & Family Safety Mode Complete Release)
+
+### Added
+* **Prominent Mode Switch (Normal Mode ↔ Senior Mode)**: High-visibility labelled toggle control (`NORMAL MODE → SWITCH TO SENIOR MODE` / `SENIOR MODE → SWITCH TO NORMAL MODE`) in application header and navigation with `localStorage` (`ghostnet_senior_mode`) state persistence and real-time tab synchronization.
+* **Accessible Senior Home View (`SeniorHomeView.jsx`)**: Dedicated Senior Mode home screen with 4 large action cards (`CHECK A MESSAGE`, `CHECK A LINK`, `CHECK A SCREENSHOT`, `GET EMERGENCY HELP`), high contrast, minimum 48dp+ touch targets, and large typography.
+* **Plain-Language Scan Explanations (`SeniorScanExplanation.jsx`)**: Reusable scan result explanation component breaking findings into 3 plain-English sections: 📌 *What GhostNet Detected*, 🔍 *Why We Flagged It*, and 🛡️ *What You Should Do Next*.
+* **Free Web Speech API Voice Assistance (`VoiceAssistance.jsx`)**: Built-in text-to-speech engine (`window.speechSynthesis`) with Read Aloud, Pause, Resume, Stop, Speed adjustment (0.75x–1.25x), language selection (`en-IN` / `hi-IN`), and auto-cancellation on unmount with zero paid API dependencies.
+* **100% Offline Emergency Scam Guidance (`EmergencyGuidanceModal.jsx`)**: Emergency action playbooks for 5 offline scam scenarios: OTP shared, Money transferred (India Helpline 1930 / `cybercrime.gov.in`), Suspicious app installed, Personal info shared, and Extortion/Threats.
+* **User-Initiated Trusted Contact Sharing (`TrustedContactModal.jsx`)**: Workflow allowing senior users to review scan findings and share safety summaries with family members via native Web/Capacitor share sheet or copy-to-clipboard fallback.
+* **Family Impersonation Detector**: Added `FAMILY_IMPERSONATION_RISK` reason code and heuristic rules detecting urgent monetary demands pretending to be family members in distress.
+* **Interactive Scam Simulation ("Can You Spot the Scam?")**: Interactive educational modal with 3 real-world practice scenarios (Electricity Bill SMS, Bank OTP Call, India Post Package Link).
+* **Release-Ready Verified APK (`GhostNet.apk`)**: Updated compiled release APK (13.3 MB) in root directory passing 100% test suite (51/51).
+
 ## [1.5.0-release] - 2026-10-10 (TinyFish AI Web Agent, Android WebView White Screen Elimination & Native In-App Google Auth)
 
 ### Added

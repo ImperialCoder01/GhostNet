@@ -275,10 +275,10 @@ export default function Layout({ children, currentPageName }) {
               <button
                 onClick={toggleFamilyMode}
                 title="Toggle Senior & Family Safety Mode"
-                className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 transition-all ${familyMode ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300" : ""}`}
+                className={`text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all ${familyMode ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "hover:border-slate-400"}`}
                 style={{ background: familyMode ? undefined : 'var(--ghost-surface-2)', borderColor: familyMode ? undefined : 'var(--ghost-border)', color: familyMode ? undefined : 'var(--ghost-text-dim)' }}>
                 <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="hidden sm:inline">{familyMode ? "Senior Mode: ON" : "Senior Mode"}</span>
+                <span className="hidden sm:inline font-extrabold">{familyMode ? "SENIOR MODE → SWITCH TO NORMAL MODE" : "NORMAL MODE → SWITCH TO SENIOR MODE"}</span>
               </button>
 
               <Link
@@ -448,8 +448,8 @@ export default function Layout({ children, currentPageName }) {
                 color: familyMode ? undefined : 'var(--ghost-text-dim)'
               }}>
               <HeartHandshake className="w-3.5 h-3.5 text-emerald-500 pointer-events-none" />
-              <span className="hidden md:inline pointer-events-none">
-                {familyMode ? "Senior Mode: ON" : "Senior Mode"}
+              <span className="hidden sm:inline font-extrabold pointer-events-none">
+                {familyMode ? "SENIOR MODE → SWITCH TO NORMAL MODE" : "NORMAL MODE → SWITCH TO SENIOR MODE"}
               </span>
             </button>
 

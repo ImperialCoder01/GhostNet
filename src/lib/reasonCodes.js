@@ -57,6 +57,11 @@ export const REASON_CODE_DICT = {
     icon: 'UserX',
     color: '#64748b',
   },
+  FAMILY_IMPERSONATION_RISK: {
+    label: 'Family Impersonation Scam',
+    icon: 'Users',
+    color: '#e11d48',
+  },
 }
 
 /**

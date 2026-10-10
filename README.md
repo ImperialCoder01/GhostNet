@@ -41,18 +41,19 @@ Traditional antivirus and threat filters act as opaque black boxes, outputting a
 
 ---
 
-## 🛡️ 8 Core Defense Capabilities
+## 🛡️ 9 Core Defense Capabilities
 
 | # | Capability | Description | Engine / Stack | Status |
 |:-:|:---|:---|:---|:---:|
-| **1** | **Explainable Risk Scoring** | Standardizes risk assessment with 10 fixed reason codes (`URGENCY_SCARE_TACTICS`, `REQUEST_OTP_PASSWORD`, `PAYMENT_REDIRECT`, `SUSPICIOUS_DOMAIN`, `IMPERSONATION_BRAND`, `MALICIOUS_ATTACHMENT`, `UNSOLICITED_CONTACT`, `POOR_GRAMMAR_FORMAT`, `REWARD_BAIT`, `THREAT_BLACKMAIL`) protected by strict code-defense filtering against LLM hallucinations. | Groq LPU / Heuristic Mapper | ✅ Implemented |
-| **2** | **Hardened Heuristic Engine** | Deterministic regex and NLP rule engine executing in under 5ms with `withTimeout` fail-safe wrappers. Provides complete offline fallback during API degradation or network disconnections. | Client-side JS / Node.js Regex Engine | ✅ Implemented |
-| **3** | **Public Threat Feed Sync** | Automated scheduled ingestion of free global threat feeds (OpenPhish and URLhaus). Normalizes, SHA-256 hashes, and deduplicates indicators into the PostgreSQL database. | `scripts/sync-threat-feeds.js` + `/api/cron/sync-feeds` | ✅ Implemented |
-| **4** | **Community Threat Intelligence** | Decentralized scam indicator telemetry with PostgreSQL Row-Level Security (RLS). Automatically aggregates, fingerprints, and displays live global surge velocity. | Supabase PostgreSQL + `/ScamHeatmap` | ✅ Implemented |
-| **5** | **Live QR Code Camera Inspector** | Real-time camera viewfinder utilizing HTML5 `<video>` and `jsQR` canvas processing to extract, defang, and inspect embedded malicious URLs, UPI intent traps, and credential portals. | WebRTC MediaDevices + `jsQR` | ✅ Implemented |
-| **6** | **Voice & Deepfake Call Detector** | Analyzes audio recordings and live mic streams using Fast Fourier Transform (FFT) spectral flatness, Wiener entropy, high-frequency energy ratios, and Groq Whisper-large-v3 transcription. | `fft.js` + Groq Whisper + `/api/analyze-voice` | ✅ Implemented |
-| **7** | **Real-Time Browser Extension (MV3)** | Chromium Manifest V3 extension featuring background tab monitoring, automated domain hash lookups, dynamic badge indicators, and full-screen malicious navigation interceptors. | Chrome MV3 Service Worker + DeclarativeNetRequest | ✅ Implemented |
-| **8** | **Pre-Click Interceptor & Sandbox** | Low-latency `/api/blocklist-lite` caching API and "What Happens If I Click?" zero-execution browser sandbox that educates users without exposing them to malware. | `/api/blocklist-lite` + React Educational Sandbox | ✅ Implemented |
+| **1** | **Explainable Risk Scoring** | Standardizes risk assessment with 11 fixed reason codes (`URGENCY_LANGUAGE`, `REQUESTS_OTP`, `REQUESTS_PAYMENT`, `LOOKALIKE_DOMAIN`, `IMPERSONATES_BRAND`, `FAMILY_IMPERSONATION_RISK`, `PUNYCODE_DOMAIN`, `NEWLY_REGISTERED_DOMAIN`, `KNOWN_MALICIOUS_DOMAIN`, `SUSPICIOUS_ATTACHMENT_QR`, `GENERIC_GREETING`) protected by code-defense filtering against AI hallucinations. | Groq LPU / Heuristic Mapper | ✅ Implemented |
+| **2** | **Senior & Family Safety Mode** | High-contrast, accessible mode tailored for elderly users with prominent mode switch, 48dp+ touch targets, Web Speech API (`SpeechSynthesis`) zero-cost voice assistance, 100% offline emergency scam guidance (Helpline 1930 / cybercrime.gov.in), family impersonation detection, and trusted contact sharing. | `VoiceAssistance.jsx` + `SeniorScanExplanation.jsx` + `EmergencyGuidanceModal.jsx` | ✅ Implemented |
+| **3** | **Hardened Heuristic Engine** | Deterministic regex and NLP rule engine executing in under 5ms with `withTimeout` fail-safe wrappers. Provides complete offline fallback during API degradation or network disconnections. | Client-side JS / Node.js Regex Engine | ✅ Implemented |
+| **4** | **Public Threat Feed Sync** | Automated scheduled ingestion of free global threat feeds (OpenPhish and URLhaus). Normalizes, SHA-256 hashes, and deduplicates indicators into the PostgreSQL database. | `scripts/sync-threat-feeds.js` + `/api/cron/sync-feeds` | ✅ Implemented |
+| **5** | **Community Threat Intelligence** | Decentralized scam indicator telemetry with PostgreSQL Row-Level Security (RLS). Automatically aggregates, fingerprints, and displays live global surge velocity. | Supabase PostgreSQL + `/ScamHeatmap` | ✅ Implemented |
+| **6** | **Live QR Code Camera Inspector** | Real-time camera viewfinder utilizing HTML5 `<video>` and `jsQR` canvas processing to extract, defang, and inspect embedded malicious URLs, UPI intent traps, and credential portals. | WebRTC MediaDevices + `jsQR` | ✅ Implemented |
+| **7** | **Voice & Deepfake Call Detector** | Analyzes audio recordings and live mic streams using Fast Fourier Transform (FFT) spectral flatness, Wiener entropy, high-frequency energy ratios, and Groq Whisper-large-v3 transcription. | `fft.js` + Groq Whisper + `/api/analyze-voice` | ✅ Implemented |
+| **8** | **Real-Time Browser Extension (MV3)** | Chromium Manifest V3 extension featuring background tab monitoring, automated domain hash lookups, dynamic badge indicators, and full-screen malicious navigation interceptors. | Chrome MV3 Service Worker + DeclarativeNetRequest | ✅ Implemented |
+| **9** | **Pre-Click Interceptor & Sandbox** | Low-latency `/api/blocklist-lite` caching API and "What Happens If I Click?" zero-execution browser sandbox that educates users without exposing them to malware. | `/api/blocklist-lite` + React Educational Sandbox | ✅ Implemented |
 
 ---
 

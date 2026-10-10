@@ -88,19 +88,21 @@ describe('GhostNet AI Scanner Engine Tests', () => {
 // Feature 1 — Reason Code Filtering
 // ============================================================
 describe('Feature 1 — Reason Code Filtering', () => {
-  it('should pass all 10 known reason codes through the filter', () => {
+  it('should pass all 11 known reason codes through the filter', () => {
     const allCodes = [...VALID_REASON_CODES]
-    assert.strictEqual(allCodes.length, 10, 'Expected exactly 10 valid reason codes')
+    assert.strictEqual(allCodes.length, 11, 'Expected exactly 11 valid reason codes')
     const filtered = filterValidReasonCodes(allCodes)
-    assert.strictEqual(filtered.length, 10, 'All valid codes should pass through')
+    assert.strictEqual(filtered.length, 11, 'All valid codes should pass through')
+    assert.ok(filtered.includes('FAMILY_IMPERSONATION_RISK'), 'Expected FAMILY_IMPERSONATION_RISK in valid codes')
   })
 
   it('should filter out unknown / hallucinated reason codes', () => {
-    const mixed = ['URGENCY_LANGUAGE', 'FAKE_CODE_XYZ', 'REQUESTS_OTP', 'HALLUCINATED_CODE']
+    const mixed = ['URGENCY_LANGUAGE', 'FAKE_CODE_XYZ', 'REQUESTS_OTP', 'HALLUCINATED_CODE', 'FAMILY_IMPERSONATION_RISK']
     const filtered = filterValidReasonCodes(mixed)
-    assert.strictEqual(filtered.length, 2, 'Only 2 known codes should survive')
+    assert.strictEqual(filtered.length, 3, 'Only 3 known codes should survive')
     assert.ok(filtered.includes('URGENCY_LANGUAGE'))
     assert.ok(filtered.includes('REQUESTS_OTP'))
+    assert.ok(filtered.includes('FAMILY_IMPERSONATION_RISK'))
     assert.ok(!filtered.includes('FAKE_CODE_XYZ'))
   })
 

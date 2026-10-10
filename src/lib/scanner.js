@@ -341,6 +341,9 @@ export function inferReasonCodes(text, url = '', signals = {}, riskLevel = 'safe
   if (/\b(dear customer|dear user|valued member|hello friend|attention)\b/i.test(norm)) {
     codes.push('GENERIC_GREETING')
   }
+  if (/\b(dad|mom|father|mother|son|daughter|grandma|grandpa|family|brother|sister)\b/i.test(norm) && /\b(lost my phone|new number|urgent money|emergency|hospital|accident|transfer money|dont call|don't tell|send cash|upi|help me)\b/i.test(norm)) {
+    codes.push('FAMILY_IMPERSONATION_RISK')
+  }
 
   return filterValidReasonCodes(codes)
 }

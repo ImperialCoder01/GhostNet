@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { MessageSquareWarning, Sparkles, Trash2, Bot } from "lucide-react";
+import { MessageSquareWarning, Sparkles, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
 import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
+import SeniorScanExplanation from "../components/SeniorScanExplanation";
+import TrustedContactModal from "../components/TrustedContactModal";
 import { useNotify } from "../components/useNotify";
 import { createScanHistory } from "@/lib/data";
 import { analyzeMessage, investigateWebsite, extractUrlFromText } from "@/lib/api";
@@ -13,6 +15,7 @@ import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useLocation } from "react-router-dom";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
+import { triggerHaptic } from "@/lib/haptics";
 
 export default function MessageScanner() {
   const queryClient = useQueryClient();
@@ -22,7 +25,24 @@ export default function MessageScanner() {
   const [result, setResult] = useState(null);
   const [investigating, setInvestigating] = useState(false);
   const [tfResult, setTfResult] = useState(null);
+  const [showTrustedContact, setShowTrustedContact] = useState(false);
+  const [seniorModeActive, setSeniorModeActive] = useState(() => {
+    try {
+      return document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true";
+    } catch {
+      return false;
+    }
+  });
+
   const notify = useNotify();
+
+  useEffect(() => {
+    const syncSeniorMode = () => {
+      setSeniorModeActive(document.body.classList.contains("family-safety-mode") || localStorage.getItem("ghostnet_senior_mode") === "true");
+    };
+    window.addEventListener("ghostnet_senior_mode_change", syncSeniorMode);
+    return () => window.removeEventListener("ghostnet_senior_mode_change", syncSeniorMode);
+  }, []);
 
   useEffect(() => {
     if (location.state?.sharedContent) {
@@ -100,7 +120,7 @@ export default function MessageScanner() {
   const extractedUrl = extractUrlFromText(message);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-6">
       <ScannerHeader
         icon={MessageSquareWarning}
         title="Message & Social Engineering Scanner"
@@ -121,7 +141,7 @@ export default function MessageScanner() {
             {message && (
               <button
                 onClick={() => { setMessage(""); setResult(null); setTfResult(null); }}
-                className="text-xs font-semibold text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors">
+                className="text-xs font-semibold text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors cursor-pointer">
                 <Trash2 className="w-3.5 h-3.5" /> Clear Text
               </button>
             )}
@@ -132,7 +152,7 @@ export default function MessageScanner() {
               <button
                 key={threat.id}
                 onClick={() => handleSelectSample(threat.sampleInput)}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-cyan-400/50 transition-all text-left"
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-cyan-400/50 transition-all text-left cursor-pointer"
                 style={{
                   background: 'var(--ghost-surface-2)',
                   borderColor: 'var(--ghost-border)',
@@ -162,7 +182,7 @@ export default function MessageScanner() {
           <Button
             onClick={() => handleScan()}
             disabled={scanning || investigating || !message.trim()}
-            className="h-12 rounded-xl font-bold transition-all shadow-md bg-cyan-500 hover:bg-cyan-400 text-slate-950">
+            className="h-12 rounded-xl font-bold transition-all shadow-md bg-cyan-500 hover:bg-cyan-400 text-slate-950 cursor-pointer">
             {scanning ? "Evaluating Threat Vectors..." : "Inspect & Reconstruct Threat"}
           </Button>
 
@@ -171,7 +191,7 @@ export default function MessageScanner() {
               onClick={() => handleTinyFishInvestigation(extractedUrl)}
               disabled={scanning || investigating || !message.trim()}
               variant="outline"
-              className="h-12 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all">
+              className="h-12 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all cursor-pointer">
               {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
             </Button>
           )}
@@ -195,30 +215,55 @@ export default function MessageScanner() {
           <SkeletonScannerResult />
         </div>
       )}
-      
-      {/* Rich Explainable Results */}
+
+      {/* Result Display */}
       {result && !scanning && (
-        <FraudScoreDisplay
-          score={result.fraud_score}
-          riskLevel={result.risk_level}
-          confidence={result.confidence || "high"}
-          reasons={result.reasons}
-          analysis={result.analysis || result.ai_analysis}
-          attackIntent={result.attack_intent}
-          signals={result.signals}
-          threatReconstruction={result.threat_reconstruction}
-          similarPatterns={result.similar_patterns}
-          reasonCodes={result.reasonCodes || []}
-          source={result.source}
-          rawScanData={{
-            scan_type: "message",
-            input_content: message,
-            fraud_score: result.fraud_score,
-            analysis: result.analysis || result.ai_analysis,
-            reasons: result.reasons,
-          }}
-        />
+        <div className="space-y-6">
+          {/* Senior Plain-Language Explanation */}
+          <SeniorScanExplanation result={result} rawInput={message} scanType="message" />
+
+          {/* Ask Trusted Contact Trigger Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={async () => {
+                await triggerHaptic("light");
+                setShowTrustedContact(true);
+              }}
+              className="h-11 px-4 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer">
+              <Users className="w-4 h-4" />
+              <span>Ask Trusted Contact / Family Member</span>
+            </button>
+          </div>
+
+          {/* Detailed Technical Fraud Score Display */}
+          <FraudScoreDisplay
+            score={result.fraud_score}
+            riskLevel={result.risk_level}
+            confidence={result.confidence || "high"}
+            reasons={result.reasons}
+            analysis={result.analysis || result.ai_analysis}
+            attackIntent={result.attack_intent}
+            signals={result.signals}
+            threatReconstruction={result.threat_reconstruction}
+            similarPatterns={result.similar_patterns}
+            reasonCodes={result.reasonCodes || []}
+            source={result.source}
+            rawScanData={{
+              scan_type: "message",
+              input_content: message,
+              fraud_score: result.fraud_score,
+              analysis: result.analysis || result.ai_analysis,
+              reasons: result.reasons,
+            }}
+          />
+        </div>
       )}
+
+      <TrustedContactModal
+        isOpen={showTrustedContact}
+        onClose={() => setShowTrustedContact(false)}
+        scanSummary={result}
+      />
     </div>
   );
 }
