@@ -278,7 +278,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all ${familyMode ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "hover:border-slate-400"}`}
                 style={{ background: familyMode ? undefined : 'var(--ghost-surface-2)', borderColor: familyMode ? undefined : 'var(--ghost-border)', color: familyMode ? undefined : 'var(--ghost-text-dim)' }}>
                 <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="hidden sm:inline font-extrabold">{familyMode ? "SENIOR MODE → SWITCH TO NORMAL MODE" : "NORMAL MODE → SWITCH TO SENIOR MODE"}</span>
+                <span className="hidden sm:inline font-extrabold">{familyMode ? "Senior Mode: ON" : "Senior Mode"}</span>
               </button>
 
               <Link
@@ -449,7 +449,7 @@ export default function Layout({ children, currentPageName }) {
               }}>
               <HeartHandshake className="w-3.5 h-3.5 text-emerald-500 pointer-events-none" />
               <span className="hidden sm:inline font-extrabold pointer-events-none">
-                {familyMode ? "SENIOR MODE → SWITCH TO NORMAL MODE" : "NORMAL MODE → SWITCH TO SENIOR MODE"}
+                {familyMode ? "Senior Mode: ON" : "Senior Mode"}
               </span>
             </button>
 

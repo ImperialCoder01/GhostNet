@@ -113,21 +113,23 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
   }
 
   return (
-    <div className="p-3 sm:p-4 rounded-2xl border bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-100 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 font-bold text-sm sm:text-base text-emerald-700 dark:text-emerald-300">
-          <Volume2 className={`w-5 h-5 ${speaking ? "animate-pulse text-emerald-400" : ""}`} />
+    <div className="p-4 rounded-3xl border bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-teal-500/10 dark:from-emerald-950/40 dark:to-teal-950/40 border-emerald-500/30 text-emerald-950 dark:text-emerald-100 shadow-sm space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 font-black text-sm sm:text-base text-emerald-800 dark:text-emerald-300">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <Volume2 className={`w-5 h-5 ${speaking ? "animate-pulse text-emerald-500" : ""}`} />
+          </div>
           <span>{title}</span>
         </div>
 
         {/* Speed and Language Selectors */}
-        <div className="flex items-center gap-2 text-xs">
-          <label className="flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-200">
-            <Globe className="w-3.5 h-3.5" />
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <label className="flex items-center gap-1.5 font-bold text-emerald-900 dark:text-emerald-200">
+            <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              className="bg-emerald-950/20 border border-emerald-500/40 rounded px-1.5 py-0.5 font-sans focus:outline-none"
+              className="bg-white dark:bg-slate-900 border border-emerald-500/40 text-emerald-950 dark:text-emerald-100 rounded-xl px-2 py-1 font-semibold text-xs focus:ring-2 focus:ring-emerald-500 outline-none shadow-sm cursor-pointer"
             >
               <option value="en-IN">English (India)</option>
               <option value="hi-IN">Hindi (हिंदी)</option>
@@ -135,12 +137,12 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
             </select>
           </label>
 
-          <label className="flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-200">
-            <Settings2 className="w-3.5 h-3.5" />
+          <label className="flex items-center gap-1.5 font-bold text-emerald-900 dark:text-emerald-200">
+            <Settings2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <select
               value={rate}
               onChange={(e) => setRate(parseFloat(e.target.value))}
-              className="bg-emerald-950/20 border border-emerald-500/40 rounded px-1.5 py-0.5 font-sans focus:outline-none"
+              className="bg-white dark:bg-slate-900 border border-emerald-500/40 text-emerald-950 dark:text-emerald-100 rounded-xl px-2 py-1 font-semibold text-xs focus:ring-2 focus:ring-emerald-500 outline-none shadow-sm cursor-pointer"
             >
               <option value={0.75}>0.75x Slow</option>
               <option value={1.0}>1.0x Normal</option>
@@ -151,12 +153,12 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
       </div>
 
       {/* Control Buttons */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
         {!speaking ? (
           <button
             type="button"
             onClick={speak}
-            className="h-11 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+            className="h-11 px-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
           >
             <Play className="w-4 h-4 fill-current" />
             <span>{paused ? "Resume Reading" : "Read Aloud"}</span>
@@ -165,7 +167,7 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
           <button
             type="button"
             onClick={pause}
-            className="h-11 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+            className="h-11 px-5 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
           >
             <Pause className="w-4 h-4 fill-current" />
             <span>Pause Voice</span>
@@ -176,7 +178,7 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
           <button
             type="button"
             onClick={stop}
-            className="h-11 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+            className="h-11 px-5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
           >
             <Square className="w-4 h-4 fill-current" />
             <span>Stop Reading</span>
