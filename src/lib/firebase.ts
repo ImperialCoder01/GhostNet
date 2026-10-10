@@ -1,3 +1,6 @@
+import { initializeApp, getApps, getApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+
 export function isFirebaseConfigured(): boolean {
   const key = import.meta.env.VITE_FIREBASE_API_KEY || ''
   return Boolean(
@@ -22,3 +25,4 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
 const auth = getAuth(app)
 
 export { app, auth }
+
