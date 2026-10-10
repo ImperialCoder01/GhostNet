@@ -52,6 +52,17 @@ describe('GhostNet AI Scanner Engine Tests', () => {
     assert.strictEqual(result.risk_level, 'scam', 'Expected scam risk level')
     assert.ok(result.fraud_score >= 70, 'Expected high fraud score')
     assert.ok(result.simulation_steps.length > 0, 'Expected educational simulation steps')
+    assert.strictEqual(result.simulation_steps[0].safe, false, 'Expected threat simulation step')
+  })
+
+  it('should generate safe security walkthrough steps for legitimate URLs', () => {
+    const url = 'https://www.google.com/'
+    const result = analyzeUrlContent(url)
+
+    assert.strictEqual(result.risk_level, 'safe', 'Expected safe risk level for google.com')
+    assert.ok(result.fraud_score < 30, 'Expected low fraud score')
+    assert.ok(result.simulation_steps.length > 0, 'Expected walkthrough steps')
+    assert.strictEqual(result.simulation_steps[0].safe, true, 'Expected safe walkthrough step')
   })
 
   it('should safely identify clean legitimate messages', () => {

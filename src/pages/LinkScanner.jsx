@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles } from "lucide-react";
+import { Link2, Globe, Lock, Clock, Users, Eye, Sparkles, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ScannerHeader from "../components/scanner/ScannerHeader";
@@ -245,24 +245,36 @@ export default function LinkScanner() {
           </motion.div>
 
           {/* Safe Educational Sandbox Prompt */}
-          <div className="ghost-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-amber-500/30">
+          <div className={`ghost-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+            result.risk_level === 'safe' ? 'border-emerald-500/30' : 'border-amber-500/30'
+          }`}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
-                <Eye className="w-5 h-5 text-amber-500" />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                result.risk_level === 'safe' ? 'bg-emerald-500/15 border-emerald-500/30' : 'bg-amber-500/15 border-amber-500/30'
+              }`}>
+                {result.risk_level === 'safe' ? (
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <Eye className="w-5 h-5 text-amber-500" />
+                )}
               </div>
               <div>
                 <h4 className="text-sm font-bold" style={{ color: 'var(--ghost-text)' }}>
-                  Safe Threat Simulation Sandbox
+                  {result.risk_level === 'safe' ? "Safe Domain Security Walkthrough" : "Safe Threat Simulation Sandbox"}
                 </h4>
                 <p className="text-xs" style={{ color: 'var(--ghost-text-dim)' }}>
-                  Curious what would happen if you opened this link? Walk through a safe educational simulation.
+                  {result.risk_level === 'safe'
+                    ? "Explore how standard HTTPS encryption and authentic domain identity protect your connection."
+                    : "Curious what would happen if you opened this link? Walk through a safe educational simulation."}
                 </p>
               </div>
             </div>
             <Button
               onClick={() => setShowSimModal(true)}
-              className="text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shrink-0 h-9 px-4 rounded-lg">
-              Launch Simulation
+              className={`text-xs font-bold text-slate-950 shrink-0 h-9 px-4 rounded-lg ${
+                result.risk_level === 'safe' ? 'bg-emerald-500 hover:bg-emerald-400' : 'bg-amber-500 hover:bg-amber-400'
+              }`}>
+              {result.risk_level === 'safe' ? "Launch Walkthrough" : "Launch Simulation"}
             </Button>
           </div>
 
@@ -295,6 +307,7 @@ export default function LinkScanner() {
             onClose={() => setShowSimModal(false)}
             url={url}
             steps={result.simulation_steps}
+            riskLevel={result.risk_level}
           />
 
         </div>

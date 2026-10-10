@@ -475,12 +475,67 @@ export function analyzeUrlContent(rawUrl) {
     attack_intent: intent,
     reasonCodes,
     source: 'offline-heuristic',
-    simulation_steps: [
-      { step: 1, title: 'Link Clicked', description: 'Browser opens untrusted domain', safe: false },
-      { step: 2, title: 'Fake Portal Loaded', description: `Rendered lookalike template mimicking ${matchedBrand ? matchedBrand.name : 'service'}`, safe: false },
-      { step: 3, title: 'Credentials Captured', description: 'User enters credentials into attacker database', safe: false },
-      { step: 4, title: 'OTP Intercepted', description: 'Real-time session hijack or fraudulent transaction trigger', safe: false }
-    ]
+    simulation_steps: riskLevel === 'safe'
+      ? [
+          {
+            step: 1,
+            title: '1. User Navigates to Link',
+            description: `Browser connects securely to verified hostname (${host}) over encrypted HTTPS.`,
+            warning: 'Authentic domain identity — no DNS cloaking, typosquatting, or IP spoofing detected.',
+            safe: true,
+          },
+          {
+            step: 2,
+            title: '2. Legitimate Server Responds',
+            description: `The official ${host} web application serves authentic signed assets.`,
+            warning: 'No spoofed clone portal or homograph URL redirect present.',
+            safe: true,
+          },
+          {
+            step: 3,
+            title: '3. Encrypted Data Protection',
+            description: 'Session parameters and data transmission remain protected inside standard browser sandboxes.',
+            warning: 'Standard end-to-end TLS encryption protects your connection against third-party eavesdropping.',
+            safe: true,
+          },
+          {
+            step: 4,
+            title: '4. Safe Connection Verified',
+            description: 'Domain reputation checks pass with zero community threat flags.',
+            warning: 'Safe link destination. Always confirm URL spelling in the browser address bar before signing in.',
+            safe: true,
+          },
+        ]
+      : [
+          {
+            step: 1,
+            title: '1. Victim Clicks Hyperlink',
+            description: 'User navigates to the external domain outside trusted application sandboxes.',
+            warning: 'Initial session headers & device IP transmitted to hostile server.',
+            safe: false,
+          },
+          {
+            step: 2,
+            title: '2. Clone / Spoofed Portal Renders',
+            description: `A visually identical replica of ${matchedBrand ? matchedBrand.name : 'the target portal'} is served to deceive the user.`,
+            warning: 'Fake SSL badge or homograph URL tricks the user into feeling safe.',
+            safe: false,
+          },
+          {
+            step: 3,
+            title: '3. Credential & Data Capture',
+            description: 'User types username, password, or card details into unverified input fields.',
+            warning: 'Keyloggers or backend API immediately logs plaintext credentials into fraudster database.',
+            safe: false,
+          },
+          {
+            step: 4,
+            title: '4. OTP Interception & Account Hijack',
+            description: 'Attacker triggers real transaction on official bank while phishing portal asks victim for live SMS OTP.',
+            warning: 'Immediate unauthorized fund debit or permanent account takeover.',
+            safe: false,
+          },
+        ]
   }
 }
 
