@@ -6,12 +6,7 @@ import { triggerHaptic } from "@/lib/haptics";
 /**
  * EmergencyGuidanceModal Component
  * 100% Offline Emergency Scam Guidance for Senior Users.
- * Provides clear 5-step scenario playbooks for urgent help:
- * 1. Shared OTP / Password
- * 2. Transferred Money (Helpline 1930 + cybercrime.gov.in)
- * 3. Installed Suspicious App
- * 4. Shared Personal Info (Aadhaar / PAN)
- * 5. Extortion or Threat
+ * Theme-aware high contrast styling for crisp readability in Light & Dark mode.
  */
 export default function EmergencyGuidanceModal({ isOpen, onClose }) {
   const [selectedScenario, setSelectedScenario] = useState("money");
@@ -22,7 +17,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
     {
       id: "money",
       title: "💸 I Transferred Money to a Scammer",
-      color: "border-rose-500 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+      color: "border-2 border-rose-500/40 bg-rose-50 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100",
       steps: [
         "📞 CALL 1930 IMMEDIATELY: Dial the National Cyber Crime Helpline at 1930 (India) within 1-2 hours to freeze stolen money in transit.",
         "🏦 CALL YOUR BANK: Ask your bank customer care to immediately freeze your netbanking and debit/credit cards.",
@@ -33,7 +28,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
     {
       id: "otp",
       title: "🔑 I Shared an OTP or Password",
-      color: "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      color: "border-2 border-amber-500/40 bg-amber-50 dark:bg-amber-950/40 text-amber-950 dark:text-amber-100",
       steps: [
         "🔐 CHANGE PASSWORDS: Immediately log in to your official banking app and change your login and transaction passwords.",
         "💳 FREEZE CARDS: Temporarily block your debit/credit cards using your official banking app or customer care.",
@@ -43,7 +38,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
     {
       id: "app",
       title: "📲 I Installed a Suspicious App",
-      color: "border-purple-500 bg-purple-500/10 text-purple-700 dark:text-purple-300",
+      color: "border-2 border-purple-500/40 bg-purple-50 dark:bg-purple-950/40 text-purple-950 dark:text-purple-100",
       steps: [
         "✈️ TURN ON AIRPLANE MODE: Turn on Airplane Mode immediately to disconnect the scammer from viewing your screen.",
         "🗑️ UNINSTALL THE APP: Look for apps named AnyDesk, TeamViewer, QuickSupport, or downloaded APKs and tap Uninstall.",
@@ -53,7 +48,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
     {
       id: "personal",
       title: "👤 I Shared My Aadhaar or PAN Details",
-      color: "border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+      color: "border-2 border-blue-500/40 bg-blue-50 dark:bg-blue-950/40 text-blue-950 dark:text-blue-100",
       steps: [
         "🔒 LOCK AADHAAR BIOMETRICS: Open the official mAadhaar app or resident.uidai.gov.in to lock your Aadhaar biometrics.",
         "📊 CHECK CREDIT SCORE: Check your CIBIL or Experian credit report to verify no unauthorized loans were opened in your name.",
@@ -63,7 +58,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
     {
       id: "extortion",
       title: "⚠️ Someone Is Threatening or Blackmailing Me",
-      color: "border-red-600 bg-red-600/10 text-red-700 dark:text-red-300",
+      color: "border-2 border-red-600/40 bg-red-50 dark:bg-red-950/40 text-red-950 dark:text-red-100",
       steps: [
         "🛑 DO NOT PANIC: Police and judges NEVER conduct 'Digital Arrests' over WhatsApp or Skype video calls.",
         "🔇 HANG UP IMMEDIATELY: Disconnect the call. Do not answer again.",
@@ -77,18 +72,20 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-card border-2 border-slate-700 rounded-3xl shadow-2xl p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl border-2 border-slate-300 dark:border-slate-700 rounded-3xl shadow-2xl p-4 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+        style={{ background: 'var(--ghost-surface)', color: 'var(--ghost-text)' }}>
+        
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b pb-4 border-slate-700">
+        <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--ghost-border)' }}>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-500 shrink-0">
               <ShieldAlert className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-black font-display tracking-tight text-rose-500">
+              <h2 className="text-lg sm:text-xl font-black font-display tracking-tight text-rose-600 dark:text-rose-400">
                 EMERGENCY SCAM HELP & GUIDE
               </h2>
-              <p className="text-xs font-semibold text-slate-400">100% Offline Emergency Action Playbook</p>
+              <p className="text-xs font-bold" style={{ color: 'var(--ghost-text-dim)' }}>100% Offline Emergency Action Playbook</p>
             </div>
           </div>
           <button
@@ -96,7 +93,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
               await triggerHaptic("light");
               onClose();
             }}
-            className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -105,16 +102,16 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
         {/* National Helpline Banner */}
         <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-lg flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Phone className="w-8 h-8 animate-bounce shrink-0" />
+            <Phone className="w-8 h-8 animate-bounce shrink-0 text-white" />
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider opacity-90">National Cyber Crime Helpline (India)</div>
-              <div className="text-2xl font-black font-mono">DIAL 1930</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-rose-100">National Cyber Crime Helpline (India)</div>
+              <div className="text-2xl font-black font-mono tracking-tight text-white">DIAL 1930</div>
             </div>
           </div>
           <a
             href="tel:1930"
             onClick={() => triggerHaptic("heavy")}
-            className="h-12 px-5 rounded-xl bg-white text-rose-700 font-black text-sm flex items-center justify-center gap-2 hover:bg-rose-50 shadow-md transition-all active:scale-95 cursor-pointer"
+            className="h-11 px-5 rounded-xl bg-white text-rose-700 font-black text-sm flex items-center justify-center gap-2 hover:bg-rose-50 shadow-md transition-all active:scale-95 cursor-pointer"
           >
             <Phone className="w-4 h-4 fill-current" />
             <span>Call 1930 Now</span>
@@ -126,7 +123,7 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
 
         {/* Scenario Selector Tabs */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Select What Happened:</label>
+          <label className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--ghost-text-dim)' }}>Select What Happened:</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {scenarios.map((s) => (
               <button
@@ -137,26 +134,26 @@ export default function EmergencyGuidanceModal({ isOpen, onClose }) {
                 }}
                 className={`p-3 rounded-xl border text-left text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
                   selectedScenario === s.id
-                    ? "border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-md ring-1 ring-cyan-400"
-                    : "border-slate-700 bg-slate-900/60 hover:border-slate-500 text-slate-300"
+                    ? "border-2 border-cyan-500 bg-cyan-500/15 dark:bg-cyan-950/60 text-cyan-950 dark:text-cyan-200 font-black shadow-md ring-2 ring-cyan-500/30"
+                    : "border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/80 hover:border-cyan-500 text-slate-900 dark:text-slate-100"
                 }`}
               >
                 <span>{s.title}</span>
-                {selectedScenario === s.id && <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />}
+                {selectedScenario === s.id && <CheckCircle2 className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0" />}
               </button>
             ))}
           </div>
         </div>
 
         {/* Selected Scenario Action Steps */}
-        <div className={`p-4 sm:p-5 rounded-2xl border ${currentScenario.color} space-y-3`}>
+        <div className={`p-4 sm:p-5 rounded-2xl ${currentScenario.color} space-y-3`}>
           <h3 className="font-extrabold text-base sm:text-lg tracking-tight flex items-center gap-2">
             <Lock className="w-5 h-5" />
             <span>Recommended Action Steps:</span>
           </h3>
           <ol className="space-y-2 text-xs sm:text-sm font-semibold">
             {currentScenario.steps.map((step, idx) => (
-              <li key={idx} className="p-3 rounded-xl bg-slate-950/40 border border-slate-700/50 leading-relaxed">
+              <li key={idx} className="p-3.5 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 font-bold leading-relaxed shadow-sm">
                 {step}
               </li>
             ))}

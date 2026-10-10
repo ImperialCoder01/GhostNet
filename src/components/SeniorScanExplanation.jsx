@@ -22,16 +22,16 @@ export default function SeniorScanExplanation({ result, rawInput = "", scanType 
 
   if (riskLevel === "scam") {
     headlineText = "⚠️ WARNING: THIS MAY BE A DANGEROUS SCAM";
-    headlineColorClass = "bg-rose-500/15 border-rose-500/40 text-rose-700 dark:text-rose-300";
-    icon = <ShieldAlert className="w-8 h-8 text-rose-500 shrink-0" />;
+    headlineColorClass = "bg-rose-500/15 border-2 border-rose-500/40 text-rose-950 dark:text-rose-200 font-extrabold";
+    icon = <ShieldAlert className="w-8 h-8 text-rose-600 dark:text-rose-400 shrink-0" />;
   } else if (riskLevel === "suspicious") {
     headlineText = "⚠️ CAUTION: SUSPICIOUS ACTIVITY DETECTED";
-    headlineColorClass = "bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300";
-    icon = <AlertTriangle className="w-8 h-8 text-amber-500 shrink-0" />;
+    headlineColorClass = "bg-amber-500/15 border-2 border-amber-500/40 text-amber-950 dark:text-amber-200 font-extrabold";
+    icon = <AlertTriangle className="w-8 h-8 text-amber-600 dark:text-amber-400 shrink-0" />;
   } else {
     headlineText = "✅ SAFE: NO SCAM THREATS FOUND";
-    headlineColorClass = "bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300";
-    icon = <ShieldCheck className="w-8 h-8 text-emerald-500 shrink-0" />;
+    headlineColorClass = "bg-emerald-500/15 border-2 border-emerald-500/40 text-emerald-950 dark:text-emerald-200 font-extrabold";
+    icon = <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400 shrink-0" />;
   }
 
   // Generate plain-language bullet points for "Why We Flagged It"
@@ -92,9 +92,11 @@ export default function SeniorScanExplanation({ result, rawInput = "", scanType 
   `.trim();
 
   return (
-    <div className="space-y-4 p-4 sm:p-6 rounded-3xl border-2 bg-card shadow-lg transition-all">
+    <div className="space-y-4 p-4 sm:p-6 rounded-3xl border-2 border-slate-300 dark:border-slate-800 shadow-xl transition-all"
+      style={{ background: 'var(--ghost-surface)', color: 'var(--ghost-text)' }}>
+      
       {/* Header Banner */}
-      <div className={`p-4 rounded-2xl border flex items-center gap-3 ${headlineColorClass}`}>
+      <div className={`p-4 rounded-2xl flex items-center gap-3 ${headlineColorClass}`}>
         {icon}
         <div>
           <h3 className="font-extrabold text-base sm:text-lg tracking-tight font-display">{headlineText}</h3>
@@ -108,26 +110,26 @@ export default function SeniorScanExplanation({ result, rawInput = "", scanType 
       <VoiceAssistance textToRead={voiceSpeechText} title="🔊 Read Explanation Aloud" />
 
       {/* Section 1: What GhostNet Detected */}
-      <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-500/5 space-y-1.5">
-        <h4 className="font-bold text-sm sm:text-base flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
+      <div className="p-4 rounded-2xl border border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 space-y-1.5">
+        <h4 className="font-black text-sm sm:text-base flex items-center gap-2 text-cyan-700 dark:text-cyan-400">
           <HelpCircle className="w-4 h-4" />
           <span>What GhostNet Detected</span>
         </h4>
-        <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--ghost-text)" }}>
+        <p className="text-sm font-bold leading-relaxed text-slate-900 dark:text-slate-100">
           {result.analysis || result.ai_analysis || "GhostNet completed scanning your submitted content."}
         </p>
       </div>
 
       {/* Section 2: Why We Flagged It */}
-      <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-500/5 space-y-2">
-        <h4 className="font-bold text-sm sm:text-base flex items-center gap-2 text-amber-600 dark:text-amber-400">
+      <div className="p-4 rounded-2xl border border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 space-y-2">
+        <h4 className="font-black text-sm sm:text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
           <AlertTriangle className="w-4 h-4" />
           <span>Why We Flagged It</span>
         </h4>
-        <ul className="space-y-2 font-medium text-xs sm:text-sm">
+        <ul className="space-y-2 font-bold text-xs sm:text-sm">
           {plainWhyBullets.map((bullet, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-slate-800 dark:text-slate-200">
-              <span className="text-amber-500 font-bold shrink-0">•</span>
+            <li key={idx} className="flex items-start gap-2 text-slate-900 dark:text-slate-100">
+              <span className="text-amber-600 dark:text-amber-400 font-black shrink-0">•</span>
               <span>{bullet}</span>
             </li>
           ))}
@@ -135,14 +137,14 @@ export default function SeniorScanExplanation({ result, rawInput = "", scanType 
       </div>
 
       {/* Section 3: What You Should Do Next */}
-      <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-500/5 space-y-2">
-        <h4 className="font-bold text-sm sm:text-base flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+      <div className="p-4 rounded-2xl border border-slate-300 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 space-y-2">
+        <h4 className="font-black text-sm sm:text-base flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
           <CheckCircle2 className="w-4 h-4" />
           <span>What You Should Do Next</span>
         </h4>
-        <ul className="space-y-2 font-medium text-xs sm:text-sm">
+        <ul className="space-y-2 font-bold text-xs sm:text-sm">
           {plainNextSteps.map((step, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-slate-800 dark:text-slate-200 font-semibold">
+            <li key={idx} className="flex items-start gap-2 text-slate-900 dark:text-slate-100">
               <span>{step}</span>
             </li>
           ))}

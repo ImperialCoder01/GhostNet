@@ -64,18 +64,20 @@ export default function ScamSimulationModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl bg-card border-2 border-cyan-500/40 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-xl border-2 border-slate-300 dark:border-slate-700 rounded-3xl shadow-2xl p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+        style={{ background: 'var(--ghost-surface)', color: 'var(--ghost-text)' }}>
+        
         {/* Header */}
-        <div className="flex items-center justify-between border-b pb-3 border-slate-800">
+        <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: 'var(--ghost-border)' }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-500">
               <Award className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-extrabold text-base sm:text-lg tracking-tight font-display">
                 CAN YOU SPOT THE SCAM?
               </h3>
-              <p className="text-xs font-semibold text-slate-400">
+              <p className="text-xs font-bold" style={{ color: 'var(--ghost-text-dim)' }}>
                 Interactive Practice ({currentScenarioIndex + 1} of {scenarios.length})
               </p>
             </div>
@@ -85,7 +87,7 @@ export default function ScamSimulationModal({ isOpen, onClose }) {
               await triggerHaptic("light");
               onClose();
             }}
-            className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -95,9 +97,9 @@ export default function ScamSimulationModal({ isOpen, onClose }) {
         <VoiceAssistance textToRead={speechText} title="🔊 Listen to Scenario" />
 
         {/* Scenario Display Card */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">{currentScenario.title}</span>
-          <p className="text-sm font-semibold leading-relaxed text-slate-100 p-3 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 space-y-2">
+          <span className="text-xs font-black uppercase tracking-wider text-cyan-600 dark:text-cyan-400">{currentScenario.title}</span>
+          <p className="text-sm font-bold leading-relaxed text-slate-900 dark:text-slate-100 p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm">
             "{currentScenario.content}"
           </p>
         </div>
@@ -127,24 +129,24 @@ export default function ScamSimulationModal({ isOpen, onClose }) {
             <div
               className={`p-4 rounded-2xl border space-y-2 ${
                 userAnswer === currentScenario.correctAnswer
-                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-                  : "bg-rose-500/15 border-rose-500/40 text-rose-300"
+                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-950 dark:text-emerald-200 font-bold"
+                  : "bg-rose-500/15 border-rose-500/40 text-rose-950 dark:text-rose-200 font-bold"
               }`}
             >
               <div className="flex items-center gap-2 font-extrabold text-base">
                 {userAnswer === currentScenario.correctAnswer ? (
                   <>
-                    <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>CORRECT! GREAT JOB!</span>
                   </>
                 ) : (
                   <>
-                    <XCircle className="w-6 h-6 text-rose-400 shrink-0" />
+                    <XCircle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>INCORRECT — BE CAREFUL!</span>
                   </>
                 )}
               </div>
-              <p className="text-xs sm:text-sm font-medium leading-relaxed">{currentScenario.explanation}</p>
+              <p className="text-xs sm:text-sm font-semibold leading-relaxed">{currentScenario.explanation}</p>
             </div>
 
             {/* Next Scenario Button */}
