@@ -9,10 +9,11 @@ import ClickSimulationModal from "../components/scanner/ClickSimulationModal";
 import { useNotify } from "../components/useNotify";
 import { motion } from "framer-motion";
 import { createScanHistory } from "@/lib/data";
-import { analyzeLink } from "@/lib/api";
+import { analyzeLink, investigateWebsite } from "@/lib/api";
 import { useLocation } from "react-router-dom";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
+import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
 
 export default function LinkScanner() {
   const queryClient = useQueryClient();
@@ -21,6 +22,8 @@ export default function LinkScanner() {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
   const [showSimModal, setShowSimModal] = useState(false);
+  const [investigating, setInvestigating] = useState(false);
+  const [tfResult, setTfResult] = useState(null);
   const notify = useNotify();
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export default function LinkScanner() {
 
     setScanning(true);
     setResult(null);
+    setTfResult(null);
 
     try {
       const res = await analyzeLink(targetUrl);
@@ -56,6 +60,36 @@ export default function LinkScanner() {
       console.error("Link scan error:", err);
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleTinyFishInvestigation = async (urlToInvestigate = url) => {
+    const targetUrl = (typeof urlToInvestigate === 'string' ? urlToInvestigate : url).trim();
+    if (!targetUrl) return;
+
+    setInvestigating(true);
+
+    try {
+      const res = await investigateWebsite(targetUrl);
+      setTfResult(res?.tinyfishInvestigation || res);
+      if (res?.fraud_score !== undefined) {
+        setResult(res);
+        notify(res.risk_level, "link");
+      }
+
+      await createScanHistory({
+        scan_type: "link",
+        input_content: `[TinyFish Live Agent] ${targetUrl.substring(0, 200)}`,
+        fraud_score: res.fraud_score || 0,
+        risk_level: res.risk_level || "safe",
+        ai_analysis: res.analysis || res.tinyfishInvestigation?.summary || "TinyFish Live Browser Investigation",
+        reasons: res.reasons || res.tinyfishInvestigation?.observations || [],
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    } catch (err) {
+      console.error("TinyFish investigation error:", err);
+    } finally {
+      setInvestigating(false);
     }
   };
 
@@ -112,13 +146,33 @@ export default function LinkScanner() {
           />
         </div>
 
-        <Button
-          onClick={() => handleScan()}
-          disabled={scanning || !url.trim()}
-          className="w-full h-12 rounded-xl font-bold text-white transition-all shadow-md bg-purple-600 hover:bg-purple-500">
-          {scanning ? "Inspecting Domain Infrastructure..." : "Inspect Link Safety"}
-        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            onClick={() => handleScan()}
+            disabled={scanning || investigating || !url.trim()}
+            className="h-12 rounded-xl font-bold text-white transition-all shadow-md bg-purple-600 hover:bg-purple-500">
+            {scanning ? "Inspecting Domain..." : "Inspect Link Safety"}
+          </Button>
+
+          <Button
+            onClick={() => handleTinyFishInvestigation()}
+            disabled={scanning || investigating || !url.trim()}
+            variant="outline"
+            className="h-12 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all">
+            {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
+          </Button>
+        </div>
       </div>
+
+      {/* TinyFish Agent Standalone Investigation Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+        <TinyFishInvestigationCard
+          investigation={tfResult || result?.tinyfishInvestigation}
+          isInvestigating={investigating}
+          onInvestigate={() => handleTinyFishInvestigation()}
+          targetUrl={url}
+        />
+      )}
 
       {scanning && (
         <div className="space-y-4">

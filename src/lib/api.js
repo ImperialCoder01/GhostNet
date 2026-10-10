@@ -436,6 +436,54 @@ export function analyzeLink(url) {
   return postAnalyze('link', { url })
 }
 
+export async function investigateWebsite(url) {
+  const endpoints = ['/api/tinyfish/investigate']
+  if (typeof window !== 'undefined') {
+    const customUrl = import.meta.env?.VITE_API_URL
+    if (customUrl) endpoints.push(`${customUrl}/api/tinyfish/investigate`)
+    if (window.location?.origin) {
+      endpoints.push(`${window.location.origin}/api/tinyfish/investigate`)
+    }
+    endpoints.push('https://ghostnet-app.vercel.app/api/tinyfish/investigate')
+  }
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+
+      const contentType = res.headers.get('content-type') || ''
+      if (!contentType.includes('application/json')) continue
+
+      const data = await res.json()
+      if (data && (data.tinyfishInvestigation || data.status === 'error' || data.fraud_score !== undefined)) {
+        return data
+      }
+    } catch {
+      continue
+    }
+  }
+
+  // Fallback if backend server endpoint is unreachable
+  const heuristic = analyzeUrlContent(url || '')
+  return {
+    ...heuristic,
+    source: 'offline-heuristic',
+    tinyfishInvestigation: {
+      url: url || '',
+      status: 'failed',
+      errorCode: 'OFFLINE_FALLBACK',
+      message: 'Server endpoint unreachable. Fallback to local heuristic engine.',
+      observations: [],
+      riskIndicators: [],
+      limitations: ['Network unreachable for live browser automation.'],
+    },
+  }
+}
+
 export function analyzeReport(payload) {
   return postAnalyze('report', payload)
 }
