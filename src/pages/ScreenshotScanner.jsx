@@ -239,7 +239,7 @@ export default function ScreenshotScanner() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-dim)' }}>QR Code Payload</span>
                   {extractUrlFromText(qrResult._qrPayload) && (
-                    <span className="text-[11px] font-mono text-purple-400 flex items-center gap-1 font-semibold">
+                    <span className="text-[11px] font-mono text-cyan-400 flex items-center gap-1 font-semibold">
                       <Bot className="w-3.5 h-3.5" /> URL Detected
                     </span>
                   )}
@@ -251,7 +251,7 @@ export default function ScreenshotScanner() {
                     onClick={() => handleTinyFishInvestigation(qrResult._qrPayload)}
                     disabled={investigating}
                     variant="outline"
-                    className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                    className="w-full h-10 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all text-xs">
                     {investigating ? "Live Agent Investigating..." : `🤖 TinyFish Live AI Agent: Inspect ${extractUrlFromText(qrResult._qrPayload)}`}
                   </Button>
                 )}
@@ -368,7 +368,7 @@ export default function ScreenshotScanner() {
                       onClick={() => handleTinyFishInvestigation(result.detected_text)}
                       disabled={investigating}
                       variant="outline"
-                      className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                      className="w-full h-10 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all text-xs">
                       {investigating ? "Live Agent Investigating Domain..." : `🤖 TinyFish Live AI Agent: Inspect ${extractedUrl}`}
                     </Button>
                   )}

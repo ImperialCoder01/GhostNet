@@ -105,7 +105,7 @@ export default function LinkScanner() {
         icon={Link2}
         title="Link & Domain Trust Inspector"
         description="Analyze suspicious URLs, typosquatting domains, brand mimicry, and deceptive redirect chains"
-        color="#a78bfa"
+        color="#00e5ff"
       />
 
       {/* Input Card */}
@@ -115,14 +115,14 @@ export default function LinkScanner() {
         <div className="space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
             style={{ color: 'var(--ghost-text-dim)' }}>
-            <Sparkles className="w-3.5 h-3.5 text-purple-500" /> Benchmark Phishing URLs
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Benchmark Phishing URLs
           </span>
           <div className="flex flex-wrap gap-2">
             {sampleLinks.map((s, idx) => (
               <button
                 key={idx}
                 onClick={() => { setUrl(s.url); handleScan(s.url); }}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-purple-400/50 transition-all text-left"
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border hover:border-cyan-400/50 transition-all text-left"
                 style={{
                   background: 'var(--ghost-surface-2)',
                   borderColor: 'var(--ghost-border)',
@@ -135,7 +135,7 @@ export default function LinkScanner() {
         </div>
 
         {/* Input */}
-        <div className="rounded-xl border focus-within:border-purple-500/50 transition-colors p-1"
+        <div className="rounded-xl border focus-within:border-cyan-500/50 transition-colors p-1"
           style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
           <Input
             value={url}
@@ -150,7 +150,7 @@ export default function LinkScanner() {
           <Button
             onClick={() => handleScan()}
             disabled={scanning || investigating || !url.trim()}
-            className="h-12 rounded-xl font-bold text-white transition-all shadow-md bg-purple-600 hover:bg-purple-500">
+            className="h-12 rounded-xl font-bold text-slate-950 transition-all shadow-md bg-cyan-500 hover:bg-cyan-400">
             {scanning ? "Inspecting Domain..." : "Inspect Link Safety"}
           </Button>
 
@@ -158,7 +158,7 @@ export default function LinkScanner() {
             onClick={() => handleTinyFishInvestigation()}
             disabled={scanning || investigating || !url.trim()}
             variant="outline"
-            className="h-12 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all">
+            className="h-12 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all">
             {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
           </Button>
         </div>

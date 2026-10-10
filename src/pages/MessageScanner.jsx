@@ -171,7 +171,7 @@ export default function MessageScanner() {
               onClick={() => handleTinyFishInvestigation(extractedUrl)}
               disabled={scanning || investigating || !message.trim()}
               variant="outline"
-              className="h-12 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all">
+              className="h-12 rounded-xl font-bold border-cyan-500/40 hover:bg-cyan-500/10 text-cyan-400 transition-all">
               {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
             </Button>
           )}
