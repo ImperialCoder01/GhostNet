@@ -5,7 +5,7 @@
  */
 
 export const TINYFISH_ENDPOINT = 'https://agent.tinyfish.ai/v1/automation/run-sse'
-export const DEFAULT_TIMEOUT_MS = 35000
+export const DEFAULT_TIMEOUT_MS = 12000
 
 /**
  * Builds a strict, read-only threat investigation goal template for the TinyFish agent.
