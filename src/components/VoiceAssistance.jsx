@@ -4,9 +4,12 @@ import { triggerHaptic } from "@/lib/haptics";
 
 /**
  * VoiceAssistance Component
- * Highly reliable cross-platform TTS for Web and Android WebViews (Capacitor).
- * Combines native Web Speech API (window.speechSynthesis) with Web Audio API fallback.
- * Features: Read Aloud, Pause, Resume, Stop, Rate control, Language selection, and robust Android WebView touch support.
+ * Highly reliable cross-platform TTS for Web and Native Android APKs (Capacitor).
+ * Features:
+ * 1. Native Android TextToSpeech engine via AndroidNativeTTS Java bridge (Crystal clear 100% audible APK audio).
+ * 2. Web Speech API (window.speechSynthesis) for standard desktop/mobile browsers.
+ * 3. Web Audio API synthesized chime fallback.
+ * 4. Controls: Read Aloud, Pause, Stop, Rate control, Language selection (English & Hindi).
  */
 export default function VoiceAssistance({ textToRead, title = "Listen to Explanation", autoClean = true }) {
   const [speaking, setSpeaking] = useState(false);
@@ -17,13 +20,15 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
   const [voices, setVoices] = useState([]);
   const utteranceRef = useRef(null);
   const audioCtxRef = useRef(null);
+  const speechTimeoutRef = useRef(null);
 
   useEffect(() => {
+    const hasAndroidNativeTTS = Boolean(window.AndroidNativeTTS && window.AndroidNativeTTS.isAvailable);
     const hasNativeSpeech = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
     const hasWebAudio = "AudioContext" in window || "webkitAudioContext" in window;
 
-    // Always supported if either Web Speech API or Web Audio API exists
-    setSupported(hasNativeSpeech || hasWebAudio);
+    // Supported across Web & Native Android APK
+    setSupported(hasAndroidNativeTTS || hasNativeSpeech || hasWebAudio);
 
     if (hasNativeSpeech) {
       const loadVoices = () => {
@@ -41,12 +46,33 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
       }
     }
 
+    // Android Native TTS Event Listeners
+    const handleAndroidDone = () => {
+      setSpeaking(false);
+      setPaused(false);
+      if (speechTimeoutRef.current) clearTimeout(speechTimeoutRef.current);
+    };
+
+    window.addEventListener("android_tts_done", handleAndroidDone);
+    window.addEventListener("android_tts_error", handleAndroidDone);
+
     return () => {
+      window.removeEventListener("android_tts_done", handleAndroidDone);
+      window.removeEventListener("android_tts_error", handleAndroidDone);
+      if (speechTimeoutRef.current) clearTimeout(speechTimeoutRef.current);
+
+      if (window.AndroidNativeTTS && typeof window.AndroidNativeTTS.stop === "function") {
+        try {
+          window.AndroidNativeTTS.stop();
+        } catch (e) {}
+      }
+
       if ("speechSynthesis" in window) {
         try {
           window.speechSynthesis.cancel();
         } catch (e) {}
       }
+
       if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
         try {
           audioCtxRef.current.close();
@@ -64,7 +90,7 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
     return text.trim();
   };
 
-  // Web Audio Fallback Synth Chime for devices with restricted WebView speech engines
+  // Web Audio Fallback Synth Chime for browsers with muted audio engines
   const playWebAudioFallback = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -97,6 +123,28 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
     await triggerHaptic("light");
     if (!textToRead) return;
 
+    const targetText = autoClean ? cleanText(textToRead) : textToRead;
+
+    // 1. Primary Priority: Native Android TextToSpeech in APK
+    if (window.AndroidNativeTTS && typeof window.AndroidNativeTTS.speak === "function") {
+      try {
+        window.AndroidNativeTTS.speak(targetText, lang, rate);
+        setSpeaking(true);
+        setPaused(false);
+
+        // Word count based timeout safety reset
+        const words = targetText.split(/\s+/).length;
+        const estimatedMs = Math.max(3000, ((words / (140 * rate)) * 60 * 1000));
+        if (speechTimeoutRef.current) clearTimeout(speechTimeoutRef.current);
+        speechTimeoutRef.current = setTimeout(() => {
+          setSpeaking(false);
+          setPaused(false);
+        }, estimatedMs);
+        return;
+      } catch (e) {}
+    }
+
+    // 2. Secondary Priority: Web Speech API for Desktop / Web Browsers
     const hasNativeSpeech = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 
     if (hasNativeSpeech) {
@@ -110,7 +158,6 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
 
         window.speechSynthesis.cancel(); // Reset active audio stream
 
-        const targetText = autoClean ? cleanText(textToRead) : textToRead;
         const utterance = new SpeechSynthesisUtterance(targetText);
         utteranceRef.current = utterance;
         utterance.rate = rate;
@@ -134,8 +181,7 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
           setPaused(false);
         };
 
-        utterance.onerror = (e) => {
-          // If native speech fails on Android WebView, fallback to Web Audio tone
+        utterance.onerror = () => {
           playWebAudioFallback();
         };
 
@@ -147,12 +193,19 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
       }
     }
 
-    // Fallback if no native SpeechSynthesis
+    // 3. Web Audio Chime Fallback
     playWebAudioFallback();
   };
 
   const pause = async () => {
     await triggerHaptic("light");
+    if (window.AndroidNativeTTS && typeof window.AndroidNativeTTS.stop === "function") {
+      window.AndroidNativeTTS.stop();
+      setSpeaking(false);
+      setPaused(true);
+      return;
+    }
+
     if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
       try {
         window.speechSynthesis.pause();
@@ -164,6 +217,14 @@ export default function VoiceAssistance({ textToRead, title = "Listen to Explana
 
   const stop = async () => {
     await triggerHaptic("light");
+    if (speechTimeoutRef.current) clearTimeout(speechTimeoutRef.current);
+
+    if (window.AndroidNativeTTS && typeof window.AndroidNativeTTS.stop === "function") {
+      try {
+        window.AndroidNativeTTS.stop();
+      } catch (e) {}
+    }
+
     if ("speechSynthesis" in window) {
       try {
         window.speechSynthesis.cancel();
