@@ -858,24 +858,28 @@ function NeuformBatchEffect({
   );
 
   useEffect(() => {
-    const frame = iframeRef.current?.contentWindow;
-    if (!frame) return;
-    frame.postMessage(
-      {
-        type: "threeui-controls",
-        controls: {
-          mode: resolvedMode,
-          speed: safeSpeed,
-          size: safeSize,
-          gap: safeGap,
-          length: safeLength,
-          density: safeDensity,
-          strokeWidth: safeStrokeWidth,
-          opacity: safeOpacity,
+    try {
+      const frame = iframeRef.current?.contentWindow;
+      if (!frame) return;
+      frame.postMessage(
+        {
+          type: "threeui-controls",
+          controls: {
+            mode: resolvedMode,
+            speed: safeSpeed,
+            size: safeSize,
+            gap: safeGap,
+            length: safeLength,
+            density: safeDensity,
+            strokeWidth: safeStrokeWidth,
+            opacity: safeOpacity,
+          },
         },
-      },
-      "*",
-    );
+        "*",
+      );
+    } catch (e) {
+      // Cross-origin iframe postMessage safeguard for native webviews
+    }
   }, [resolvedMode, safeDensity, safeGap, safeLength, safeOpacity, safeSize, safeSpeed, safeStrokeWidth, source]);
 
   const filter =

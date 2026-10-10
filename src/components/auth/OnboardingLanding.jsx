@@ -3,10 +3,16 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 
-export default function OnboardingLanding({ onNext }) {
+export default function OnboardingLanding({ onNext, onGuest }) {
   const handleNext = async () => {
     await triggerHaptic('medium');
     if (onNext) onNext();
+  };
+
+  const handleGuest = async () => {
+    await triggerHaptic('medium');
+    if (onGuest) onGuest();
+    else if (onNext) onNext();
   };
 
   return (
@@ -71,7 +77,7 @@ export default function OnboardingLanding({ onNext }) {
       </main>
 
       {/* Footer Primary CTA */}
-      <footer className="pb-6 max-w-md mx-auto w-full relative z-10">
+      <footer className="pb-6 max-w-md mx-auto w-full relative z-10 space-y-3 text-center">
         <motion.button
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -79,9 +85,18 @@ export default function OnboardingLanding({ onNext }) {
           whileTap={{ scale: 0.97 }}
           onClick={handleNext}
           className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base tracking-wide flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all">
-          <span>NEXT</span>
+          <span>GET STARTED</span>
           <ArrowRight className="w-5 h-5" />
         </motion.button>
+
+        {onGuest && (
+          <button
+            type="button"
+            onClick={handleGuest}
+            className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors pt-1 block mx-auto cursor-pointer">
+            Explore as Guest Analyst →
+          </button>
+        )}
       </footer>
     </div>
   );

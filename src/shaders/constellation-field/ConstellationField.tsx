@@ -1,16 +1,5 @@
-import type { ComponentType } from "react";
-
-import {
-  ConstellationField as ConstellationFieldRenderer,
-  ConnectivityGraph,
-  DefenseLines,
-  GatewayFlow,
-  InterfaceLines,
-  ParticleDrift,
-  ParticleNetwork,
-  TopoField,
-  type NeuformBatchEffectProps,
-} from "../neuform-isolated/NeuformBatchEffects";
+import React from "react";
+import CanvasConstellationField from "./ConstellationField.jsx";
 
 export type ConstellationFieldVariant =
   | "constellation-field"
@@ -22,22 +11,20 @@ export type ConstellationFieldVariant =
   | "defense-lines"
   | "topo-field";
 
-export type ConstellationFieldProps = NeuformBatchEffectProps & {
+export type ConstellationFieldProps = {
   variant?: ConstellationFieldVariant;
+  mode?: "dark" | "light" | "auto";
+  speed?: number;
+  size?: number;
+  density?: number;
+  opacity?: number;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
-const VARIANT_COMPONENTS: Record<ConstellationFieldVariant, ComponentType<NeuformBatchEffectProps>> = {
-  "constellation-field": ConstellationFieldRenderer,
-  "particle-drift": ParticleDrift,
-  "particle-network": ParticleNetwork,
-  "gateway-flow": GatewayFlow,
-  "connectivity-graph": ConnectivityGraph,
-  "interface-lines": InterfaceLines,
-  "defense-lines": DefenseLines,
-  "topo-field": TopoField,
-};
-
-export function ConstellationField({ variant = "constellation-field", ...props }: ConstellationFieldProps) {
-  const Variant = VARIANT_COMPONENTS[variant];
-  return <Variant {...props} />;
+export function ConstellationField(props: ConstellationFieldProps) {
+  return <CanvasConstellationField {...props} />;
 }
+
+export default ConstellationField;
+

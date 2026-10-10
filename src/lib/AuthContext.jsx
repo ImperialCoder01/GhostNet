@@ -41,10 +41,16 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let unsubscribe = () => {}
 
+    // Safety fallback: Ensure auth loading never blocks UI indefinitely on mobile/offline
+    const safetyTimer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+
     // Process redirect result if returning from mobile/popup redirect flow
     handleGoogleRedirectResult().catch(() => {})
 
     unsubscribe = subscribeToAuthState((fbUser) => {
+      clearTimeout(safetyTimer)
       if (fbUser) {
         setFirebaseUser(fbUser)
         setUser({
@@ -72,7 +78,10 @@ export function AuthProvider({ children }) {
       setLoading(false)
     })
 
-    return () => unsubscribe()
+    return () => {
+      clearTimeout(safetyTimer)
+      unsubscribe()
+    }
   }, [])
 
   const completeOnboarding = () => {

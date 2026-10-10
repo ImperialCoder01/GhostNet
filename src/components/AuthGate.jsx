@@ -292,7 +292,7 @@ export default function AuthGate({ children }) {
 
   // 3. First Launch: User hasn't seen onboarding -> Render Onboarding Landing Page
   if (!hasSeenOnboarding && !isPasswordRecovery && mode !== 'reset_password') {
-    return <OnboardingLanding onNext={completeOnboarding} />;
+    return <OnboardingLanding onNext={completeOnboarding} onGuest={() => { completeOnboarding(); continueAsGuest(); }} />;
   }
 
   // Helper for title header
