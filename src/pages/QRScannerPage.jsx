@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { QrCode, AlertCircle } from "lucide-react";
+import { QrCode, AlertCircle, Bot } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import QRScanner from "../components/QRScanner";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
+import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
 import { useNotify } from "../components/useNotify";
-import { analyzeLink, analyzeMessage } from "@/lib/api";
+import { analyzeLink, analyzeMessage, investigateWebsite, extractUrlFromText } from "@/lib/api";
 import { createScanHistory } from "@/lib/data";
 
 export default function QRScannerPage() {
@@ -14,16 +16,19 @@ export default function QRScannerPage() {
   const [qrPayload, setQrPayload] = useState("");
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState("");
+  const [investigating, setInvestigating] = useState(false);
+  const [tfResult, setTfResult] = useState(null);
   const notify = useNotify();
 
   const handleDecoded = async (payload) => {
     setQrPayload(payload);
     setResult(null);
+    setTfResult(null);
     setScanError("");
     setScanning(true);
 
     try {
-      const isUrl = /^https?:\/\//i.test(payload.trim());
+      const isUrl = Boolean(extractUrlFromText(payload));
       const res = isUrl ? await analyzeLink(payload) : await analyzeMessage(payload);
 
       setResult(res);
@@ -45,6 +50,38 @@ export default function QRScannerPage() {
       setScanning(false);
     }
   };
+
+  const handleTinyFishInvestigation = async (rawUrl = qrPayload) => {
+    const targetUrl = extractUrlFromText(rawUrl);
+    if (!targetUrl) return;
+
+    setInvestigating(true);
+
+    try {
+      const res = await investigateWebsite(targetUrl);
+      setTfResult(res?.tinyfishInvestigation || res);
+      if (res?.fraud_score !== undefined) {
+        setResult(res);
+        notify(res.risk_level, "qr");
+      }
+
+      await createScanHistory({
+        scan_type: "qr",
+        input_content: `[TinyFish Live Agent] ${targetUrl.substring(0, 200)}`,
+        fraud_score: res.fraud_score || 0,
+        risk_level: res.risk_level || "safe",
+        ai_analysis: res.analysis || res.tinyfishInvestigation?.summary || "TinyFish Live Browser Investigation",
+        reasons: res.reasons || res.tinyfishInvestigation?.observations || [],
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    } catch (err) {
+      console.error("TinyFish QR investigation error:", err);
+    } finally {
+      setInvestigating(false);
+    }
+  };
+
+  const extractedUrl = extractUrlFromText(qrPayload);
 
   return (
     <div className="space-y-6">
@@ -78,16 +115,43 @@ export default function QRScannerPage() {
         </div>
       )}
 
+      {/* TinyFish Agent Standalone Investigation Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+        <TinyFishInvestigationCard
+          investigation={tfResult || result?.tinyfishInvestigation}
+          isInvestigating={investigating}
+          onInvestigate={() => handleTinyFishInvestigation(extractedUrl)}
+          targetUrl={extractedUrl || qrPayload}
+        />
+      )}
+
       {result && !scanning && (
         <div className="space-y-4">
-          <div className="ghost-card p-4 space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "var(--ghost-text-dim)" }}>
-              Decoded Raw QR Content
-            </span>
+          <div className="ghost-card p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "var(--ghost-text-dim)" }}>
+                Decoded Raw QR Content
+              </span>
+              {extractedUrl && (
+                <span className="text-[11px] font-mono text-purple-400 flex items-center gap-1 font-semibold">
+                  <Bot className="w-3.5 h-3.5" /> URL Detected
+                </span>
+              )}
+            </div>
             <p className="text-xs font-mono break-all p-2.5 rounded-lg border leading-relaxed"
               style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)", color: "var(--ghost-text)" }}>
               {qrPayload}
             </p>
+
+            {extractedUrl && (
+              <Button
+                onClick={() => handleTinyFishInvestigation(extractedUrl)}
+                disabled={scanning || investigating}
+                variant="outline"
+                className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                {investigating ? "Live Agent Investigating Domain..." : `🤖 TinyFish Live AI Agent: Inspect ${extractedUrl}`}
+              </Button>
+            )}
           </div>
 
           <FraudScoreDisplay

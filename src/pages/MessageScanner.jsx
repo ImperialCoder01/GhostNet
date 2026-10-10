@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { MessageSquareWarning, Sparkles, Trash2 } from "lucide-react";
+import { MessageSquareWarning, Sparkles, Trash2, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
+import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
 import { useNotify } from "../components/useNotify";
 import { createScanHistory } from "@/lib/data";
-import { analyzeMessage } from "@/lib/api";
+import { analyzeMessage, investigateWebsite, extractUrlFromText } from "@/lib/api";
 import { SAMPLE_THREATS } from "@/lib/threatLibrary";
 import { useLocation } from "react-router-dom";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
@@ -19,6 +20,8 @@ export default function MessageScanner() {
   const [message, setMessage] = useState("");
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null);
+  const [investigating, setInvestigating] = useState(false);
+  const [tfResult, setTfResult] = useState(null);
   const notify = useNotify();
 
   useEffect(() => {
@@ -35,6 +38,7 @@ export default function MessageScanner() {
     
     setScanning(true);
     setResult(null);
+    setTfResult(null);
 
     try {
       const res = await analyzeMessage(text);
@@ -57,12 +61,43 @@ export default function MessageScanner() {
     }
   };
 
+  const handleTinyFishInvestigation = async (rawText = message) => {
+    const targetUrl = extractUrlFromText(rawText);
+    if (!targetUrl) return;
+
+    setInvestigating(true);
+
+    try {
+      const res = await investigateWebsite(targetUrl);
+      setTfResult(res?.tinyfishInvestigation || res);
+      if (res?.fraud_score !== undefined) {
+        setResult(res);
+        notify(res.risk_level, "message");
+      }
+
+      await createScanHistory({
+        scan_type: "message",
+        input_content: `[TinyFish Live Agent] ${targetUrl.substring(0, 200)}`,
+        fraud_score: res.fraud_score || 0,
+        risk_level: res.risk_level || "safe",
+        ai_analysis: res.analysis || res.tinyfishInvestigation?.summary || "TinyFish Live Browser Investigation",
+        reasons: res.reasons || res.tinyfishInvestigation?.observations || [],
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    } catch (err) {
+      console.error("TinyFish message URL investigation error:", err);
+    } finally {
+      setInvestigating(false);
+    }
+  };
+
   const handleSelectSample = (sampleText) => {
     setMessage(sampleText);
     handleScan(sampleText);
   };
 
   const messageThreats = SAMPLE_THREATS.filter(t => t.type === 'message');
+  const extractedUrl = extractUrlFromText(message);
 
   return (
     <div className="space-y-6">
@@ -85,7 +120,7 @@ export default function MessageScanner() {
             </span>
             {message && (
               <button
-                onClick={() => { setMessage(""); setResult(null); }}
+                onClick={() => { setMessage(""); setResult(null); setTfResult(null); }}
                 className="text-xs font-semibold text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors">
                 <Trash2 className="w-3.5 h-3.5" /> Clear Text
               </button>
@@ -122,14 +157,36 @@ export default function MessageScanner() {
           />
         </div>
 
-        {/* Action Button */}
-        <Button
-          onClick={() => handleScan()}
-          disabled={scanning || !message.trim()}
-          className="w-full h-12 rounded-xl font-bold transition-all shadow-md bg-cyan-500 hover:bg-cyan-400 text-slate-950">
-          {scanning ? "Evaluating Threat Vectors..." : "Inspect & Reconstruct Threat"}
-        </Button>
+        {/* Action Buttons */}
+        <div className={extractedUrl ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "w-full"}>
+          <Button
+            onClick={() => handleScan()}
+            disabled={scanning || investigating || !message.trim()}
+            className="h-12 rounded-xl font-bold transition-all shadow-md bg-cyan-500 hover:bg-cyan-400 text-slate-950">
+            {scanning ? "Evaluating Threat Vectors..." : "Inspect & Reconstruct Threat"}
+          </Button>
+
+          {extractedUrl && (
+            <Button
+              onClick={() => handleTinyFishInvestigation(extractedUrl)}
+              disabled={scanning || investigating || !message.trim()}
+              variant="outline"
+              className="h-12 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all">
+              {investigating ? "Live Agent Investigating..." : "🤖 TinyFish Live AI Agent"}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* TinyFish Agent Standalone Investigation Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+        <TinyFishInvestigationCard
+          investigation={tfResult || result?.tinyfishInvestigation}
+          isInvestigating={investigating}
+          onInvestigate={() => handleTinyFishInvestigation(extractedUrl)}
+          targetUrl={extractedUrl || message}
+        />
+      )}
 
       {/* Multi-stage scanning radar + Progressive Skeletal Loader */}
       {scanning && (

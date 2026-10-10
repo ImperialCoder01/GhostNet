@@ -566,3 +566,15 @@ export async function analyzeVoice(payload = {}) {
     source: 'offline-heuristic',
   }
 }
+
+export function extractUrlFromText(text) {
+  if (!text || typeof text !== 'string') return null
+  const match = text.match(/https?:\/\/[^\s"'<>]+/i) || text.match(/\b(?:[a-z0-9-]+\.)+(?:com|org|net|io|in|online|site|tech|xyz|co|app|live|bi)(?:\/[^\s"'<>]*)?/i)
+  if (!match) return null
+  let found = match[0].trim()
+  found = found.replace(/[.,;)]+$/, '')
+  if (!/^https?:\/\//i.test(found)) {
+    found = `https://${found}`
+  }
+  return found
+}

@@ -1,12 +1,13 @@
 import React, { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Mic, Upload, Square, Activity, AlertCircle, FileAudio } from "lucide-react";
+import { Mic, Upload, Square, Activity, AlertCircle, FileAudio, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FraudScoreDisplay from "./scanner/FraudScoreDisplay";
+import TinyFishInvestigationCard from "./scanner/TinyFishInvestigationCard";
 import { computeSpectralFlatness, combineVoiceThreatScore } from "@/lib/spectralFeatures";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
-import { analyzeVoice } from "@/lib/api";
+import { analyzeVoice, investigateWebsite, extractUrlFromText } from "@/lib/api";
 import { createScanHistory } from "@/lib/data";
 
 export default function VoiceScanner() {
@@ -18,6 +19,37 @@ export default function VoiceScanner() {
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [spectralScore, setSpectralScore] = useState(null);
+  const [investigating, setInvestigating] = useState(false);
+  const [tfResult, setTfResult] = useState(null);
+
+  const handleTinyFishInvestigation = async (rawText = "") => {
+    const targetUrl = extractUrlFromText(rawText);
+    if (!targetUrl) return;
+
+    setInvestigating(true);
+
+    try {
+      const res = await investigateWebsite(targetUrl);
+      setTfResult(res?.tinyfishInvestigation || res);
+      if (res?.fraud_score !== undefined) {
+        setResult(res);
+      }
+
+      await createScanHistory({
+        scan_type: "voice",
+        input_content: `[TinyFish Live Agent] ${targetUrl.substring(0, 200)}`,
+        fraud_score: res.fraud_score || 0,
+        risk_level: res.risk_level || "safe",
+        ai_analysis: res.analysis || res.tinyfishInvestigation?.summary || "TinyFish Live Browser Investigation",
+        reasons: res.reasons || res.tinyfishInvestigation?.observations || [],
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    } catch (err) {
+      console.error("TinyFish voice transcript investigation error:", err);
+    } finally {
+      setInvestigating(false);
+    }
+  };
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -319,17 +351,44 @@ export default function VoiceScanner() {
         )}
       </div>
 
+      {/* TinyFish Agent Standalone Investigation Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+        <TinyFishInvestigationCard
+          investigation={tfResult || result?.tinyfishInvestigation}
+          isInvestigating={investigating}
+          onInvestigate={() => handleTinyFishInvestigation(result?.transcript)}
+          targetUrl={extractUrlFromText(result?.transcript || '') || 'Spoken URL'}
+        />
+      )}
+
       {result && (
         <div className="space-y-4">
           {result.transcript && (
-            <div className="ghost-card p-4 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "var(--ghost-text-dim)" }}>
-                Transcribed Audio Content
-              </span>
+            <div className="ghost-card p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "var(--ghost-text-dim)" }}>
+                  Transcribed Audio Content
+                </span>
+                {extractUrlFromText(result.transcript) && (
+                  <span className="text-[11px] font-mono text-purple-400 flex items-center gap-1 font-semibold">
+                    <Bot className="w-3.5 h-3.5" /> URL Spoken
+                  </span>
+                )}
+              </div>
               <p className="text-xs font-mono p-3 rounded-lg border leading-relaxed"
                 style={{ background: "var(--ghost-surface-2)", borderColor: "var(--ghost-border)", color: "var(--ghost-text)" }}>
                 {result.transcript}
               </p>
+
+              {extractUrlFromText(result.transcript) && (
+                <Button
+                  onClick={() => handleTinyFishInvestigation(result.transcript)}
+                  disabled={investigating}
+                  variant="outline"
+                  className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                  {investigating ? "Live Agent Investigating..." : `🤖 TinyFish Live AI Agent: Inspect ${extractUrlFromText(result.transcript)}`}
+                </Button>
+              )}
             </div>
           )}
 

@@ -1,13 +1,14 @@
 import React, { useState, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Image, Upload, X, FileSearch, Info, QrCode } from "lucide-react";
+import { Image, Upload, X, FileSearch, Info, QrCode, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScannerHeader from "../components/scanner/ScannerHeader";
 import FraudScoreDisplay from "../components/scanner/FraudScoreDisplay";
+import TinyFishInvestigationCard from "../components/scanner/TinyFishInvestigationCard";
 import QRScanner from "../components/QRScanner";
 import { useNotify } from "../components/useNotify";
 import { createScanHistory, uploadEvidenceFile } from "@/lib/data";
-import { analyzeScreenshot, analyzeLink, analyzeMessage } from "@/lib/api";
+import { analyzeScreenshot, analyzeLink, analyzeMessage, investigateWebsite, extractUrlFromText } from "@/lib/api";
 import { SkeletonScannerResult } from "@/components/ui/skeleton";
 import ScannerAnalysisProgress from "@/components/scanners/ScannerAnalysisProgress";
 
@@ -24,6 +25,10 @@ export default function ScreenshotScanner() {
   const fileRef = useRef(null);
   const notify = useNotify();
 
+  // TinyFish Agent state
+  const [investigating, setInvestigating] = useState(false);
+  const [tfResult, setTfResult] = useState(null);
+
   // QR scanner state
   const [qrResult, setQrResult] = useState(null);
   const [qrError, setQrError] = useState("");
@@ -33,6 +38,7 @@ export default function ScreenshotScanner() {
     setQrResult(null);
     setQrError("");
     setQrScanning(true);
+    setTfResult(null);
     try {
       let res;
       if (/^https?:\/\//i.test(payload)) {
@@ -59,6 +65,36 @@ export default function ScreenshotScanner() {
     }
   };
 
+  const handleTinyFishInvestigation = async (rawText = "") => {
+    const targetUrl = extractUrlFromText(rawText);
+    if (!targetUrl) return;
+
+    setInvestigating(true);
+
+    try {
+      const res = await investigateWebsite(targetUrl);
+      setTfResult(res?.tinyfishInvestigation || res);
+      if (res?.fraud_score !== undefined) {
+        setResult(res);
+        notify(res.risk_level, "screenshot");
+      }
+
+      await createScanHistory({
+        scan_type: "screenshot",
+        input_content: `[TinyFish Live Agent] ${targetUrl.substring(0, 200)}`,
+        fraud_score: res.fraud_score || 0,
+        risk_level: res.risk_level || "safe",
+        ai_analysis: res.analysis || res.tinyfishInvestigation?.summary || "TinyFish Live Browser Investigation",
+        reasons: res.reasons || res.tinyfishInvestigation?.observations || [],
+      });
+      queryClient.invalidateQueries({ queryKey: ['scanHistory'] });
+    } catch (err) {
+      console.error("TinyFish OCR investigation error:", err);
+    } finally {
+      setInvestigating(false);
+    }
+  };
+
   const handleFileSelect = (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
@@ -75,6 +111,7 @@ export default function ScreenshotScanner() {
     setFile(selected);
     setPreview(URL.createObjectURL(selected));
     setResult(null);
+    setTfResult(null);
     setScanError("");
   };
 
@@ -82,6 +119,7 @@ export default function ScreenshotScanner() {
     setFile(null);
     setPreview(null);
     setResult(null);
+    setTfResult(null);
     setScanError("");
     if (fileRef.current) fileRef.current.value = "";
   };
@@ -103,6 +141,7 @@ export default function ScreenshotScanner() {
     if (!file) return;
     setScanning(true);
     setResult(null);
+    setTfResult(null);
     setScanError("");
 
     try {
@@ -134,6 +173,8 @@ export default function ScreenshotScanner() {
     }
   };
 
+  const extractedUrl = extractUrlFromText(result?.detected_text || qrResult?._qrPayload || '');
+
   return (
     <div className="space-y-6">
       <ScannerHeader
@@ -143,7 +184,7 @@ export default function ScreenshotScanner() {
         color="#f472b6"
       />
 
-      {/* Tab Switcher — Feature 5 */}
+      {/* Tab Switcher */}
       <div className="flex gap-1 p-1 rounded-xl border" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)' }}>
         <button
           onClick={() => setActiveTab("screenshot")}
@@ -163,7 +204,17 @@ export default function ScreenshotScanner() {
         </button>
       </div>
 
-      {/* QR Code Scanner Tab — Feature 5 */}
+      {/* TinyFish Agent Standalone Investigation Display */}
+      {(investigating || tfResult || result?.tinyfishInvestigation) && (
+        <TinyFishInvestigationCard
+          investigation={tfResult || result?.tinyfishInvestigation}
+          isInvestigating={investigating}
+          onInvestigate={() => handleTinyFishInvestigation(extractedUrl)}
+          targetUrl={extractedUrl || 'Extracted URL'}
+        />
+      )}
+
+      {/* QR Code Scanner Tab */}
       {activeTab === "qr" && (
         <div className="space-y-4">
           <QRScanner
@@ -184,10 +235,28 @@ export default function ScreenshotScanner() {
           )}
           {qrResult && !qrScanning && (
             <div className="space-y-4">
-              <div className="ghost-card p-4 space-y-1">
-                <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-dim)' }}>QR Code Payload</span>
-                <p className="text-xs font-mono break-all" style={{ color: 'var(--ghost-text)' }}>{qrResult._qrPayload}</p>
+              <div className="ghost-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--ghost-text-dim)' }}>QR Code Payload</span>
+                  {extractUrlFromText(qrResult._qrPayload) && (
+                    <span className="text-[11px] font-mono text-purple-400 flex items-center gap-1 font-semibold">
+                      <Bot className="w-3.5 h-3.5" /> URL Detected
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-mono break-all p-2.5 rounded-lg border" style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>{qrResult._qrPayload}</p>
+
+                {extractUrlFromText(qrResult._qrPayload) && (
+                  <Button
+                    onClick={() => handleTinyFishInvestigation(qrResult._qrPayload)}
+                    disabled={investigating}
+                    variant="outline"
+                    className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                    {investigating ? "Live Agent Investigating..." : `🤖 TinyFish Live AI Agent: Inspect ${extractUrlFromText(qrResult._qrPayload)}`}
+                  </Button>
+                )}
               </div>
+
               <FraudScoreDisplay
                 score={qrResult.fraud_score}
                 riskLevel={qrResult.risk_level}
@@ -281,7 +350,7 @@ export default function ScreenshotScanner() {
             <div className="space-y-4">
               {/* Extracted OCR text box */}
               {result.detected_text && (
-                <div className="ghost-card p-4 space-y-2">
+                <div className="ghost-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
                       style={{ color: 'var(--ghost-text-dim)' }}>
@@ -293,6 +362,16 @@ export default function ScreenshotScanner() {
                     style={{ background: 'var(--ghost-surface-2)', borderColor: 'var(--ghost-border)', color: 'var(--ghost-text)' }}>
                     {result.detected_text}
                   </div>
+
+                  {extractedUrl && (
+                    <Button
+                      onClick={() => handleTinyFishInvestigation(result.detected_text)}
+                      disabled={investigating}
+                      variant="outline"
+                      className="w-full h-10 rounded-xl font-bold border-purple-500/40 hover:bg-purple-500/10 text-purple-300 transition-all text-xs">
+                      {investigating ? "Live Agent Investigating Domain..." : `🤖 TinyFish Live AI Agent: Inspect ${extractedUrl}`}
+                    </Button>
+                  )}
                 </div>
               )}
 
