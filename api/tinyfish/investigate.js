@@ -162,27 +162,37 @@ export default async function handler(req, res) {
 
   // Check API Key
   const apiKey = process.env.TINYFISH_API_KEY
-  if (!apiKey) {
-    res.status(503).json({
-      status: 'error',
-      errorCode: 'MISSING_TINYFISH_KEY',
-      message: 'TinyFish API key (TINYFISH_API_KEY) is not configured on the server.',
-      investigation: {
+
+  try {
+    const ghostnetHeuristic = analyzeUrlContent(targetUrl)
+
+    let tfResult = null
+    if (!apiKey) {
+      tfResult = {
+        investigationId: `tf-${Date.now()}`,
         url: targetUrl,
         status: 'failed',
         errorCode: 'MISSING_TINYFISH_KEY',
-        message: 'TinyFish API key not configured on server.',
-      },
-    })
-    return
-  }
-
-  try {
-    // 1. Run TinyFish browser automation investigation
-    const tfResult = await runTinyFishInvestigation(targetUrl, { apiKey, timeoutMs: 35000 })
-
-    // 2. Run GhostNet deterministic domain heuristic analysis
-    const ghostnetHeuristic = analyzeUrlContent(targetUrl)
+        message: 'TinyFish API key (TINYFISH_API_KEY) is not configured on server.',
+        websiteTitle: ghostnetHeuristic.impersonated_brand
+          ? `${ghostnetHeuristic.impersonated_brand} (Impersonation Target)`
+          : new URL(targetUrl).hostname,
+        websitePurpose: ghostnetHeuristic.attack_intent || 'Unverified Domain Destination',
+        observations: [
+          `Target Host: ${new URL(targetUrl).hostname}`,
+          'Server Note: TinyFish server API key not configured. Automated domain heuristics attached.',
+          ...ghostnetHeuristic.reasons
+        ],
+        riskIndicators: ghostnetHeuristic.risk_level !== 'safe' ? ghostnetHeuristic.reasons : [],
+        evidence: [],
+        limitations: ['TinyFish API key not configured on server. Live browser automation skipped.'],
+        summary: ghostnetHeuristic.analysis,
+        rawOutput: `[GhostNet Telemetry Log]\nTarget URL: ${targetUrl}\nStatus: MISSING_TINYFISH_KEY\nRule Matches: ${ghostnetHeuristic.reasons.join('; ')}`,
+        timestamp: new Date().toISOString(),
+      }
+    } else {
+      tfResult = await runTinyFishInvestigation(targetUrl, { apiKey, timeoutMs: 35000 })
+    }
 
     // Ensure tfResult ALWAYS has step-by-step evidence populated even if TinyFish timed out or failed
     try {
@@ -210,14 +220,18 @@ export default async function handler(req, res) {
         }
       }
 
-      if (!tfResult.summary || tfResult.summary === tfResult.message) {
-        tfResult.summary = `${tfResult.message || 'Investigation complete.'}\n\nGhostNet Domain Analysis:\n${ghostnetHeuristic.analysis}`
+      if (!tfResult.summary || tfResult.summary === tfResult.message || tfResult.summary.includes('timed out')) {
+        tfResult.summary = ghostnetHeuristic.analysis
+      }
+
+      if (!tfResult.rawOutput) {
+        tfResult.rawOutput = `[GhostNet Telemetry Log]\nTarget URL: ${targetUrl}\nStatus: ${tfResult.status}\nErrorCode: ${tfResult.errorCode || 'NONE'}\nSummary: ${tfResult.summary}`
       }
     } catch (e) {
       console.warn('TinyFish fallback enrichment error:', e)
     }
 
-    // 3. Combine evidence into a unified assessment
+    // Combine evidence into a unified assessment
     let combinedScore = ghostnetHeuristic.fraud_score
     const combinedReasons = [...ghostnetHeuristic.reasons]
     const reasonCodesSet = new Set(ghostnetHeuristic.reasonCodes || [])
@@ -251,11 +265,17 @@ export default async function handler(req, res) {
       risk_level: finalRiskLevel,
       confidence: tfResult.status === 'completed' ? 'high' : 'medium',
       reasons: combinedReasons,
-      analysis: tfResult.summary || ghostnetHeuristic.analysis,
+      analysis: ghostnetHeuristic.analysis,
       attack_intent: ghostnetHeuristic.attack_intent,
       signals: ghostnetHeuristic.signals,
       threat_reconstruction: ghostnetHeuristic.threat_reconstruction,
       reasonCodes: filteredCodes,
+      is_known_brand_impersonation: ghostnetHeuristic.is_known_brand_impersonation,
+      impersonated_brand: ghostnetHeuristic.impersonated_brand,
+      domain_age_days: ghostnetHeuristic.domain_age_days,
+      ssl_status: ghostnetHeuristic.ssl_status,
+      community_reports: ghostnetHeuristic.community_reports,
+      simulation_steps: ghostnetHeuristic.simulation_steps,
       source: 'tinyfish-agent',
       tinyfishInvestigation: tfResult,
     }
