@@ -13,19 +13,25 @@ import {
 import { filterValidReasonCodes } from './reasonCodes.js'
 
 function getGroqKey() {
+  let key = ''
   try {
-    return localStorage.getItem('ghostnet_groq_api_key') || import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
+    key = localStorage.getItem('ghostnet_groq_api_key') || import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
   } catch {
-    return import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
+    key = import.meta.env?.VITE_GROQ_API_KEY || import.meta.env?.GROQ_API_KEY || ''
   }
+  if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_groq')) return ''
+  return key.trim()
 }
 
 function getGeminiKey() {
+  let key = ''
   try {
-    return localStorage.getItem('ghostnet_gemini_api_key') || import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
+    key = localStorage.getItem('ghostnet_gemini_api_key') || import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
   } catch {
-    return import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
+    key = import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.GEMINI_API_KEY || ''
   }
+  if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_gemini')) return ''
+  return key.trim()
 }
 
 async function analyzeWithClientGroq(type, payload) {
@@ -401,7 +407,7 @@ async function postAnalyze(type, payload) {
       }
 
       const parsed = JSON.parse(text);
-      if (parsed && typeof parsed === 'object' && parsed.source && parsed.source !== 'offline-heuristic') {
+      if (parsed && typeof parsed === 'object' && (parsed.fraud_score !== undefined || parsed.risk_level || parsed.source)) {
         return parsed;
       }
     } catch {
@@ -519,7 +525,7 @@ export async function analyzeVoice(payload = {}) {
       if (text.trim().startsWith('<')) continue
 
       const parsed = JSON.parse(text)
-      if (parsed && typeof parsed === 'object' && parsed.source && parsed.source !== 'offline-heuristic') {
+      if (parsed && typeof parsed === 'object' && (parsed.fraud_score !== undefined || parsed.risk_level || parsed.source)) {
         return parsed
       }
     } catch {

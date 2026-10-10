@@ -52,8 +52,10 @@ export default async function handler(req, res) {
     let transcript = transcript_text || ''
     let aiResult = null
 
-    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
-    const groqKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+    const rawGemini = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
+    const rawGroq = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+    const geminiKey = rawGemini && !rawGemini.includes('placeholder') && !rawGemini.includes('your_gemini') ? rawGemini.trim() : null
+    const groqKey = rawGroq && !rawGroq.includes('placeholder') && !rawGroq.includes('your_groq') ? rawGroq.trim() : null
 
     // 1. Try Gemini 1.5 Flash Multimodal Audio AI if Gemini key is set
     if (geminiKey) {

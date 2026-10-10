@@ -65,7 +65,7 @@ function withTimeout(promise, ms) {
   ])
 }
 
-const AI_TIMEOUT_MS = parseInt(process.env.AI_TIMEOUT_MS || '4000', 10)
+const AI_TIMEOUT_MS = parseInt(process.env.AI_TIMEOUT_MS || '9000', 10)
 
 function normalizeVisionResult(parsed) {
   if (!parsed || typeof parsed !== 'object') return null
@@ -313,8 +313,20 @@ const REASON_CODES_INSTRUCTION = `
   NEWLY_REGISTERED_DOMAIN, REQUESTS_PAYMENT, KNOWN_MALICIOUS_DOMAIN, SUSPICIOUS_ATTACHMENT_QR, GENERIC_GREETING
 - explanation (concise 1-2 sentence plain-English summary of the top threat factor)`
 
+function getValidGroqKey() {
+  const key = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+  if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_groq')) return null
+  return key.trim()
+}
+
+function getValidGeminiKey() {
+  const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
+  if (!key || typeof key !== 'string' || key.includes('placeholder') || key.includes('your_gemini')) return null
+  return key.trim()
+}
+
 async function analyzeWithGroq(type, payload) {
-  const apiKey = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY
+  const apiKey = getValidGroqKey()
   if (!apiKey) return null
 
   let prompt = ''
@@ -438,13 +450,14 @@ ${REASON_CODES_INSTRUCTION}`
 // ---------------------------------------------------------------------------
 
 const GEMINI_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
   'gemini-1.5-flash',
   'gemini-1.5-pro',
-  'gemini-2.0-flash-exp',
 ]
 
 async function analyzeScreenshotWithGemini(screenshotUrl, imageBase64 = null, mimeType = 'image/png') {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
+  const apiKey = getValidGeminiKey()
   if (!apiKey || (!screenshotUrl && !imageBase64)) return null
 
   try {
