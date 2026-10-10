@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MessageSquareWarning, Link2, Image, ShieldAlert, HeartHandshake, Award, Users, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { triggerHaptic } from "@/lib/haptics";
+import SeniorModeToggleSwitch from "./SeniorModeToggleSwitch";
 import VoiceAssistance from "./VoiceAssistance";
 import EmergencyGuidanceModal from "./EmergencyGuidanceModal";
 import ScamSimulationModal from "./ScamSimulationModal";
@@ -11,7 +12,7 @@ import TrustedContactModal from "./TrustedContactModal";
 /**
  * SeniorHomeView Component
  * Dedicated Senior & Family Safety Mode Home Screen.
- * Enhanced with high-contrast theme-aware cards, executive styling, and zero visual clutter.
+ * Enhanced with high-contrast theme-aware cards, physical sliding toggle switch, and executive UI styling.
  */
 export default function SeniorHomeView({ onSwitchToNormalMode }) {
   const navigate = useNavigate();
@@ -34,37 +35,8 @@ export default function SeniorHomeView({ onSwitchToNormalMode }) {
 
   return (
     <div className="space-y-6 pb-8 animate-in fade-in duration-300">
-      {/* Prominent Active Mode Header Banner */}
-      <div className="p-4 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-xl border border-emerald-400/30 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center shrink-0 shadow-inner">
-            <HeartHandshake className="w-7 h-7 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-white/20 text-white border border-white/30">
-                ACTIVE PROTECTION
-              </span>
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black font-display tracking-tight mt-1 text-white">
-              SENIOR & FAMILY SAFETY MODE
-            </h1>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={async () => {
-            await triggerHaptic("medium");
-            onSwitchToNormalMode();
-          }}
-          className="h-11 px-5 rounded-2xl bg-slate-950/80 hover:bg-slate-950 text-emerald-300 border border-emerald-400/50 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer backdrop-blur"
-        >
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>SWITCH TO NORMAL MODE</span>
-        </button>
-      </div>
+      {/* Prominent Active Mode Large Toggle Switch Banner */}
+      <SeniorModeToggleSwitch variant="large" className="w-full" />
 
       {/* Voice Assistance Bar */}
       <VoiceAssistance textToRead={homeSpeechText} title="🔊 Voice Guide for Home Screen" />

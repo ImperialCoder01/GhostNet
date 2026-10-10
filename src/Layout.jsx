@@ -11,6 +11,7 @@ import {
   Menu, X, Cpu, Lock, HeartHandshake, Sun, Moon, Mic, QrCode, Shield,
   FileText, Settings, ArrowLeft
 } from "lucide-react";
+import SeniorModeToggleSwitch from "@/components/SeniorModeToggleSwitch";
 import { ConstellationField } from "@/shaders/constellation-field/ConstellationField";
 
 const detectionNav = [
@@ -272,14 +273,7 @@ export default function Layout({ children, currentPageName }) {
                 {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-600" />}
               </button>
 
-              <button
-                onClick={toggleFamilyMode}
-                title="Toggle Senior & Family Safety Mode"
-                className={`text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all ${familyMode ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]" : "hover:border-slate-400"}`}
-                style={{ background: familyMode ? undefined : 'var(--ghost-surface-2)', borderColor: familyMode ? undefined : 'var(--ghost-border)', color: familyMode ? undefined : 'var(--ghost-text-dim)' }}>
-                <HeartHandshake className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="hidden sm:inline font-extrabold">{familyMode ? "Senior Mode: ON" : "Senior Mode"}</span>
-              </button>
+              <SeniorModeToggleSwitch variant="header" />
 
               <Link
                 to="/"
@@ -429,29 +423,8 @@ export default function Layout({ children, currentPageName }) {
               )}
             </button>
 
-            {/* Senior Safety Mode Switch */}
-            <button
-              type="button"
-              onClick={async () => {
-                await triggerHaptic('light');
-                toggleFamilyMode();
-              }}
-              title="Toggle Senior & Family Safety Mode"
-              className={`h-9 px-2.5 sm:px-3 rounded-xl border flex items-center justify-center gap-1.5 text-xs font-bold transition-all cursor-pointer active:scale-95 shrink-0 ${
-                familyMode
-                  ? "bg-emerald-500/20 border-emerald-400 text-emerald-600 dark:text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
-                  : "hover:border-slate-400"
-              }`}
-              style={{
-                background: familyMode ? undefined : 'var(--ghost-surface-2)',
-                borderColor: familyMode ? undefined : 'var(--ghost-border)',
-                color: familyMode ? undefined : 'var(--ghost-text-dim)'
-              }}>
-              <HeartHandshake className="w-3.5 h-3.5 text-emerald-500 pointer-events-none" />
-              <span className="hidden sm:inline font-extrabold pointer-events-none">
-                {familyMode ? "Senior Mode: ON" : "Senior Mode"}
-              </span>
-            </button>
+            {/* Senior Safety Mode Physical Toggle Switch */}
+            <SeniorModeToggleSwitch variant="header" />
 
             {/* Operator Email Badge */}
             {user?.email && (
