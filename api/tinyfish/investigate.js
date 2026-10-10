@@ -179,7 +179,7 @@ export default async function handler(req, res) {
 
   try {
     // 1. Run TinyFish browser automation investigation
-    const tfResult = await runTinyFishInvestigation(targetUrl, { apiKey })
+    const tfResult = await runTinyFishInvestigation(targetUrl, { apiKey, timeoutMs: 35000 })
 
     // 2. Run GhostNet deterministic domain heuristic analysis
     const ghostnetHeuristic = analyzeUrlContent(targetUrl)

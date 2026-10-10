@@ -21,6 +21,12 @@
       "destination": "/index.html"
     }
   ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/sync-feeds",

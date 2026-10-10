@@ -385,6 +385,7 @@ async function postAnalyze(type, payload) {
     if (window.location?.origin) {
       endpoints.push(`${window.location.origin}/api/analyze`)
     }
+    endpoints.push('https://ghost-net-zeta.vercel.app/api/analyze')
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze')
   }
 
@@ -456,6 +457,7 @@ export async function investigateWebsite(url) {
     if (window.location?.origin) {
       endpoints.push(`${window.location.origin}/api/tinyfish/investigate`)
     }
+    endpoints.push('https://ghost-net-zeta.vercel.app/api/tinyfish/investigate')
     endpoints.push('https://ghostnet-app.vercel.app/api/tinyfish/investigate')
   }
 
@@ -513,6 +515,7 @@ export async function analyzeVoice(payload = {}) {
     if (window.location?.origin) {
       endpoints.push(`${window.location.origin}/api/analyze-voice`)
     }
+    endpoints.push('https://ghost-net-zeta.vercel.app/api/analyze-voice')
     endpoints.push('https://ghostnet-app.vercel.app/api/analyze-voice')
   }
 
