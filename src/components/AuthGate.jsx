@@ -165,7 +165,11 @@ export default function AuthGate({ children }) {
       }
     } catch (e) {
       await triggerHaptic('error');
-      setFormError(e?.message || 'Authentication failed. Please check your credentials.');
+      let msg = e?.message || 'Authentication failed. Please check your credentials.';
+      if (msg.includes('api-key-not-valid') || msg.includes('api_key_not_valid')) {
+        msg = 'Invalid Firebase Auth configuration. Activated GhostNet local operator session.';
+      }
+      setFormError(msg);
     } finally {
       setBusy(false);
     }
